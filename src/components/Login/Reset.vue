@@ -46,7 +46,7 @@ function resetPassword() {
 }
 
 function goBack() {
-    router.go(-1);
+    router.replace({ path: '/login' });
 }
 
 </script>
