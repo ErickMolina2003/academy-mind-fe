@@ -19,14 +19,14 @@
             <div>
                 <v-row>
                 <v-col cols="5">
-                    <div style="position: relative" class="mt-16">
-                    <h1 class="text-grey">Bienvido(a)s,</h1>
-                    <h1 class="text-white">A la universidad del desarollo</h1>
+                    <div style="position: relative" class="mt-16 ml-8">
+                    <h1 class="text-white" style="font-size: 60px;">BIENVENIDO(A)S,</h1>
+                    <h1 class="text-grey" style="font-size: 40px;">A la academia del desarollo</h1>
                     </div>
                 </v-col>
                 <v-col cols="6">
                     <div style="position: relative;" class="mt-4">
-                    <v-img src="https://img.freepik.com/fotos-premium/ilustracion-3d-graduacion_77235-225.jpg" contain max-height="300"></v-img>
+                    <v-img src="https://img.freepik.com/fotos-premium/ilustracion-3d-graduacion_77235-225.jpg" contain max-height="280"></v-img>
                     </div>
                 </v-col>
                 </v-row>
@@ -40,9 +40,9 @@
                     </div>
                     </v-col>
                     <v-col cols="12" sm="6">
-                    <h2 class="mt-n4 text-white">Somos el futuro</h2>
-                    <p class="text-grey">
-                        Aquí, abrazamos la visión de un mañana lleno de innovación, descubrimiento y progreso. Nos enorgullece ser el epicentro de mentes brillantes y apasionadas que están listas para dar forma al mundo que nos rodea. Con programas académicos de vanguardia, profesores expertos y un entorno estimulante, estamos comprometidos a prepararte para los desafíos del futuro y equiparte con las habilidades necesarias para liderar el camino hacia nuevos horizontes. En nuestra universidad, creemos en tu capacidad para cambiar el mundo y te brindamos las herramientas, el apoyo y las oportunidades para que lo logres. Únete a nosotros y juntos construyamos el futuro que todos soñamos.
+                    <h2 class="mt-n4 text-white" style="font-size: 40px;">Somos el futuro</h2>
+                    <p class="text-grey" style="font-size: 20px;">
+                        Aquí, abrazamos la visión de un mañana lleno de innovación, descubrimiento y progreso. Nos enorgullece ser el epicentro de mentes brillantes y apasionadas que están listas para dar forma al mundo que nos rodea. Con programas académicos de vanguardia, profesores expertos y un entorno estimulante, estamos comprometidos a prepararte para los desafíos del futuro y equiparte con las habilidades necesarias para liderar el camino hacia nuevos horizontes. En nuestra academia, creemos en tu capacidad para cambiar el mundo y te brindamos las herramientas, el apoyo y las oportunidades para que lo logres. Únete a nosotros y juntos construyamos el futuro que todos soñamos.
                     </p>
                     <br />
                     </v-col>
@@ -69,7 +69,7 @@
                                 </v-toolbar-title>
                             </v-toolbar>
                             <v-card-text class="white--text pt-0">
-                                <h5>©Derechos reservados Academy Mind 2023</h5>
+                                <h5>© Derechos reservados Academy Mind 2023</h5>
                             </v-card-text>
                         </v-col>
                     </v-row>
