@@ -20,7 +20,7 @@
                 <v-row>
                 <v-col cols="5">
                     <div style="position: relative" class="mt-16">
-                    <h1 class="text-grey">Bienvido(a)s,</h1>
+                    <h1 class="text-grey">BIENVENIDO(A)S,</h1>
                     <h1 class="text-white">A la universidad del desarollo</h1>
                     </div>
                 </v-col>

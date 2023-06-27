@@ -12,21 +12,12 @@
     </v-row>
     <v-row class="mt-10" justify="center">
       <v-col class="pb-0" cols="12" md="8" lg="8">
-        <v-text-field
-          v-model="accountNumber"
-          bg-color="primary"
-          label="Numero de cuenta"
-          variant="outlined"
-        ></v-text-field>
+        <v-text-field v-model="accountNumber" bg-color="primary" label="Numero de cuenta"
+          variant="outlined"></v-text-field>
       </v-col>
       <v-col class="pb-0" cols="12" md="8" lg="8">
-        <v-text-field
-          v-model="password"
-          type="password"
-          bg-color="primary"
-          label="Contrasena"
-          variant="outlined"
-        ></v-text-field>
+        <v-text-field v-model="password" type="password" bg-color="primary" label="Contrasena"
+          variant="outlined"></v-text-field>
       </v-col>
       <v-col cols="12" md="8" lg="8">
         <p @click="forgot" class="forgot-password text-end text-secondary">
@@ -34,14 +25,7 @@
         </p>
       </v-col>
       <v-col cols="12" md="8" lg="8">
-        <v-btn
-          color="secondary"
-          block
-          height="50px"
-          rounded="lg"
-          @click="submitLogin"
-          >Entrar</v-btn
-        >
+        <v-btn color="secondary" block height="50px" rounded="lg" @click="submitLogin">Entrar</v-btn>
       </v-col>
     </v-row>
   </span>
@@ -58,7 +42,7 @@ function submitLogin() {
 }
 
 function forgot() {
-    router.push('/reset');
+  router.push('/login/reset');
 }
 </script>
 
