@@ -1,0 +1,102 @@
+[
+  {
+    "codigo": "FS-100",
+    "asignatura": "Fisica 1",
+    "uv": 3,
+    "seccion": 9000,
+    "anio": 2020,
+    "periodo": 2,
+    "calificacion": 70,
+    "obs": "APR"
+  },
+  {
+    "codigo": "EG-011",
+    "asignatura": "Español General 1",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 90,
+    "obs": "APR"
+  },
+  {
+    "codigo": "MM-110",
+    "asignatura": "Matematica 1",
+    "uv": 5,
+    "seccion": 9000,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 80,
+    "obs": "APR"
+  },
+  {
+    "codigo": "MM-111",
+    "asignatura": "Geometria y Trígonometria",
+    "uv": 5,
+    "seccion": 1000,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 80,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  },
+  {
+    "codigo": "SC-101",
+    "asignatura": "Sociologia ",
+    "uv": 4,
+    "seccion": 1100,
+    "anio": 2020,
+    "periodo": 1,
+    "calificacion": 85,
+    "obs": "APR"
+  }
+]
