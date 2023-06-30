@@ -10,39 +10,74 @@
         </h4>
       </v-col>
     </v-row>
-    <v-row class="mt-10" justify="center">
-      <v-col class="pb-0" cols="12" md="8" lg="8">
-        <v-text-field v-model="accountNumber" bg-color="primary" label="Numero de cuenta"
-          variant="outlined"></v-text-field>
-      </v-col>
-      <v-col class="pb-0" cols="12" md="8" lg="8">
-        <v-text-field v-model="password" type="password" bg-color="primary" label="Contrasena"
-          variant="outlined"></v-text-field>
-      </v-col>
-      <v-col cols="12" md="8" lg="8">
-        <p @click="forgot" class="forgot-password text-end text-secondary">
-          Olvide mi Contrasena
-        </p>
-      </v-col>
-      <v-col cols="12" md="8" lg="8">
-        <v-btn color="secondary" block height="50px" rounded="lg" @click="submitLogin">Entrar</v-btn>
-      </v-col>
-    </v-row>
+    <v-form v-model="form" @submit.prevent="submitLogin">
+      <v-row class="mt-10" justify="center">
+        <v-col class="pb-0" cols="12" md="8" lg="8">
+          <v-text-field
+            v-model="email"
+            :rules="[rules.required]"
+            bg-color="primary"
+            label="E-Mail"
+            variant="outlined"
+          ></v-text-field>
+        </v-col>
+        <v-col class="pb-0" cols="12" md="8" lg="8">
+          <v-text-field
+            v-model="password"
+            :rules="[rules.required]"
+            type="password"
+            bg-color="primary"
+            label="Contrasena"
+            variant="outlined"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" md="8" lg="8">
+          <p @click="forgot" class="forgot-password text-end text-secondary">
+            Olvide mi Contrasena
+          </p>
+        </v-col>
+        <v-col cols="12" md="8" lg="8">
+          <v-btn
+            type="submit"
+            color="secondary"
+            block
+            height="50px"
+            rounded="lg"
+            >Entrar</v-btn
+          >
+        </v-col>
+      </v-row>
+    </v-form>
   </span>
 </template>
 
 <script setup>
 import router from "@/router";
 import { ref } from "vue";
+import LoginService from "@/services/login/login.service";
 
-const accountNumber = ref("");
+const email = ref("");
 const password = ref("");
+const form = ref(false);
+
+const rules = {
+  required: (value) => !!value || "Field is required",
+};
 
 function submitLogin() {
+  if (!form.value) return;
+
+  const user = {
+    email: email.value,
+    password: password.value,
+  };
+  const service = new LoginService();
+  const loggedUser = service.getLoginToken(user);
+  if (loggedUser) router.push("/user");
 }
 
 function forgot() {
-  router.push('/login/reset');
+  router.push("/login/reset");
 }
 </script>
 
