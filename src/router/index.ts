@@ -23,7 +23,7 @@ const routes = [
     ],
   },
   {
-    path: "/user-profile",
+    path: "/user",
     component: () => import("@/components/UserProfile/UserProfile.vue"),
   },
 ];
