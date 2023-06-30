@@ -64,7 +64,7 @@ const rules = {
   required: (value) => !!value || "Field is required",
 };
 
-function submitLogin() {
+async function submitLogin() {
   if (!form.value) return;
 
   const user = {
@@ -72,8 +72,8 @@ function submitLogin() {
     password: password.value,
   };
   const service = new LoginService();
-  const loggedUser = service.getLoginToken(user);
-  if (loggedUser) router.push("/user");
+  const response = await service.getLoginToken(user);
+  if (response === 200) router.push("/user");
 }
 
 function forgot() {
