@@ -9,7 +9,7 @@
                 <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
             </v-col>
             <v-col class="ml-1 mt-n2">
-                <p class="banner-student text-h5 font-weight-medium mt-1">Julia Martínez</p>
+                <p class="text-h5 font-weight-medium mt-1">Julia Martínez</p>
                 <p class="banner-major text-subtitle-1 font-weight-medium">Ingenieria en sistemas</p>
             </v-col>
         </v-row>
@@ -53,7 +53,7 @@
             <v-col cols="3" class="user-description rounded-lg px-7 py-3">
                 <h4 class="font-weight-regular mt-2">Descripción</h4>
 
-                <v-textarea class="text-white" v-model="description" auto-grow variant="outlined"></v-textarea>
+                <v-textarea v-model="description" auto-grow variant="outlined"></v-textarea>
 
             </v-col>
 
@@ -111,10 +111,6 @@ const description = ref('Me llamo Julia');
     width: 128px;
     height: 128px;
     border: 7px solid #fff;
-}
-
-.banner-student {
-    color: rgb(var(--v-theme-text-1));
 }
 
 .banner-major {

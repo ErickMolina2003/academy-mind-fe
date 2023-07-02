@@ -2,10 +2,10 @@
     <span>
         <v-row justify="center">
             <v-col cols="12" md="12" lg="12">
-                <h1 class="text-center text-white">¿Olvidaste tu contraseña? 🔒</h1>
+                <h1 class="text-center">¿Olvidaste tu contraseña? 🔒</h1>
             </v-col>
             <v-col class="px-7" cols="8" md="8" lg="8">
-                <h4 class="text-white">
+                <h4>
                     Ingresa tu correo electrónico y te mandaremos instrucciones para resetear tu contraseña.
                 </h4>
             </v-col>
