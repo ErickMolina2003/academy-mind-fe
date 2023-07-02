@@ -1,13 +1,8 @@
 <template>
-  <span>
+  <span class="right-side-layout-container">
     <v-row justify="center">
       <v-col cols="12" md="12" lg="12">
-        <h1 class="text-center text-white">Bienvenido a Academy-Mind</h1>
-      </v-col>
-      <v-col class="text-center" cols="12" md="12" lg="12">
-        <h4 class="text-white">
-          Por favor, inicia sesion para iniciar tu aventura
-        </h4>
+        <h1 class="text-center">Campus Virtual UNAH</h1>
       </v-col>
     </v-row>
     <v-form v-model="form" @submit.prevent="submitLogin">
@@ -17,7 +12,7 @@
             v-model="email"
             :rules="[rules.required]"
             bg-color="primary"
-            label="E-Mail"
+            label="Correo electrónico"
             variant="outlined"
           ></v-text-field>
         </v-col>
@@ -27,13 +22,13 @@
             :rules="[rules.required]"
             type="password"
             bg-color="primary"
-            label="Contrasena"
+            label="contraseña"
             variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="8" lg="8">
           <p @click="forgot" class="forgot-password text-end text-secondary">
-            Olvide mi Contrasena
+            Olvide mi contraseña
           </p>
         </v-col>
         <v-col cols="12" md="8" lg="8">
@@ -61,7 +56,7 @@ const password = ref("");
 const form = ref(false);
 
 const rules = {
-  required: (value) => !!value || "Field is required",
+  required: (value) => !!value || "Campo obligatorio",
 };
 
 async function submitLogin() {
@@ -84,5 +79,9 @@ function forgot() {
 <style scoped>
 .forgot-password {
   cursor: pointer;
+}
+
+.right-side-layout-container {
+  width: 100%;
 }
 </style>

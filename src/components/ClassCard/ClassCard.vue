@@ -3,9 +3,9 @@
         <v-img class="align-end text-white" height="200" src="https://cdn.vuetifyjs.com/images/cards/docks.jpg" cover />
         <v-row class="class-card-footer">
             <v-col class="py-1" cols="12" md="12" lg="12">
-                <v-card-subtitle class="pt-4 text-white">
+                <v-card-text class="pt-4 text-white">
                     {{ periodo }} PAC {{ anio }}
-                </v-card-subtitle>
+                </v-card-text>
             </v-col>
             <v-col class="py-1" cols="12" md="12" lg="12">
                 <v-card-text class="text-white">
