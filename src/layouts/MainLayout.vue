@@ -1,5 +1,5 @@
 <template>
-  <span style="height:100%">
+  <span style="height:100%; width:100%;">
     <MainSideBar />
     <router-view></router-view>
   </span>
