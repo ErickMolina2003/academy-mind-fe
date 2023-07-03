@@ -1,7 +1,7 @@
 <template>
   <span class="d-flex login-layout">
     <div class="left-side-layout d-flex justify-center">
-      <img src="@/assets/unah-logo.png" alt="login-img" class="login-img" />
+      <img src="@/assets/unah-logo.png" alt="UNAH-logo" class="UNAH-logo" />
     </div>
     <div class="right-side-layout d-flex align-center justify-center">
       <router-view></router-view>
