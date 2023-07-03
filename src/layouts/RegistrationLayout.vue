@@ -17,7 +17,9 @@
           </v-list>
         </v-navigation-drawer>
         <v-main class="ma-1">
-          <router-view></router-view>
+          <v-contaner>
+            <router-view></router-view>
+          </v-contaner>
         </v-main>
       </v-layout>
     </v-card>

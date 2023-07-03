@@ -1,9 +1,5 @@
 <template>
-  <v-table
-    style="background-color: #312d4b; color: #9691ac; border-radius: 6px"
-    fixed-header
-    height="300px"
-  >
+  <v-table height="50rem" class="table-grades" fixed-header density="comfortable">
     <thead>
       <tr>
         <th class="text-left">CODIGO</th>

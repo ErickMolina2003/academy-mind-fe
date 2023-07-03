@@ -5,6 +5,7 @@ const routes = [
   {
     path: "/",
     name: "",
+    redirect: { name: "perfil" },
     component: () => import("@/layouts/MainLayout.vue"),
     children: [
       {
@@ -20,6 +21,7 @@ const routes = [
       {
         path: "/matricula",
         name: "matricula",
+        redirect: { name: "historial" },
         component: () => import("@/layouts/RegistrationLayout.vue"),
         children: [
           {
