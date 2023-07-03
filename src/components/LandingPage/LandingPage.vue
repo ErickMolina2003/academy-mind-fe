@@ -65,11 +65,11 @@
                                 <v-img src="../../assets/logo-puma.png" contain width="40"></v-img>
                                 </v-badge>
                                 <v-toolbar-title class="ml-4">
-                                    <strong>Academy Mind</strong>
+                                    <strong>Campus Virtual UNAH</strong>
                                 </v-toolbar-title>
                             </v-toolbar>
                             <v-card-text class="white--text pt-0">
-                                <h5>© Derechos reservados Academy Mind 2023</h5>
+                                <h5>© Derechos reservados Campus Virtual UNAH 2023</h5>
                             </v-card-text>
                         </v-col>
                     </v-row>
