@@ -60,7 +60,7 @@
             <v-col class="user-description rounded-lg ml-4 px-7 py-3">
                 <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
 
-                <v-row>
+                <v-row class="pt-2">
                     <v-col cols="6" md="6" lg="4" xl="3">
                         <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
                     </v-col>

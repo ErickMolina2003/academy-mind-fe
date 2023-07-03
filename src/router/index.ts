@@ -4,10 +4,27 @@ import { createRouter, createWebHistory } from "vue-router";
 const routes = [
   {
     path: "/",
+    name: "",
+    component: () => import("@/layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "/perfil",
+        name: "perfil",
+        component: () => import("@/components/UserProfile/UserProfile.vue"),
+      },
+      {
+        path: "/configuracion",
+        name: "settings",
+        component: () => import("@/components/UserProfile/UserSettings.vue"),
+      },
+    ],
+  },
+  {
+    path: "/inicio",
     component: () => import("@/components/LandingPage/LandingPage.vue"),
   },
   {
-    path: "/login",
+    path: "/registrarse",
     component: () => import("@/layouts/LoginLayout.vue"),
     children: [
       {
@@ -16,20 +33,11 @@ const routes = [
         component: () => import("@/components/Login/Login.vue"),
       },
       {
-        path: "reset",
+        path: "reinicio",
         name: "reset",
         component: () => import("@/components/Login/Reset.vue"),
       },
     ],
-  },
-  {
-    path: "/user",
-    component: () => import("@/components/UserProfile/UserProfile.vue"),
-  },
-  {
-    path: "/settings",
-    name: "settings",
-    component: () => import("@/components/UserProfile/UserSettings.vue"),
   },
 ];
 

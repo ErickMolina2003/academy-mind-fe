@@ -87,9 +87,9 @@
 <script setup>
 import router from "@/router";
 function students() {
-    router.push('/loginStudent');
+    router.push('/registrarse');
 }
 function teachers() {
-    router.push('/loginTeachers');
+    router.push('/registrarse');
 }
 </script>

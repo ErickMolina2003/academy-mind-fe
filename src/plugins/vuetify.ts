@@ -20,8 +20,10 @@ export default createVuetify({
           primary: "#f4f5fa",
           "primary-darken-1": "#ffffff",
           secondary: "#9155fd",
+          "secondary-lighthen-1": "#1967b1",
           "text-2": "#8f8c93",
-          "text-3": "#a29fa5"
+          "text-3": "#a29fa5",
+          error: "#ff4c51",
         },
       },
     },
