@@ -14,8 +14,20 @@ const routes = [
       },
       {
         path: "/configuracion",
-        name: "settings",
+        name: "configuracion",
         component: () => import("@/components/UserProfile/UserSettings.vue"),
+      },
+      {
+        path: "/matricula",
+        name: "matricula",
+        component: () => import("@/layouts/RegistrationLayout.vue"),
+        children: [
+          {
+            path: "/historial",
+            name: "historial",
+            component: () => import("@/components/AcademicHistory/Grades.vue"),
+          },
+        ],
       },
     ],
   },
