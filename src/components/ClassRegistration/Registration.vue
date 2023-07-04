@@ -1,14 +1,8 @@
 <template>
     <v-main>
       <v-container fluid>
-        <h1 class="pt-0" style="color: #CC6600;">Matricula</h1>
-        <v-divider :thickness="5" class="pb-1 pt-0"></v-divider>
-        <div style="text-align: right;">
-          <a href="#">Atrás</a>
-          <span class="text-black"> | </span>
-          <a href="#" >Cerrar Sesión</a>
-        </div>
-        <v-divider :thickness="5" class="pb-15 mt-1"></v-divider>
+        <h1 style="color: #CC6600;">Matricula</h1>
+        <v-divider :thickness="5" class="pb-16 mt-2"></v-divider>
         <v-card class="mx-2">
             <v-card-title class="text-center text-white" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
                 <span class="headline ">Datos del estudiante</span>
@@ -25,7 +19,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in estudiante" :key="item.name">
+                        <tr v-for="item in student" :key="item.name">
                         <td>{{ item.name }}</td>
                         <td>{{ item.career }}</td>
                         <td>{{ item.year }}</td>
@@ -38,20 +32,18 @@
         </v-card>
         <v-card
             class="mt-10 mx-2"
-            max-width="500"
+            max-width="300"
             variant="outlined"
             color="secondary-lighthen-1"
         >
-        <div class="my-4 mx-5">
-            <h2 class="text-black">Menu opciones:</h2>
-            <v-card style="width: 100%; " class="mt-3" >
-                <v-card-actions>
-                <v-btn @click="openModal">Seleccionar Asignatura</v-btn>
-                <span style="font-size: x-large;"> | </span>
-                <v-btn @click="finishEnrollment">Finalizar Matricula</v-btn>
-                </v-card-actions>
-            </v-card>
-        </div>
+          <div class="my-4 mx-5">
+              <h3 class="text-black">Menú opciones:</h3>
+              <v-card style="width: 100%; " class="mt-3" >
+                  <v-card-actions>
+                  <v-btn @click="openModal">Seleccionar Asignatura</v-btn>
+                  </v-card-actions>
+              </v-card>
+          </div>
         </v-card>
         <v-dialog v-model="showModal">
             <div class="modal">
@@ -162,11 +154,11 @@
     </v-main>
   </template>
   
-  <script setup>
+<script setup>
 import { ref } from 'vue';
 
 const showModal = ref(false);
-const estudiante = [
+const student = [
     {
       name: 'Hansel Hernandez',
       career: 'Computer Science',
@@ -202,7 +194,6 @@ const seccionSeleccionada = ref(null);
 
 const asignaturasFiltradas = ref([]);
 const seccionesFiltradas = ref([]);
-
 const asignaturasMatriculadas = ref([]);
 
 const seleccionarDepartamento = (departamento) => {
