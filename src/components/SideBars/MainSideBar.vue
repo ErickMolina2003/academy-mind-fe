@@ -13,16 +13,39 @@
 
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn block color="error"> Salir </v-btn>
+        <v-btn block color="error" @click="logout"> Salir </v-btn>
       </div>
     </template>
   </v-navigation-drawer>
 </template>
 
 <script setup>
+import router from "@/router";
 import { computed, ref } from "vue";
 
-const userRole = "teacher";
+const isStudent = ref(true);
+const isTeacher = ref(false);
+const isAdmin = ref(false);
+const isCoordinator = ref(false);
+const isBossAcademic = ref(false);
+
+const adminOptions = ref([
+  {
+    name: "perfil",
+    to: "/perfil",
+    icon: "mdi-account-box-outline",
+  },
+  {
+    name: "docentes",
+    to: "/docentes",
+    icon: "mdi-book-variant",
+  },
+  {
+    name: "estudiantes",
+    to: "/estudiantes",
+    icon: "mdi-account-school",
+  },
+]);
 
 const teacherOptions = ref([
   {
@@ -65,8 +88,32 @@ const studentOptions = ref([
   },
 ]);
 
+function logout() {
+  router.push("/registrarse");
+}
+
 const userOptions = computed(() => {
-  if (userRole === "teacher") return teacherOptions.value;
+  if (
+    isTeacher.value &&
+    !isAdmin.value &&
+    !isCoordinator.value &&
+    !isBossAcademic.value
+  ) {
+    return teacherOptions.value;
+  }
+
+  if (isTeacher.value && isCoordinator.value) {
+    return;
+  }
+
+  if (isTeacher.value && isBossAcademic.value) {
+    return;
+  }
+
+  if (isAdmin.value) {
+    return adminOptions.value;
+  }
+
   return studentOptions.value;
 });
 </script>

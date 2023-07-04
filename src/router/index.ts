@@ -19,14 +19,19 @@ const routes = [
         component: () => import("@/components/UserProfile/UserSettings.vue"),
       },
       {
+        path: "/estudiantes",
+        name: "estudiantes",
+        component: () => import("@/components/Students.vue"),
+      },
+      {
         path: "/matricula",
         name: "matricula",
-        redirect: { name: "historial" },
+        redirect: { name: "historial-academico" },
         component: () => import("@/layouts/RegistrationLayout.vue"),
         children: [
           {
-            path: "/historial",
-            name: "historial",
+            path: "/historial-academico",
+            name: "historial-academico",
             component: () => import("@/components/AcademicHistory/Grades.vue"),
           },
         ],
