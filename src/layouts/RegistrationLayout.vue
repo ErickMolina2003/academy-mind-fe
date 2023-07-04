@@ -5,21 +5,12 @@
     <v-card height="90%">
       <v-layout full-height>
         <v-navigation-drawer>
-          <v-list class="py-0">
-            <v-list-item
-              v-for="option in registrationOptions"
-              :key="option.name"
-              :prepend-icon="option.icon"
-              :title="option.name"
-              :to="option.to"
-              color="success"
-            ></v-list-item>
-          </v-list>
+          <sideBar :sidebarOptions="registrationOptions" />
         </v-navigation-drawer>
         <v-main class="ma-1">
-          <v-contaner>
+          <v-container>
             <router-view></router-view>
-          </v-contaner>
+          </v-container>
         </v-main>
       </v-layout>
     </v-card>
@@ -28,22 +19,61 @@
 
 <script setup>
 import { ref } from "vue";
+import sideBar from "@/components/SideBars/SideBar.vue";
 
 const registrationOptions = ref([
   {
     name: "Historial Académico",
-    to: "/historial",
+    to: "/historial-academico",
     icon: "mdi-school-outline",
   },
   {
     name: "Solicitudes",
-    to: "/solicitudes",
+    submenu: [
+      {
+        name: "Cambio de Carrera",
+        to: "/cambio-carrera",
+      },
+      {
+        name: "Cambio de Centro",
+        to: "/cambio-centro",
+      },
+      {
+        name: "Cancelación Excepcional",
+        to: "/cancelacion-excepcional",
+      },
+    ],
     icon: "mdi-frequently-asked-questions",
   },
   {
     name: "Matricula",
-    to: "/matricular",
     icon: "mdi-form-select",
+    submenu: [
+      {
+        name: "Adicionar Asignatura",
+        to: "/adicionar-asignatura",
+      },
+      {
+        name: "Cancelar Asignatura",
+        to: "/cancelar-asignatura",
+      },
+      {
+        name: "Forma 03",
+        to: "/forma",
+      },
+      {
+        name: "Lista de Espera",
+        to: "/lista-espera",
+      },
+      {
+        name: "Cacelar Asignatura en Lista de Espera",
+        to: "/cancelar-lista",
+      },
+      {
+        name: "Estado de Cuenta",
+        to: "/estado-cuenta",
+      },
+    ],
   },
   {
     name: "Ver Calificaciones del periodo",
