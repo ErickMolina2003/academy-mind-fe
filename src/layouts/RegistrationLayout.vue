@@ -32,15 +32,46 @@ const registrationOptions = ref([
     submenu: [
       {
         name: "Cambio de Carrera",
-        to: "/cambio-carrera",
+        submenu: [
+          {
+            name: "Realizar solicitud",
+            to: "/cambio-carrera/realizar-solicitud",
+          },
+          {
+            name: "Borrar solicitud",
+            to: "/cambio-carrera/borrar-solicitud",
+          },
+          {
+            name: "Ver solicitudes",
+            to: "/cambio-carrera/ver-solicitudes",
+          }
+        ]
       },
       {
         name: "Cambio de Centro",
-        to: "/cambio-centro",
+        submenu: [
+          {
+            name: "Realizar solicitud",
+            to: "/cambio-centro/realizar-solicitud",
+          },
+          {
+            name: "Ver solicitudes",
+            to: "/cambio-centro/ver-solicitudes",
+          }
+        ]
       },
       {
         name: "Cancelación Excepcional",
-        to: "/cancelacion-excepcional",
+        submenu: [
+          {
+            name: "Realizar solicitud",
+            to: "/cancelacion-excepcional/realizar-solicitud",
+          },
+          {
+            name: "Ver solicitudes",
+            to: "/cancelacion-excepcional/ver-solicitudes",
+          }
+        ]
       },
     ],
     icon: "mdi-frequently-asked-questions",
