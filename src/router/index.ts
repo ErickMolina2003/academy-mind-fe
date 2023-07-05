@@ -35,6 +35,21 @@ const routes = [
             component: () => import("@/components/AcademicHistory/Grades.vue"),
           },
           {
+            path: "/cambio-carrera/:tipo",
+            name: "cambio-carrera",
+            component: () => import("@/components/Applications/Majors.vue"),
+          },
+          {
+            path: "/cambio-centro/:tipo",
+            name: "cambio-centro",
+            component: () => import("@/components/Applications/Centers.vue"),
+          },
+          {
+            path: "/cancelacion-excepcional/:tipo",
+            name: "cancelacion-excepcional",
+            component: () => import("@/components/Applications/SpecialCancellation.vue"),
+          },
+          {
             path: "/adicionar-asignatura",
             name: "adicionar-asignatura",
             component: () => import("@/components/ClassRegistration/Registration.vue"),
