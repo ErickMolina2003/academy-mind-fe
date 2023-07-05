@@ -23,9 +23,9 @@
 import router from "@/router";
 import { computed, ref } from "vue";
 
-const isStudent = ref(true);
+const isStudent = ref(false);
 const isTeacher = ref(false);
-const isAdmin = ref(false);
+const isAdmin = ref(true);
 const isCoordinator = ref(false);
 const isBossAcademic = ref(false);
 
