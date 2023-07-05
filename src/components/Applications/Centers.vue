@@ -62,19 +62,4 @@ function handleSelectedCenterUpdate(updatedSelectedCenter) {
     selectedCenter.value = updatedSelectedCenter;
 
 }
-
-
-
-// const ongoingApplication = [
-//     {
-//         "Del centro": "Ciudad Universitaria",
-//         "Al centro": "Valle de Sula",
-//         "Fecha de solicitud": "20/03/2023"
-//     },
-//     {
-//         "Del centro": "Valle de Sula",
-//         "Al centro": "Ciudad Universitaria",
-//         "Fecha de solicitud": "15/05/2021"
-//     }
-// ];
 </script>

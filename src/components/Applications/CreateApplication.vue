@@ -5,6 +5,7 @@
         Solicitud {{ typeApplication }}
       </h2>
       <hr>
+
       <slot></slot>
     </v-col>
     <v-form ref="form" v-model="isValid" class="pa-4 pt-2">
@@ -29,12 +30,6 @@
 
 <script setup >
 import { ref, defineEmits } from 'vue';
-
-// const props = defineProps({
-//     headers: Array,
-//     data: Array
-// })
-
 
 const emit = defineEmits(['update-selected-majors', 'update-selected-centers']);
 
