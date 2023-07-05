@@ -258,9 +258,11 @@ function closeModal() {
 
 function submitModal() {
   if (invalidCsv.value) return;
-  console.log(csvData.value);
+  if (csvData.value && csvData.value?.length > 0) {
+    console.log(csvData.value);
+    setToaster(true, "Estudiantes creados correctamente", "success");
+  }
   closeModal();
-  setToaster(true, "Estudiantes creados correctamente", "success");
 }
 
 function validateCsv(headers: Array<String>) {
