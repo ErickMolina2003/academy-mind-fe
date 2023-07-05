@@ -51,35 +51,17 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      dialog: false,
-      payments: [
-        {
-          name: "Matricula 2-PAC",
-          value: 270.0,
-          paid: "✔️",
-          bank: 1,
-        },
-        {
-          name: "Laboratorio Física",
-          value: 150.0,
-          paid: "",
-          bank: 1,
-        },
-      ],
-    };
-  },
-  methods: {
-    TotalPay() {
-      let pay = 0;
-      for (let i = 0; i < this.payments.length; i++) {
-        pay += this.payments[i].value;
-      }
-      return pay;
-    },
-  },
-};
+<script setup>
+import { ref } from "vue";
+import json from "../../mock/payments.json";
+const dialog = ref(false);
+const payments = ref(json);
+
+function TotalPay() {
+  let pay = 0;
+  for (let i = 0; i < this.payments.length; i++) {
+    pay += this.payments[i].value;
+  }
+  return pay;
+}
 </script>
