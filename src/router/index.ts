@@ -19,9 +19,22 @@ const routes = [
         component: () => import("@/components/UserProfile/UserSettings.vue"),
       },
       {
-        path: "/estudiantes",
-        name: "estudiantes",
-        component: () => import("@/components/Students.vue"),
+        path: "/admin",
+        name: "adminLayout",
+        redirect: { name: "estudiantes-view" },
+        component: () => import("@/layouts/AdminLayout.vue"),
+        children: [
+          {
+            path: "/estudiantes",
+            name: "estudiantes-view",
+            component: () => import("@/components/Students.vue"),
+          },
+          {
+            path: "/docentes",
+            name: "docentes-view",
+            component: () => import("@/components/Teachers.vue"),
+          },
+        ],
       },
       {
         path: "/matricula",
