@@ -1,9 +1,9 @@
 <template>
-    <v-main>
+    <v-main style="padding-left: 0%;">
       <v-container fluid>
         <h1 style="color: #CC6600;">Matricula</h1>
-        <v-divider :thickness="5" class="pb-16 mt-2"></v-divider>
-        <v-card class="mx-2">
+        <v-divider :thickness="5" class="pb-6 mt-2"></v-divider>
+        <v-card>
             <v-card-title class="text-center text-white" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
                 <span class="headline ">Datos del estudiante</span>
             </v-card-title>
@@ -31,12 +31,12 @@
             </v-card-text>
         </v-card>
         <v-card
-            class="mt-10 mx-2"
+            class="mt-5"
             max-width="300"
             variant="outlined"
             color="secondary-lighthen-1"
         >
-          <div class="my-4 mx-5">
+          <div class="my-4 mx-3">
               <h3 class="text-black">Menú opciones:</h3>
               <v-card style="width: 100%; " class="mt-3" >
                   <v-card-actions>
@@ -52,101 +52,100 @@
                 </div>
                   <h3 style="text-align: center; color: rgb(var(--v-theme-text-2));">Detalles de asignatura</h3>
                 <v-row>
-                <v-col cols="4">
-                  <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
-                    <h4 class="mb-2 text-white text-center">Departamentos</h4>
-                  </div> 
-                  <v-card class="pa-4">
-                    <v-virtual-scroll :items="departamentos" item-height="48" class="virtual-scroll-list">
-                        <template #default="{ item }">
-                        <v-list-item
-                            :key="item.id"
-                            @click="seleccionarDepartamento(item)"
-                            :class="{ 'list-item-selected': item === departamentoSeleccionado }"
-                        >
-                            <v-list-item-title>{{ item.nombre }}</v-list-item-title>
-                        </v-list-item>
-                        </template>
-                    </v-virtual-scroll>
-                  </v-card>
-                </v-col>
-
-                <v-col cols="4">
-                  <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
-                    <h4 class="mb-2  text-white text-center">Asignaturas</h4>
-                  </div>
-                    
-                    <v-card class="pa-4">
-                    <v-virtual-scroll :items="asignaturasFiltradas" item-height="48" class="virtual-scroll-list">
-                        <template #default="{ item }">
-                        <v-list-item
-                            :key="item.id"
-                            @click="seleccionarAsignatura(item) "
-                            :class="{ 'list-item-selected': item === asignaturaSeleccionada }"
-                        >
-                            <v-list-item-title>{{ item.nombre }}</v-list-item-title>
-                        </v-list-item>
-                        </template>
-                    </v-virtual-scroll>
-                    </v-card>
-                </v-col>
-
-                <v-col cols="4">
+                  <v-col cols="4">
                     <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
-                      <h4 class="mb-2  text-white text-center">Secciones</h4>
-                    </div>
+                      <h4 class="mb-2 text-white text-center">Departamentos</h4>
+                    </div> 
                     <v-card class="pa-4">
-                        <v-virtual-scroll :items="seccionesFiltradas" item-height="48" class="virtual-scroll-list">
-                        <template #default="{ item }">
-                            <v-list-item
-                            :key="item.id"
-                            @click="seleccionarSeccion(item)"
-                            :class="{ 'list-item-selected': item === seccionSeleccionada }"
-                            >
-                            <v-list-item-title>{{ item.nombre }}</v-list-item-title>
-                            </v-list-item>
-                        </template>
-                        </v-virtual-scroll>
+                      <v-virtual-scroll :items="departamentos" item-height="48" class="virtual-scroll-list">
+                          <template #default="{ item }">
+                          <v-list-item
+                              :key="item.id"
+                              @click="seleccionarDepartamento(item)"
+                              :class="{ 'list-item-selected': item === departamentoSeleccionado }"
+                          >
+                              <v-list-item-title>{{ item.nombre }}</v-list-item-title>
+                          </v-list-item>
+                          </template>
+                      </v-virtual-scroll>
                     </v-card>
-                </v-col>
+                  </v-col>
+
+                  <v-col cols="4">
+                    <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
+                      <h4 class="mb-2  text-white text-center">Asignaturas</h4>
+                    </div>
+                      
+                      <v-card class="pa-4">
+                      <v-virtual-scroll :items="asignaturasFiltradas" item-height="48" class="virtual-scroll-list">
+                          <template #default="{ item }">
+                          <v-list-item
+                              :key="item.id"
+                              @click="seleccionarAsignatura(item) "
+                              :class="{ 'list-item-selected': item === asignaturaSeleccionada }"
+                          >
+                              <v-list-item-title>{{ item.nombre }}</v-list-item-title>
+                          </v-list-item>
+                          </template>
+                      </v-virtual-scroll>
+                      </v-card>
+                  </v-col>
+                  <v-col cols="4">
+                      <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
+                        <h4 class="mb-2  text-white text-center">Secciones</h4>
+                      </div>
+                      <v-card class="pa-4">
+                          <v-virtual-scroll :items="seccionesFiltradas" item-height="48" class="virtual-scroll-list">
+                          <template #default="{ item }">
+                              <v-list-item
+                              :key="item.id"
+                              @click="seleccionarSeccion(item)"
+                              :class="{ 'list-item-selected': item === seccionSeleccionada }"
+                              >
+                              <v-list-item-title>{{ item.nombre }}</v-list-item-title>
+                              </v-list-item>
+                          </template>
+                          </v-virtual-scroll>
+                      </v-card>
+                  </v-col>
                 </v-row>
                 <div class="pt-2 d-flex justify-end">
-                <v-btn color="primary" dark @click="matricularAsignatura">Matricular</v-btn>
+                  <v-btn color="primary" dark @click="matricularAsignatura">Matricular</v-btn>
                 </div>
             </div>
         </v-dialog>
-        <v-card class="mt-10 mx-2">
+        <v-card class="mt-5">
             <v-card-title class="text-center" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
                 <span class="headline text-white">Asignaturas Matriculadas</span>
             </v-card-title>
             <v-card-text >
                 <v-table>
-                <thead>
-                    <tr>
-                    <th class="text-left text-black">Cod.</th>
-                    <th class="text-left text-black">Asignatura</th>
-                    <th class="text-left text-black">Seccion</th>
-                    <th class="text-left text-black">HI</th>
-                    <th class="text-left text-black">HF</th>
-                    <th class="text-left text-black">Dias</th>
-                    <th class="text-left text-black">Edificio</th>
-                    <th class="text-left text-black">Aula</th>
-                    <th class="text-left text-black">UV</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in asignaturasMatriculadas" :key="item.cod">
-                    <td>{{ item.cod }}</td>
-                    <td>{{ item.asignatura }}</td>
-                    <td>{{ item.seccion }}</td>
-                    <td>{{ item.horarioInicio }}</td>
-                    <td>{{ item.horarioFin }}</td>
-                    <td>{{ item.dias }}</td>
-                    <td>{{ item.edificio }}</td>
-                    <td>{{ item.aula }}</td>
-                    <td>{{ item.uv }}</td>
-                    </tr>
-                </tbody>
+                  <thead>
+                      <tr>
+                      <th class="text-left text-black">Cod.</th>
+                      <th class="text-left text-black">Asignatura</th>
+                      <th class="text-left text-black">Seccion</th>
+                      <th class="text-left text-black">HI</th>
+                      <th class="text-left text-black">HF</th>
+                      <th class="text-left text-black">Dias</th>
+                      <th class="text-left text-black">Edificio</th>
+                      <th class="text-left text-black">Aula</th>
+                      <th class="text-left text-black">UV</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr v-for="item in asignaturasMatriculadas" :key="item.cod">
+                      <td>{{ item.cod }}</td>
+                      <td>{{ item.asignatura }}</td>
+                      <td>{{ item.seccion }}</td>
+                      <td>{{ item.horarioInicio }}</td>
+                      <td>{{ item.horarioFin }}</td>
+                      <td>{{ item.dias }}</td>
+                      <td>{{ item.edificio }}</td>
+                      <td>{{ item.aula }}</td>
+                      <td>{{ item.uv }}</td>
+                      </tr>
+                  </tbody>
                 </v-table>
             </v-card-text>
         </v-card>
@@ -160,7 +159,7 @@ import { ref } from 'vue';
 const showModal = ref(false);
 const student = [
     {
-      name: 'Hansel Hernandez',
+      name: 'Hansel Andre Hernandez Casco',
       career: 'Computer Science',
       year: 2023,
       period: '1',

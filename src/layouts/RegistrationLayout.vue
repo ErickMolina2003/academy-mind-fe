@@ -1,6 +1,6 @@
 <template>
   <v-container class="registration-layout">
-    <h2>Serivios Estudiantes</h2>
+    <h2>Servicios Estudiantes</h2>
 
     <v-card height="90%">
       <v-layout full-height>
@@ -51,11 +51,11 @@ const registrationOptions = ref([
     submenu: [
       {
         name: "Adicionar Asignatura",
-        to: "/adicionar-asignatura",
+        to: "/matricular",
       },
       {
         name: "Cancelar Asignatura",
-        to: "/cancelar-asignatura",
+        to: "/cancelar",
       },
       {
         name: "Forma 03",
