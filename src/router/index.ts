@@ -35,13 +35,13 @@ const routes = [
             component: () => import("@/components/AcademicHistory/Grades.vue"),
           },
           {
-            path: "/matricular",
-            name: "matricular",
+            path: "/adicionar-asignatura",
+            name: "adicionar-asignatura",
             component: () => import("@/components/ClassRegistration/Registration.vue"),
           },
           {
-            path: "/cancelar",
-            name: "cancelar",
+            path: "/cancelar-asignatura",
+            name: "cancelar-asignatura",
             component: () => import("@/components/ClassCancellation/Cancellation.vue"),
           },
         ],

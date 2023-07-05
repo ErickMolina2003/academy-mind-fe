@@ -51,11 +51,11 @@ const registrationOptions = ref([
     submenu: [
       {
         name: "Adicionar Asignatura",
-        to: "/matricular",
+        to: "/adicionar-asignatura",
       },
       {
         name: "Cancelar Asignatura",
-        to: "/cancelar",
+        to: "/cancelar-asignatura",
       },
       {
         name: "Forma 03",
