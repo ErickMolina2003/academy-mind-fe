@@ -1,6 +1,6 @@
 <template>
   <v-container class="registration-layout">
-    <h2>Serivios Estudiantes</h2>
+    <h2>Servicios Estudiantes</h2>
 
     <v-card height="90%">
       <v-layout full-height>

@@ -34,6 +34,16 @@ const routes = [
             name: "historial-academico",
             component: () => import("@/components/AcademicHistory/Grades.vue"),
           },
+          {
+            path: "/adicionar-asignatura",
+            name: "adicionar-asignatura",
+            component: () => import("@/components/ClassRegistration/Registration.vue"),
+          },
+          {
+            path: "/cancelar-asignatura",
+            name: "cancelar-asignatura",
+            component: () => import("@/components/ClassCancellation/Cancellation.vue"),
+          },
         ],
       },
     ],
