@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Matricula 2-PAC",
+    "value": 270.0,
+    "paid": "✔️",
+    "bank": 1
+  },
+  {
+    "name": "Laboratorio Física",
+    "value": 150.0,
+    "paid": "",
+    "bank": 1
+  }
+]
