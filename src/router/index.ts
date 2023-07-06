@@ -72,6 +72,11 @@ const routes = [
             name: "cancelar-asignatura",
             component: () => import("@/components/ClassCancellation/Cancellation.vue"),
           },
+          {
+            path: "/forma",
+            name: "forma",
+            component: () => import("@/components/Forma03/Forma03.vue"),
+          },
         ],
       },
     ],
