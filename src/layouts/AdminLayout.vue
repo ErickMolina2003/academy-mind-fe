@@ -6,7 +6,7 @@
       @createUser="toggleModal"
     />
     <router-view></router-view>
-    <v-dialog v-model="showModal" persistent width="1024">
+    <v-dialog v-model="showModal" persistent width="1440">
       <v-card>
         <v-card-title>
           <span class="text-h5">{{ getNavBarTitles.btnTitle }}</span>
@@ -92,6 +92,7 @@
                       <td>{{ data.Direccion }}</td>
                       <td>{{ data.Correo }}</td>
                       <td>{{ data.Centro_regional }}</td>
+                      <td>{{ data.dni }}</td>
                     </tr>
                     <tr
                       v-for="data in csvDataFailed"
@@ -104,6 +105,7 @@
                       <td>{{ data.Direccion }}</td>
                       <td>{{ data.Correo }}</td>
                       <td>{{ data.Centro_regional }}</td>
+                      <td>{{ data.dni }}</td>
                     </tr>
                   </tbody>
                 </v-table>
@@ -306,6 +308,7 @@ const csvHeaders = [
   "Direccion",
   "Correo",
   "Centro regional",
+  "dni",
 ];
 const invalidCsv = ref(false);
 const errorMessage = ref("");

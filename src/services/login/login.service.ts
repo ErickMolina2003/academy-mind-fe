@@ -8,11 +8,13 @@ export default class LoginService {
   async getLoginToken(user: User) {
     const email = user.email;
     const password = user.password;
+    const isTeacher = user.isTeacher;
     const body = {
-      email: email,
+      accountNumber: isTeacher ? "-1" : email,
       password: password,
+      employeeNumber: isTeacher ? email : "-1",
     };
-    const url = "http://127.0.0.1:8000/api/user/token/";
+    const url = "http://localhost:3001/api/auth";
 
     try {
       const response = await axios({
@@ -21,12 +23,17 @@ export default class LoginService {
         data: body,
       });
 
-      if (response.status === 200) {
-        const store = useAppStore();
-
+      const store = useAppStore();
+      if (response.status === 201) {
         const data = await response.data;
         store.setUser(data);
-
+        if (response.status === 201) {
+          store.setToaster({
+            isActive: true,
+            text: "Bienvenido!",
+            color: "success",
+          });
+        }
         return response.status;
       }
     } catch (error) {

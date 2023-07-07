@@ -21,7 +21,10 @@
 
 <script setup>
 import router from "@/router";
-import { computed, ref } from "vue";
+import { useAppStore } from "@/store/app";
+import { computed, onMounted, ref } from "vue";
+
+const store = useAppStore();
 
 const isStudent = ref(false);
 const isTeacher = ref(false);
@@ -87,9 +90,18 @@ const studentOptions = ref([
     icon: "mdi-account-school",
   },
 ]);
+onMounted(() => {
+  console.log(store.user.user);
+  isTeacher.value = store.user.user.isTeacher;
+  isCoordinator.value = store.user.user.isCoordinator;
+  isBossAcademic.value = store.user.user.isBoss;
+  isAdmin.value = store.user.user.isAdmin;
+  isStudent.value = store.user.user.career ? true : false;
+});
 
 function logout() {
-  router.push("/registrarse");
+  window.localStorage.removeItem("academy-user");
+  router.push("/login");
 }
 
 const userOptions = computed(() => {

@@ -1,5 +1,13 @@
 <template>
-  <span class="right-side-layout-container">
+  <span
+    :class="
+      isTeacher
+        ? 'layout-docentes right-side-layout-container'
+        : 'right-side-layout-container'
+    "
+  >
+    <ToasterVue />
+
     <v-row justify="center">
       <v-col cols="12" md="12" lg="12">
         <h1 class="text-center">Campus Virtual UNAH</h1>
@@ -12,7 +20,7 @@
             v-model="email"
             :rules="[rules.required]"
             bg-color="primary"
-            label="Correo electrónico"
+            :label="getTitleAccount"
             variant="outlined"
           ></v-text-field>
         </v-col>
@@ -27,19 +35,37 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="8" lg="8">
-          <p @click="forgot" class="forgot-password text-end text-secondary">
+          <p
+            @click="forgot"
+            :class="
+              isTeacher
+                ? 'forgot-password text-end text-secondary-lighthen-1'
+                : 'forgot-password text-end text-secondary'
+            "
+          >
             Olvide mi contraseña
           </p>
         </v-col>
         <v-col cols="12" md="8" lg="8">
           <v-btn
             type="submit"
-            color="secondary"
+            :color="isTeacher ? 'secondary-lighthen-1' : 'secondary'"
             block
             height="50px"
             rounded="lg"
             >Entrar</v-btn
           >
+        </v-col>
+      </v-row>
+      <v-row justify="center">
+        <v-col cols="12" md="auto" lg="auto">
+          <v-switch
+            v-model="isTeacher"
+            color="secondary-lighthen-1"
+            hide-details
+            inset
+            :label="`Registro: ${isTeacher ? 'docentes' : 'estudiantes'}`"
+          ></v-switch>
         </v-col>
       </v-row>
     </v-form>
@@ -48,12 +74,24 @@
 
 <script setup>
 import router from "@/router";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import LoginService from "@/services/login/login.service";
+import ToasterVue from "@/components/Toaster.vue";
+import { useAppStore } from "@/store/app";
 
 const email = ref("");
 const password = ref("");
 const form = ref(false);
+const store = useAppStore();
+
+const isTeacher = ref(false);
+
+const getTitleAccount = computed(() => {
+  if (isTeacher.value) {
+    return "Número de empleado";
+  }
+  return "Número de cuenta";
+});
 
 const rules = {
   required: (value) => !!value || "Campo obligatorio",
@@ -65,10 +103,18 @@ async function submitLogin() {
   const user = {
     email: email.value,
     password: password.value,
+    isTeacher: isTeacher.value,
   };
   const service = new LoginService();
   const response = await service.getLoginToken(user);
-  if (response === 200) router.push("/user");
+  if (response === 201) router.push("/");
+  else {
+    store.setToaster({
+      isActive: true,
+      text: "Credenciales incorrectas!",
+      color: "error",
+    });
+  }
 }
 
 function forgot() {
@@ -83,5 +129,9 @@ function forgot() {
 
 .right-side-layout-container {
   width: 100%;
+}
+
+.layout-docentes {
+  color: rgb(var(--v-theme-secondary-lighthen-1));
 }
 </style>

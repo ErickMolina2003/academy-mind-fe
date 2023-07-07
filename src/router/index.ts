@@ -1,5 +1,6 @@
 // Composables
 import { createRouter, createWebHistory } from "vue-router";
+import { useAppStore } from "@/store/app";
 
 const routes = [
   {
@@ -60,17 +61,20 @@ const routes = [
           {
             path: "/cancelacion-excepcional/:tipo",
             name: "cancelacion-excepcional",
-            component: () => import("@/components/Applications/SpecialCancellation.vue"),
+            component: () =>
+              import("@/components/Applications/SpecialCancellation.vue"),
           },
           {
             path: "/adicionar-asignatura",
             name: "adicionar-asignatura",
-            component: () => import("@/components/ClassRegistration/Registration.vue"),
+            component: () =>
+              import("@/components/ClassRegistration/Registration.vue"),
           },
           {
             path: "/cancelar-asignatura",
             name: "cancelar-asignatura",
-            component: () => import("@/components/ClassCancellation/Cancellation.vue"),
+            component: () =>
+              import("@/components/ClassCancellation/Cancellation.vue"),
           },
           {
             path: "/forma",
@@ -90,9 +94,21 @@ const routes = [
     component: () => import("@/layouts/LoginLayout.vue"),
     children: [
       {
-        path: "",
+        path: "/login",
         name: "login",
         component: () => import("@/components/Login/Login.vue"),
+        beforeEnter: (to, from, next) => {
+          const userExists = window.localStorage.getItem("academy-user");
+
+          if (userExists) {
+            const store = useAppStore();
+            store.getUser();
+
+            next("/");
+          }
+
+          next();
+        },
       },
       {
         path: "reinicio",
@@ -107,5 +123,11 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  const store = useAppStore();
+  store.getUser();
+  next();
+})
 
 export default router;
