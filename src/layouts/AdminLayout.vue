@@ -124,59 +124,104 @@
               </v-row>
             </v-row>
 
-            <!-- <v-row v-if="getNavBarTitles.title === 'Docentes'">
-              <v-col cols="12" sm="6" md="4">
-                <v-text-field label="Legal first name*" required></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="4">
+            <v-row v-if="getNavBarTitles.title === 'Docentes'">
+              <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Legal middle name"
-                  hint="example of helper text only on focus"
+                  v-model="firstName"
+                  type="text"
+                  :rules="[
+                    nameRules.required,
+                    nameRules.numbers,
+                    nameRules.validate,
+                  ]"
+                  label="Primer Nombre"
+                  required
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Legal last name*"
-                  hint="example of persistent helper text"
+                  v-model="middleName"
+                  :rules="[
+                    nameRules.required,
+                    nameRules.numbers,
+                    nameRules.validate,
+                  ]"
+                  label="Segundo Nombre"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="firstLastName"
+                  :rules="[
+                    nameRules.required,
+                    nameRules.numbers,
+                    nameRules.validate,
+                  ]"
+                  label="Primer Apellido"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="secondLastName"
+                  :rules="[
+                    nameRules.required,
+                    nameRules.numbers,
+                    nameRules.validate,
+                  ]"
+                  label="Segundo Apellido"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="dni"
+                  :rules="[nameRules.required, dniRules.size]"
+                  label="DNI"
+                  :counter="11"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="email"
+                  :rules="[nameRules.required, emailRules.validate]"
+                  type="email"
+                  label="Correo"
+                  hint="Ejemplo: usuario123@gmail.com"
                   persistent-hint
                   required
                 ></v-text-field>
               </v-col>
-              <v-col cols="12">
-                <v-text-field label="Email*" required></v-text-field>
-              </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Password*"
-                  type="password"
+                  v-model="phone"
+                  :rules="[nameRules.required, phoneRules.validate]"
+                  label="Teléfono"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="address"
+                  :rules="[nameRules.required, addressRules.validate]"
+                  label="Ubicación"
                   required
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
-                  :items="['0-17', '18-29', '30-54', '54+']"
-                  label="Age*"
+                  v-model="role"
+                  :rules="[nameRules.required]"
+                  :items="['Docente', 'Coordinadores', 'Jefe de Departamento']"
+                  density="comfortable"
+                  clearable
                   required
+                  label="Puesto"
                 ></v-select>
               </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  :items="[
-                    'Skiing',
-                    'Ice hockey',
-                    'Soccer',
-                    'Basketball',
-                    'Hockey',
-                    'Reading',
-                    'Writing',
-                    'Coding',
-                    'Basejump',
-                  ]"
-                  label="Interests"
-                  multiple
-                ></v-autocomplete>
-              </v-col>
-            </v-row> -->
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -202,7 +247,50 @@ import NavBar from "@/components/NavBars/NavBar.vue";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAppStore } from "@/store/app";
+// Esto es de Docentes
+const firstName = ref("");
+const middleName = ref("");
+const firstLastName = ref("");
+const secondLastName = ref("");
+const email = ref("");
+const dni = ref("");
+const phone = ref("");
+const address = ref("");
+const role = ref("");
 
+const nameRules = {
+  required: (value) => !!value || "Campo obligatorio",
+  numbers: (value) =>
+    /^[^0-9]+$/.test(value) ||
+    "Los nombres y apellidos no pueden contener dígitos",
+  validate: (value) =>
+    value?.length >= 3 ||
+    "Los nombres y apellidos deben tener al menos 3 caracteres ",
+};
+
+const dniRules = {
+  size: (value) =>
+    (value?.length == 11 && /^[^A-Za-z]+$/.test(value)) ||
+    "Introduzca un DNI válido",
+};
+
+const emailRules = {
+  validate: (value) =>
+    /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value) ||
+    "Introduzca un correo electrónico válido",
+};
+
+const phoneRules = {
+  validate: (value) =>
+    /^(\+\d{3}\s)?(\(\d{3}\)\s?)?\d{4}(-)?\d{4}$/.test(value) ||
+    "Introduzca un teléfono válido",
+};
+
+const addressRules = {
+  validate: (value) => value.length > 3 || "Introduzca una dirección válida",
+};
+
+//Esto es de Estudiantes
 const store = useAppStore();
 
 const router = useRoute();
@@ -251,18 +339,39 @@ function clearCsvField() {
 }
 
 function closeModal() {
-  clearCsvField();
-  showModal.value = false;
-  files.value = [];
+  if (router.fullPath === "/estudiantes") {
+    clearCsvField();
+    showModal.value = false;
+    files.value = [];
+  }
+  if (router.fullPath === "/docentes") {
+    showModal.value = false;
+  }
 }
 
 function submitModal() {
-  if (invalidCsv.value) return;
-  if (csvData.value && csvData.value?.length > 0) {
-    console.log(csvData.value);
-    setToaster(true, "Estudiantes creados correctamente", "success");
+  if (router.fullPath === "/estudiantes") {
+    if (invalidCsv.value) return;
+    if (csvData.value && csvData.value?.length > 0) {
+      console.log(csvData.value);
+      setToaster(true, "Estudiantes creados correctamente", "success");
+    }
+    closeModal();
   }
-  closeModal();
+  if (router.fullPath === "/docentes") {
+    const user = {
+      firstName: firstName.value,
+      middleName: middleName.value,
+      firstLastName: firstLastName.value,
+      secondLastName: secondLastName.value,
+      email: email.value,
+      dni: dni.value,
+      phone: phone.value,
+      address: address.value,
+      role: role.value,
+    };
+    closeModal();
+  }
 }
 
 function validateCsv(headers: Array<String>) {
