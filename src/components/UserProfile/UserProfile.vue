@@ -23,7 +23,7 @@
       </v-col>
       <v-col class="text-right">
         <v-btn class="bg-blue-grey-darken-2" @click="openDialog">Editar</v-btn>
-        <v-dialog v-model="dialogOpen" persistent max-width="600px">
+        <v-dialog v-model="dialogOpen" persistent max-width="1000px">
           <v-card>
             <v-card-title>
               <h2 class="bg-blue-darken-3 pa-2 text-center rounded">
