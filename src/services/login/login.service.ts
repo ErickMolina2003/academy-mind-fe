@@ -1,4 +1,4 @@
-import User from "@/models/User";
+import User from "@/models/user";
 import axios from "axios";
 import { useAppStore } from "@/store/app";
 

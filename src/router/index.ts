@@ -8,6 +8,7 @@ const routes = [
     name: "",
     redirect: { name: "perfil" },
     component: () => import("@/layouts/MainLayout.vue"),
+    meta: { middleware: true },
     children: [
       {
         path: "/perfil",
@@ -96,26 +97,25 @@ const routes = [
       {
         path: "/login",
         name: "login",
-        component: () => import("@/components/Login/Login.vue"),
-        beforeEnter: (to, from, next) => {
-          const userExists = window.localStorage.getItem("academy-user");
-
-          if (userExists) {
-            const store = useAppStore();
-            store.getUser();
-
-            next("/");
-          }
-
-          next();
-        },
+        component: () => import("@/components/Login/Login.vue")
       },
       {
-        path: "reinicio",
+        path: "/reinicio",
         name: "reset",
-        component: () => import("@/components/Login/Reset.vue"),
-      },
-    ],
+        component: () => import("@/components/Login/Reset.vue")
+      }],
+    beforeEnter: (to, from, next) => {
+      const userExists = window.localStorage.getItem("academy-user");
+
+      if (userExists) {
+        const store = useAppStore();
+        store.getUser();
+
+        next("/");
+      } else {
+        next();
+      }
+    },
   },
 ];
 
@@ -126,8 +126,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const store = useAppStore();
-  store.getUser();
-  next();
-})
+  const userExists = store.userExists;
+
+  if (to.meta.middleware && !userExists) {
+    next("login");
+  } else {
+    next();
+  }
+});
 
 export default router;

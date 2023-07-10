@@ -1,6 +1,6 @@
 // Utilities
-import User from "@/models/User";
-import Toaster from "@/models/Toaster";
+import User from "@/models/user";
+import Toaster from "@/models/toaster";
 import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", {
@@ -23,4 +23,9 @@ export const useAppStore = defineStore("app", {
       this.toaster = toaster;
     },
   },
+  getters: {
+    userExists(state) {
+      return Object.keys(state.user).length !== 0
+    }
+  }
 });
