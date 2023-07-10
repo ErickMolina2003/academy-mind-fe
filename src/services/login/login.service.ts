@@ -2,9 +2,9 @@ import User from "@/models/user";
 import axios from "axios";
 import { useAppStore } from "@/store/app";
 
-const userUrl = "http://127.0.0.1:8000/api/user/me/";
-
 export default class LoginService {
+  store = useAppStore();
+
   async getLoginToken(user: User) {
     const email = user.email;
     const password = user.password;
@@ -23,12 +23,11 @@ export default class LoginService {
         data: body,
       });
 
-      const store = useAppStore();
       if (response.status === 201) {
         const data = await response.data;
-        store.setUser(data);
+        this.store.setUser(data);
         if (response.status === 201) {
-          store.setToaster({
+          this.store.setToaster({
             isActive: true,
             text: "Bienvenido!",
             color: "success",
@@ -41,25 +40,36 @@ export default class LoginService {
     }
   }
 
-  async setPassword(token: string, password: string) {
+  async setPassword(dni: string, password: string, newPassword: string) {
     const body = {
       password: password,
+      newPassword: newPassword,
     };
+
+    const url = `http://localhost:3001/api/user/${dni}`;
 
     try {
       const response = await axios({
         method: "PATCH",
-        url: userUrl,
+        url: url,
         data: body,
-        headers: {
-          Authorization: `Token ${token}`,
-        },
       });
 
       const data = await response.data;
-      console.log(data);
+      if (response.status === 200) {
+        this.store.setToaster({
+          isActive: true,
+          text: "Las contraseña ha sido cambiada exitosamente.",
+          color: "success",
+        });
+      }
+      return response;
     } catch (error) {
-      console.log(error);
+      this.store.setToaster({
+        isActive: true,
+        text: "Las contraseñas no coinciden.",
+        color: "error",
+      });
       return error;
     }
   }
