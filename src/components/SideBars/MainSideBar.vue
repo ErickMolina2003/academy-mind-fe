@@ -91,7 +91,6 @@ const studentOptions = ref([
   },
 ]);
 onMounted(() => {
-  console.log(store.user.user);
   isTeacher.value = store.user.user.isTeacher;
   isCoordinator.value = store.user.user.isCoordinator;
   isBossAcademic.value = store.user.user.isBoss;

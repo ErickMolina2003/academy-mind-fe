@@ -73,4 +73,35 @@ export default class LoginService {
       return error;
     }
   }
+
+  async resetPassword(accountNumber: string) {
+    const body = {
+      accountNumber: accountNumber,
+    };
+
+    const url = "http://localhost:3001/api/v2/student";
+
+    try {
+      const response = await axios({
+        method: "POST",
+        url: url,
+        data: body,
+      });
+      if (response.status === 201) {
+        this.store.setToaster({
+          isActive: true,
+          text: "Contraseña reiniciada con exito.",
+          color: "success",
+        });
+      }
+      return response;
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "No se pudo reiniciar la contraseña.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 }
