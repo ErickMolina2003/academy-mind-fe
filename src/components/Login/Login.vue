@@ -25,7 +25,7 @@
             ? 'forgot-password text-end text-secondary-lighthen-1'
             : 'forgot-password text-end text-secondary'
             ">
-            Olvide mi contraseña
+            Olvidé mi contraseña
           </p>
         </v-col>
         <v-col cols="12" md="8" lg="8">
