@@ -303,7 +303,7 @@ const csvDataFailed = ref([]);
 
 const csvHeaders = [
   "Nombre",
-  "Numero de cuenta",
+  "Número de cuenta",
   "Carrera",
   "Direccion",
   "Correo",
@@ -356,7 +356,6 @@ function submitModal() {
   if (router.fullPath === "/estudiantes") {
     if (invalidCsv.value) return;
     if (csvData.value && csvData.value?.length > 0) {
-      console.log(csvData.value);
       setToaster(true, "Estudiantes creados correctamente", "success");
     }
     closeModal();
