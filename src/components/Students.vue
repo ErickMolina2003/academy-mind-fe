@@ -27,20 +27,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import StudentService from "@/services/student/student.service";
+import { useAppStore } from "@/store/app";
+import { storeToRefs } from "pinia";
 
+const store = useAppStore();
+const { updateStudents } = storeToRefs(store);
 const students = ref([]);
 const isLoading = ref(false);
 const originalStudents = ref([]);
 const studentService = new StudentService();
 
 onMounted(async () => {
+  getStudents();
+});
+
+async function getStudents() {
   isLoading.value = true;
   originalStudents.value = await studentService.getStudents();
   students.value = [...originalStudents.value];
   isLoading.value = false;
-});
+}
 
 const filterStudents = (query) => {
   const lowerCaseQuery = query.toLowerCase().trim();
@@ -57,6 +65,13 @@ const filteredStudents = computed(() => students.value);
 
 document.addEventListener("filter", (event) => {
   filterStudents(event.detail);
+});
+
+watch(updateStudents, () => {
+  if (updateStudents) {
+    getStudents();
+    store.setUpdateStudent(false);
+  }
 });
 </script>
 

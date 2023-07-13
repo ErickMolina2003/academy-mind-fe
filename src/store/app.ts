@@ -7,6 +7,7 @@ export const useAppStore = defineStore("app", {
   state: () => ({
     user: {},
     updateTeachers: false,
+    updateStudents: false,
     toaster: {},
   }),
   actions: {
@@ -22,6 +23,9 @@ export const useAppStore = defineStore("app", {
     },
     setUpdateTeacher(update: boolean) {
       this.updateTeachers = update;
+    },
+    setUpdateStudent(update: boolean) {
+      this.updateStudents = update;
     },
     setUpdatedUser(user) {
       this.user.user.user = user;
