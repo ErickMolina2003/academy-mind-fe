@@ -23,6 +23,10 @@ export const useAppStore = defineStore("app", {
     setUpdateTeacher(update: boolean) {
       this.updateTeachers = update;
     },
+    setUpdatedUser(user) {
+      this.user.user.user = user;
+      localStorage.setItem("academy-user", JSON.stringify(this.user));
+    },
     setToaster(toaster: Toaster) {
       this.toaster = toaster;
     },

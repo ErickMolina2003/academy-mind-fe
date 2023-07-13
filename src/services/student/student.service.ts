@@ -1,5 +1,7 @@
 import axios from "axios";
-import { useAppStore } from "@/store/app";  
+import { StudentUpdate } from '../../models/user';
+import { useAppStore } from "../../store/app";
+
 
 
 export default class StudentService {
@@ -41,5 +43,44 @@ export default class StudentService {
             });
             return error;
         }
+    }
+
+    //update student
+
+    async updateStudent(id: string, studentData: StudentUpdate) {
+        const url = `http://localhost:3001/api/student/${id}`;
+
+        try {
+
+            const response = await axios({
+                method: "patch",
+                url: url,
+                data: studentData,
+            });
+
+
+            if (response.status === 200) {
+                const user = await response.data.user
+
+                this.store.setUpdatedUser(user);
+
+                this.store.setToaster({
+                    isActive: true,
+                    text: "¡Información actualizada correctamente!",
+                    color: "success",
+                });
+
+            }
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "¡Ha habido un error al actualizar!",
+                color: "error",
+            })
+
+        }
+
+
     }
 }
