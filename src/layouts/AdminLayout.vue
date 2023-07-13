@@ -126,104 +126,110 @@
               </v-row>
             </v-row>
 
-            <v-row v-if="getNavBarTitles.title === 'Docentes'">
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="firstName"
-                  type="text"
-                  :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]"
-                  label="Primer Nombre"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="middleName"
-                  :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]"
-                  label="Segundo Nombre"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="firstLastName"
-                  :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]"
-                  label="Primer Apellido"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="secondLastName"
-                  :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]"
-                  label="Segundo Apellido"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="dni"
-                  :rules="[nameRules.required, dniRules.size]"
-                  label="DNI"
-                  :counter="11"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="email"
-                  :rules="[nameRules.required, emailRules.validate]"
-                  type="email"
-                  label="Correo"
-                  hint="Ejemplo: usuario123@gmail.com"
-                  persistent-hint
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="phone"
-                  :rules="[nameRules.required, phoneRules.validate]"
-                  label="Teléfono"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  v-model="address"
-                  :rules="[nameRules.required, addressRules.validate]"
-                  label="Ubicación"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-select
-                  v-model="role"
-                  :rules="[nameRules.required]"
-                  :items="['Docente', 'Coordinadores', 'Jefe de Departamento']"
-                  density="comfortable"
-                  clearable
-                  required
-                  label="Puesto"
-                ></v-select>
-              </v-col>
-            </v-row>
+            <v-form
+              v-if="getNavBarTitles.title === 'Docentes'"
+              v-model="form"
+              @submit.prevent="submitModal"
+            >
+              <v-row>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="firstName"
+                    type="text"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Primer Nombre"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="middleName"
+                    :rules="[nameRules.numbers, nameRules.validate]"
+                    label="Segundo Nombre"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="firstLastName"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Primer Apellido"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="secondLastName"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Segundo Apellido"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="dni"
+                    :rules="[nameRules.required, dniRules.size]"
+                    label="DNI"
+                    :counter="13"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="email"
+                    :rules="[nameRules.required, emailRules.validate]"
+                    type="email"
+                    label="Correo"
+                    hint="Ejemplo: usuario123@gmail.com"
+                    persistent-hint
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="phone"
+                    :rules="[nameRules.required, phoneRules.validate]"
+                    label="Teléfono"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="address"
+                    :rules="[nameRules.required, addressRules.validate]"
+                    label="Ubicación"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="role"
+                    :rules="[nameRules.required]"
+                    :items="[
+                      'Docente',
+                      'Coordinadores',
+                      'Jefe de Departamento',
+                    ]"
+                    density="comfortable"
+                    clearable
+                    required
+                    label="Puesto"
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -249,6 +255,7 @@ import NavBar from "@/components/NavBars/NavBar.vue";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAppStore } from "@/store/app";
+import TeacherService from "@/services/teacher/teacher.service";
 // Esto es de Docentes
 const firstName = ref("");
 const middleName = ref("");
@@ -259,6 +266,7 @@ const dni = ref("");
 const phone = ref("");
 const address = ref("");
 const role = ref("");
+const form = ref(false);
 
 const nameRules = {
   required: (value) => !!value || "Campo obligatorio",
@@ -272,13 +280,13 @@ const nameRules = {
 
 const dniRules = {
   size: (value) =>
-    (value?.length == 11 && /^[^A-Za-z]+$/.test(value)) ||
+    (value?.length == 13 && /^[^A-Za-z]+$/.test(value)) ||
     "Introduzca un DNI válido",
 };
 
 const emailRules = {
   validate: (value) =>
-    /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value) ||
+    /^[\w.]+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value) ||
     "Introduzca un correo electrónico válido",
 };
 
@@ -348,11 +356,20 @@ function closeModal() {
     files.value = [];
   }
   if (router.fullPath === "/docentes") {
+    firstName.value = "";
+    middleName.value = "";
+    firstLastName.value = "";
+    secondLastName.value = "";
+    email.value = "";
+    dni.value = "";
+    phone.value = "";
+    address.value = "";
+    role.value = "";
     showModal.value = false;
   }
 }
 
-function submitModal() {
+async function submitModal() {
   if (router.fullPath === "/estudiantes") {
     if (invalidCsv.value) return;
     if (csvData.value && csvData.value?.length > 0) {
@@ -361,18 +378,43 @@ function submitModal() {
     closeModal();
   }
   if (router.fullPath === "/docentes") {
+    if (!form.value) {
+      store.setToaster({
+        isActive: true,
+        text: "Datos incompletos.",
+        color: "error",
+      });
+      return;
+    }
+    let isBoss = false;
+    let isCoordinator = false;
+    if (role.value === "Coordinadores") {
+      isBoss = false;
+      isCoordinator = true;
+    }
+    if (role.value === "Jefe de Departamento") {
+      isBoss = true;
+      isCoordinator = false;
+    }
     const user = {
+      dni: dni.value,
       firstName: firstName.value,
-      middleName: middleName.value,
+      secondName: middleName.value,
       firstLastName: firstLastName.value,
       secondLastName: secondLastName.value,
       email: email.value,
-      dni: dni.value,
-      phone: phone.value,
       address: address.value,
-      role: role.value,
+      phone: phone.value,
+      isTeacher: true,
+      isBoss: isBoss,
+      isCoordinator: isCoordinator,
     };
-    closeModal();
+    const teacherService = new TeacherService();
+    const response = await teacherService.createTeacher(user);
+    if (response) {
+      store.setUpdateTeacher(true);
+      closeModal();
+    }
   }
 }
 

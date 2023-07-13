@@ -6,6 +6,7 @@ import { defineStore } from "pinia";
 export const useAppStore = defineStore("app", {
   state: () => ({
     user: {},
+    updateTeachers: false,
     toaster: {},
   }),
   actions: {
@@ -19,13 +20,16 @@ export const useAppStore = defineStore("app", {
         this.user = JSON.parse(newUser);
       }
     },
+    setUpdateTeacher(update: boolean) {
+      this.updateTeachers = update;
+    },
     setToaster(toaster: Toaster) {
       this.toaster = toaster;
     },
   },
   getters: {
     userExists(state) {
-      return Object.keys(state.user).length !== 0
-    }
-  }
+      return Object.keys(state.user).length !== 0;
+    },
+  },
 });

@@ -1,8 +1,11 @@
 <template>
-  <span :class="isTeacher
-    ? 'layout-docentes right-side-layout-container'
-    : 'right-side-layout-container'
-    ">
+  <span
+    :class="
+      isTeacher
+        ? 'layout-docentes right-side-layout-container'
+        : 'right-side-layout-container'
+    "
+  >
     <ToasterVue />
 
     <v-row justify="center">
@@ -13,30 +16,56 @@
     <v-form v-model="form" @submit.prevent="submitLogin">
       <v-row class="mt-10" justify="center">
         <v-col class="pb-0" cols="12" md="8" lg="8">
-          <v-text-field v-model="email" :rules="[rules.required]" bg-color="primary" :label="getTitleAccount"
-            variant="outlined"></v-text-field>
+          <v-text-field
+            v-model="email"
+            :rules="[rules.required]"
+            bg-color="primary"
+            :label="getTitleAccount"
+            variant="outlined"
+          ></v-text-field>
         </v-col>
         <v-col class="pb-0" cols="12" md="8" lg="8">
-          <v-text-field v-model="password" :rules="[rules.required]" type="password" bg-color="primary" label="contraseña"
-            variant="outlined"></v-text-field>
+          <v-text-field
+            v-model="password"
+            :rules="[rules.required]"
+            type="password"
+            bg-color="primary"
+            label="contraseña"
+            variant="outlined"
+          ></v-text-field>
         </v-col>
         <v-col cols="12" md="8" lg="8">
-          <p @click="forgot" :class="isTeacher
-            ? 'forgot-password text-end text-secondary-lighthen-1'
-            : 'forgot-password text-end text-secondary'
-            ">
+          <p
+            @click="forgot"
+            :class="
+              isTeacher
+                ? 'forgot-password text-end text-secondary-lighthen-1'
+                : 'forgot-password text-end text-secondary'
+            "
+          >
             Olvidé mi contraseña
           </p>
         </v-col>
         <v-col cols="12" md="8" lg="8">
-          <v-btn type="submit" :color="isTeacher ? 'secondary-lighthen-1' : 'secondary'" block height="50px"
-            rounded="lg">Entrar</v-btn>
+          <v-btn
+            type="submit"
+            :color="isTeacher ? 'secondary-lighthen-1' : 'secondary'"
+            block
+            height="50px"
+            rounded="lg"
+            >Entrar</v-btn
+          >
         </v-col>
       </v-row>
       <v-row justify="center">
         <v-col cols="12" md="auto" lg="auto">
-          <v-switch v-model="isTeacher" color="secondary-lighthen-1" hide-details inset
-            :label="`Registro: ${isTeacher ? 'docentes' : 'estudiantes'}`"></v-switch>
+          <v-switch
+            v-model="isTeacher"
+            color="secondary-lighthen-1"
+            hide-details
+            inset
+            :label="`Registro: ${isTeacher ? 'docentes' : 'estudiantes'}`"
+          ></v-switch>
         </v-col>
       </v-row>
     </v-form>
@@ -69,7 +98,14 @@ const rules = {
 };
 
 async function submitLogin() {
-  if (!form.value) return;
+  if (!form.value) {
+    store.setToaster({
+      isActive: true,
+      text: "Datos incompletos.",
+      color: "error",
+    });
+    return;
+  }
 
   const user = {
     email: email.value,
