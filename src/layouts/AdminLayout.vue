@@ -87,7 +87,6 @@
                   <tbody>
                     <tr v-for="data in csvData" :key="data.nombre">
                       <td>{{ data.Nombre }}</td>
-                      <td>{{ data.Numero_de_cuenta }}</td>
                       <td>{{ data.Carrera }}</td>
                       <td>{{ data.Direccion }}</td>
                       <td>{{ data.Correo }}</td>
@@ -100,7 +99,6 @@
                       class="error-row"
                     >
                       <td>{{ data.Nombre }}</td>
-                      <td>{{ data.Numero_de_cuenta }}</td>
                       <td>{{ data.Carrera }}</td>
                       <td>{{ data.Direccion }}</td>
                       <td>{{ data.Correo }}</td>
@@ -256,6 +254,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAppStore } from "@/store/app";
 import TeacherService from "@/services/teacher/teacher.service";
+import StudentService from "@/services/student/student.service";
 // Esto es de Docentes
 const firstName = ref("");
 const middleName = ref("");
@@ -311,7 +310,6 @@ const csvDataFailed = ref([]);
 
 const csvHeaders = [
   "Nombre",
-  "Número de cuenta",
   "Carrera",
   "Direccion",
   "Correo",
@@ -373,7 +371,25 @@ async function submitModal() {
   if (router.fullPath === "/estudiantes") {
     if (invalidCsv.value) return;
     if (csvData.value && csvData.value?.length > 0) {
-      setToaster(true, "Estudiantes creados correctamente", "success");
+      const newStudents = [];
+      csvData.value.forEach((student) => {
+        const firstName = student.Nombre.split(" ")[0];
+        const secondName = student.Nombre.split(" ")[1];
+        const firstLastName = student.Nombre.split(" ")[2];
+        const secondLastName = student.Nombre.split(" ")[3];
+        newStudents.push({
+          dni: student.dni,
+          firstName: firstName,
+          secondName: secondName,
+          firstLastName: firstLastName,
+          secondLastName: secondLastName,
+          email: student.Correo,
+          address: student.Direccion,
+          career: student.Carrera,
+        });
+      });
+      const studentService = new StudentService();
+      const response = studentService.createStudents(newStudents);
     }
     closeModal();
   }
@@ -412,7 +428,6 @@ async function submitModal() {
     const teacherService = new TeacherService();
     const response = await teacherService.createTeacher(user);
     if (response) {
-      store.setUpdateTeacher(true);
       closeModal();
     }
   }

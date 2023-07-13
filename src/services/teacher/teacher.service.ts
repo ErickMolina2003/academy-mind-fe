@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useAppStore } from "@/store/app";
-import TeacherUpdate from '../../models/user';
+import TeacherUpdate from "../../models/user";
 
 export default class TeacherService {
   store = useAppStore();
@@ -19,6 +19,8 @@ export default class TeacherService {
           text: "Docente creado exitosamente.",
           color: "success",
         });
+        this.store.setUpdateTeacher(true);
+
         return response.data;
       }
     } catch (error) {
@@ -78,7 +80,6 @@ export default class TeacherService {
         data: teacherData,
       });
 
-
       if (response.status === 200) {
         const user = await response.data;
         this.store.setUpdatedUser(user);
@@ -87,18 +88,13 @@ export default class TeacherService {
           text: "¡Información actualizada correctamente!",
           color: "success",
         });
-
       }
-
     } catch (error) {
       this.store.setToaster({
         isActive: true,
         text: "¡Ha habido un error al actualizar!",
         color: "error",
       });
-
     }
-
-
   }
 }
