@@ -2,18 +2,10 @@
   <v-container class="profile-layout">
     <v-row class="user-banner rounded-lg" justify="start">
       <v-col cols="12" class="pa-0">
-        <img
-          src="@/assets/profile-banner.png"
-          alt="banner-img"
-          class="banner-img w-100"
-        />
+        <img src="@/assets/profile-banner.png" alt="banner-img" class="banner-img w-100" />
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
-        <img
-          src="@/assets/user-img.png"
-          alt="user-img"
-          class="user-img rounded-lg"
-        />
+        <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">Julia Martínez</p>
@@ -31,28 +23,8 @@
               </h2>
             </v-card-title>
             <v-card-text>
-              <MyDialog></MyDialog>
+              <MyDialog @close="closeDialog"></MyDialog>
             </v-card-text>
-            <v-card-actions class="text-center">
-              <v-spacer></v-spacer>
-              <v-btn
-                style="width: 150px"
-                class="bg-blue-grey-darken-1 mr-6"
-                variant="text"
-                rounded
-                @click="closeDialog"
-                >Cerrar</v-btn
-              >
-              <v-btn
-                style="width: 150px"
-                class="bg-blue-darken-4 text-right"
-                rounded
-                variant="text"
-                @click="closeDialog"
-              >
-                Confirmar
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-dialog>
       </v-col>
@@ -95,7 +67,7 @@
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Correo electrónico personal: juls-martin@hotmail.com
+              Correo electrónico personal: {{ email }}
             </h3>
           </v-col>
         </v-row>
@@ -104,11 +76,7 @@
       <v-col cols="3" class="user-description rounded-lg px-7 py-3">
         <h4 class="font-weight-regular mt-2">Descripción</h4>
 
-        <v-textarea
-          v-model="description"
-          auto-grow
-          variant="outlined"
-        ></v-textarea>
+        <p>{{ description }}</p>
       </v-col>
 
       <v-col class="user-description rounded-lg ml-4 px-7 py-3">
@@ -134,17 +102,23 @@
 import ClassCard from "@/components/ClassCard/ClassCard.vue";
 import { ref } from "vue";
 import MyDialog from "./UserSettings.vue";
+import { useAppStore } from "@/store/app";
 
-const description = ref("Me llamo Julia");
+const store = useAppStore();
+const student = store.user.user.user;
+const description = ref(student.description);
+const email = ref(student.email);
 const dialogOpen = ref(false);
+
 
 const openDialog = () => {
   dialogOpen.value = true;
 };
 
-const closeDialog = () => {
-  dialogOpen.value = false;
-};
+function closeDialog(close: boolean) {
+  dialogOpen.value = close;
+}
+
 </script>
 
 <style scoped>
