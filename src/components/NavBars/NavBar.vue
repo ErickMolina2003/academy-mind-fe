@@ -7,7 +7,7 @@
       <v-col cols="12" md="4" lg="4">
         <v-text-field
           v-if="toggleSearch"
-          label="No.Cuenta "
+          :label="title === 'Docentes' ? 'No.Empleado' : 'No.Cuenta'"
           hide-details
           variant="outlined"
           density="compact"
@@ -21,14 +21,16 @@
         </v-btn>
       </v-col>
       <v-col cols="12" md="auto" lg="auto" align-self="center">
-        <v-btn variant="tonal" color="success" @click="$emit('createUser')">{{ btnTitle }}</v-btn>
+        <v-btn variant="tonal" color="success" @click="$emit('createUser')">{{
+          btnTitle
+        }}</v-btn>
       </v-col>
     </v-row>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 defineProps<{
   title: string;
@@ -36,17 +38,16 @@ defineProps<{
 }>();
 
 const toggleSearch = ref(false);
-const searchQuery = ref('');
+const searchQuery = ref("");
 
 const filterStudents = () => {
   const query = searchQuery.value.toLowerCase().trim();
-  const customEvent = new CustomEvent('filter', { detail: query });
+  const customEvent = new CustomEvent("filter", { detail: query });
   document.dispatchEvent(customEvent);
 
-  if (query === '') {
-    const resetEvent = new CustomEvent('resetFilter');
+  if (query === "") {
+    const resetEvent = new CustomEvent("resetFilter");
     document.dispatchEvent(resetEvent);
   }
 };
 </script>
-
