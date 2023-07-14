@@ -10,7 +10,13 @@
 
     <v-row justify="center">
       <v-col cols="12" md="12" lg="12">
-        <h1 class="text-center">Campus Virtual UNAH</h1>
+        <v-img
+          src="@/assets/logo_campus.png"
+          alt="logo"
+          width="200px"
+          height="200px"
+          class="mx-auto d-block"
+        ></v-img>
       </v-col>
     </v-row>
     <v-form v-model="form" @submit.prevent="submitLogin">

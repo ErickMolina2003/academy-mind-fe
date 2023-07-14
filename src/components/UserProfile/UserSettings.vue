@@ -10,11 +10,14 @@
       <h3 class="bg-blue-darken-1 my-3 pa-1">Información del Usuario</h3>
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
-        <v-text-field class="text-black font-weight-black" v-model="account"
+        <v-text-field  v-if="!isAdmin" class="text-black font-weight-black" v-model="account"
           :label=" !(userIsTeacher | userIsBoss | userIsCoordinator) ? 'Número de Cuenta' : 'Número de Empleado'"></v-text-field>
       </div>
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
+      </div>
+      <div v-if="isAdmin" class="d-flex">
+        <v-text-field class="text-black font-weight-black" v-model="emailpersonal" label="email"></v-text-field>
       </div>
     </v-form>
     <div>
@@ -103,6 +106,7 @@ const emit = defineEmits(['close', 'update-profile']);
 const store = useAppStore();
 const userLogged = store.user.user;
 const userIsTeacher = userLogged.isTeacher;
+const isAdmin = ref(userLogged.user.isAdmin);
 const studentService = new StudentService();
 const teacherService = new TeacherService();
 const userIsBoss = userLogged.isBoss;
@@ -113,6 +117,7 @@ const description = ref("");
 const formEmail = ref(false);
 const email = ref("");
 const center = data.center;
+const emailpersonal = userLogged.user.email;
 const props = Boolean;
 const name = userLogged.user.firstName + ' ' + userLogged.user.secondName + ' ' + userLogged.user.firstLastName + ' ' + userLogged.user.secondLastName;
 let account = "";

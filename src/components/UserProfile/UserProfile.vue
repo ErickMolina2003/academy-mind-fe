@@ -18,7 +18,7 @@
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
         <p class="banner-major text-subtitle-1 font-weight-medium">
-          {{ career }}
+          {{ isAdmin ? 'Administrador' : (isCoordinator || isBoss || userIsTeacher ? 'Docente' : career) }}
         </p>
       </v-col>
       <v-col class="text-right">
@@ -42,7 +42,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="pt-6">
+    <v-row class="pt-6" style="padding-bottom: 15px;">
       <v-col cols="12" class="user-info rounded-lg mb-6 px-7 py-6">
         <h4 class="font-weight-regular mb-3">Información personal</h4>
         <v-row class="d-flex">
@@ -51,7 +51,7 @@
               Nombre completo: {{ fullName }}
             </h3>
           </v-col>
-          <v-col cols="6">
+          <v-col v-if="!isAdmin" cols="6">
             <h3 class="font-weight-bold banner-major">
               {{ userIsTeacher ? "Número de empleado:" : "Número de cuenta:" }}
               {{ accountNumber }}
@@ -59,7 +59,7 @@
           </v-col>
         </v-row>
         <v-row class="d-flex" v-if="!userIsTeacher">
-          <v-col cols="6">
+          <v-col v-if="!isAdmin" cols="6">
             <h3 class="font-weight-bold banner-major">Carrera: {{ career }}</h3>
           </v-col>
           <v-col cols="6">
@@ -74,32 +74,34 @@
               Centro: Ciudad Universitaria
             </h3>
           </v-col>
-          <v-col cols="6">
+          <v-col v-if="!isAdmin" cols="6">
             <h3 class="font-weight-bold banner-major">
               Correo electrónico institucional: {{ institutionalEmail }}
             </h3>
           </v-col>
         </v-row>
       </v-col>
-
-      <v-col cols="3" class="user-description rounded-lg px-7 py-3">
+        <v-col v-if="!isAdmin" cols="3" class="user-description rounded-lg px-7 py-3">
         <h4 class="font-weight-regular mt-2">Descripción</h4>
         <p>{{ description }}</p>
-      </v-col>
-
-      <v-col class="user-description rounded-lg ml-4 px-7 py-3">
-        <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
-        <v-row class="pt-2">
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
-          </v-col>
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Contabilidad" periodo="2" anio="2023" />
-          </v-col>
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Sistemas Expertos" periodo="2" anio="2023" />
-          </v-col>
-        </v-row>
+        </v-col>
+        <v-col v-if="!isAdmin" class="user-description rounded-lg ml-4 px-7 py-3">
+          <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
+          <v-row class="pt-2">
+            <v-col cols="6" md="6" lg="4" xl="3">
+              <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
+            </v-col>
+            <v-col cols="6" md="6" lg="4" xl="3">
+              <ClassCard clase="Contabilidad" periodo="2" anio="2023" />
+            </v-col>
+            <v-col cols="6" md="6" lg="4" xl="3">
+              <ClassCard clase="Sistemas Expertos" periodo="2" anio="2023" />
+            </v-col>
+          </v-row>
+        </v-col>
+      <v-col v-if="isAdmin" cols="12" class="user-description rounded-lg px-7 py-3">
+        <h4 class="font-weight-regular mt-2">Descripción</h4>
+        <p>{{ description }}</p>
       </v-col>
     </v-row>
   </v-container>
@@ -133,13 +135,13 @@ const accountNumber = computed(() =>
 const dialogOpen = ref(false);
 const career = ref(userLogged.career);
 const institutionalEmail = ref(userLogged.institutionalEmail);
-const isAdmin = ref(userLogged.isAdmin);
+const isAdmin = ref(userLogged.user.isAdmin);
 const isBoss = ref(userLogged.isBoss);
 const isCoordinator = ref(userLogged.isCoordinator);
 
 const userIsTeacher = computed(() => {
   return (
-    isAdmin.value || isBoss.value || isCoordinator.value || userLogged.isTeacher
+   isBoss.value || isCoordinator.value || userLogged.isTeacher
   );
 });
 
