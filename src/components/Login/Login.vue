@@ -15,7 +15,7 @@
           alt="logo"
           width="200px"
           height="200px"
-          class="mx-auto d-block"
+          class="mx-auto"
         ></v-img>
       </v-col>
     </v-row>
