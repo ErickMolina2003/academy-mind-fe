@@ -8,9 +8,9 @@
         <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
       </v-col>
       <v-col class="ml-1 mt-n2">
-        <p class="text-h5 font-weight-medium mt-1">Julia Martínez</p>
+        <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
         <p class="banner-major text-subtitle-1 font-weight-medium">
-          Ingenieria en sistemas
+          {{ career }}
         </p>
       </v-col>
       <v-col class="text-right">
@@ -19,11 +19,11 @@
           <v-card>
             <v-card-title>
               <h2 class="bg-blue-darken-3 pa-2 text-center rounded">
-                Configuracion de usuario
+                Configuración de usuario
               </h2>
             </v-card-title>
             <v-card-text>
-              <MyDialog @close="closeDialog"></MyDialog>
+              <MyDialog @close="closeDialog" @update-profile="updateProfile" :user-profile="userProfile"></MyDialog>
             </v-card-text>
           </v-card>
         </v-dialog>
@@ -36,29 +36,27 @@
         <v-row class="d-flex">
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Nombre completo: Julia Marcela Martínez Mejía
+              Nombre completo: {{ fullName }}
             </h3>
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Número de cuenta: 20191002985
+              {{ userIsTeacher ? 'Número de empleado:' : 'Número de cuenta:' }} {{ accountNumber }}
             </h3>
           </v-col>
         </v-row>
-
-        <v-row class="d-flex">
+        <v-row class="d-flex" v-if="!userIsTeacher">
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Carrera: Ingenieria en sistemas
+              Carrera: {{ career }}
             </h3>
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Correo electrónico institucional: marcelamejia@unah.hn
+              Correo electrónico personal: {{ personalEmail }}
             </h3>
           </v-col>
         </v-row>
-
         <v-row class="d-flex">
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
@@ -67,7 +65,7 @@
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Correo electrónico personal: {{ email }}
+              Correo electrónico institucional: {{ institutionalEmail }}
             </h3>
           </v-col>
         </v-row>
@@ -75,13 +73,11 @@
 
       <v-col cols="3" class="user-description rounded-lg px-7 py-3">
         <h4 class="font-weight-regular mt-2">Descripción</h4>
-
         <p>{{ description }}</p>
       </v-col>
 
       <v-col class="user-description rounded-lg ml-4 px-7 py-3">
         <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
-
         <v-row class="pt-2">
           <v-col cols="6" md="6" lg="4" xl="3">
             <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
@@ -100,16 +96,39 @@
 
 <script setup lang="ts">
 import ClassCard from "@/components/ClassCard/ClassCard.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
-const student = store.user.user.user;
-const description = ref(student.description);
-const email = ref(student.email);
+const userLogged = store.user.user;
+const description = ref(userLogged.user.description);
+const personalEmail = ref(userLogged.user.email);
+const name = ref(userLogged.user.firstName + ` ` + userLogged.user.firstLastName);
+const fullName = ref(userLogged.user.firstName + ` ` + userLogged.user.secondName + ` ` +  userLogged.user.firstLastName + ` ` + userLogged.user.secondLastName);
+const accountNumber = computed(() => userIsTeacher.value ? userLogged.employeeNumber : userLogged.accountNumber);
 const dialogOpen = ref(false);
+const career = ref(userLogged.career);
+const institutionalEmail = ref(userLogged.institutionalEmail);
+const isAdmin = ref(userLogged.isAdmin);
+const isBoss = ref(userLogged.isBoss);
+const isCoordinator = ref(userLogged.isCoordinator);
 
+const userIsTeacher = computed(() => {
+  return isAdmin.value || isBoss.value || isCoordinator.value || userLogged.isTeacher;
+});
+
+const updateProfile = (data) => {
+  if (data.description) {
+    description.value = data.description;
+  }
+
+  if (data.personalEmail) {
+    personalEmail.value = data.personalEmail;
+  }
+
+  // Agregar más actualizaciones según sea necesario
+};
 
 const openDialog = () => {
   dialogOpen.value = true;
@@ -118,6 +137,12 @@ const openDialog = () => {
 function closeDialog(close: boolean) {
   dialogOpen.value = close;
 }
+
+const userProfile = computed(() => ({
+  description: description.value,
+  personalEmail: personalEmail.value,
+  // Agregar más propiedades según sea necesario
+}));
 
 </script>
 

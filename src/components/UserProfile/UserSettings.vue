@@ -11,7 +11,7 @@
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
         <v-text-field class="text-black font-weight-black" v-model="account"
-          :label="!userIsTeacher ? 'Número de Cuenta' : 'Número de Empleado'"></v-text-field>
+          :label=" !(userIsTeacher | userIsBoss | userIsCoordinator) ? 'Número de Cuenta' : 'Número de Empleado'"></v-text-field>
       </div>
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
@@ -62,8 +62,8 @@
     </div>
 
     <div>
-      <h3 v-if="userIsTeacher" class="bg-blue-darken-1 my-3 pa-1">Video</h3>
-      <v-file-input chips accept="video/*" prepend-icon="mdi-camera"></v-file-input>
+      <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">Video</h3>
+      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips accept="video/*" prepend-icon="mdi-camera"></v-file-input>
     </div>
 
     <div>
@@ -95,18 +95,18 @@
 <script setup lang="ts">
 import LoginService from "@/services/login/login.service";
 import { useAppStore } from "@/store/app";
-import { ref } from "vue";
+import { ref, onMounted } from 'vue';
 import data from "../../mock/studentProfile.json";
 import StudentService from '@/services/student/student.service';
 import TeacherService from '@/services/teacher/teacher.service';
-
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'update-profile']);
 const store = useAppStore();
 const userLogged = store.user.user;
 const userIsTeacher = userLogged.isTeacher;
 const studentService = new StudentService();
 const teacherService = new TeacherService();
-
+const userIsBoss = userLogged.isBoss;
+const userIsCoordinator = userLogged.isCoordinator;
 const mockPassword = "********";
 const dni = userLogged.user.dni;
 const description = ref("");
@@ -116,7 +116,14 @@ const center = data.center;
 const props = Boolean;
 const name = userLogged.user.firstName + ' ' + userLogged.user.secondName + ' ' + userLogged.user.firstLastName + ' ' + userLogged.user.secondLastName;
 let account = "";
-if (userIsTeacher) {
+const originalDescription = ref('');
+const originalEmail = ref('');
+onMounted(() => {
+  originalDescription.value = description.value;
+  originalEmail.value = email.value;
+  // Agregar los demas campos (si hay)
+});
+if (userIsTeacher | userIsBoss | userIsCoordinator) {
   account = userLogged.employeeNumber;
 } else {
   account = userLogged.accountNumber;
@@ -167,7 +174,32 @@ async function confirmInfo() {
     });
 
   }
+  const updatedData = {};
+
+  if (description.value !== originalDescription.value) {
+    updatedData.description = description.value;
+  }
+
+  if (email.value !== originalEmail.value) {
+    updatedData.email = email.value;
+  }
+
+// Aggrega otras validaciones de campos que se quieran agregar
+
+  if (Object.keys(updatedData).length > 0) {
+    emit('update-profile', updatedData);
+
+    if (updatedData.description) {
+      originalDescription.value = updatedData.description;
+    }
+
+    if (updatedData.email) {
+      originalEmail.value = updatedData.email;
+    }
+    //De igual manera agregar los campos que se quieran actualizar
+  }
   emit('close', false);
+
 };
 
 const rules = {
@@ -225,9 +257,6 @@ async function submitChangePassword() {
     });
   }
 }
-
-
-
 
 
 </script>

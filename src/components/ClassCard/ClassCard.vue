@@ -30,6 +30,6 @@ defineProps<{
 
 <style scoped>
 .class-card-footer {
-  background-color: rgb(var(--v-theme-secondary));
+  background-color: rgb(var(--v-theme-secondary-darken-1));
 }
 </style>
