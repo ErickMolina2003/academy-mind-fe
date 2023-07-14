@@ -1,11 +1,23 @@
 export default interface User {
-  email?: string;
   instituteEmail?: string;
-  password?: string;
   name?: string;
-  isTeacher: boolean;
-}
+  isTeacher?: boolean;
 
+  dni?: string;
+  firstName?: string;
+  secondName?: string;
+  firstLastName?: string;
+  secondLastName?: string;
+  email?: string;
+  password?: string;
+  address?: string;
+  phone?: number;
+  description?: string;
+  photoOne?: string;
+  photoTwo?: string;
+  photoThree?: string;
+  isAdmin?: boolean;
+}
 
 export interface TeacherUpdate {
   email?: string;

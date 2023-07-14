@@ -2,10 +2,18 @@
   <v-container class="profile-layout">
     <v-row class="user-banner rounded-lg" justify="start">
       <v-col cols="12" class="pa-0">
-        <img src="@/assets/profile-banner.png" alt="banner-img" class="banner-img w-100" />
+        <img
+          src="@/assets/profile-banner.png"
+          alt="banner-img"
+          class="banner-img w-100"
+        />
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
-        <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
+        <img
+          src="@/assets/user-img.png"
+          alt="user-img"
+          class="user-img rounded-lg"
+        />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
@@ -23,7 +31,11 @@
               </h2>
             </v-card-title>
             <v-card-text>
-              <MyDialog @close="closeDialog" @update-profile="updateProfile" :user-profile="userProfile"></MyDialog>
+              <MyDialog
+                @close="closeDialog"
+                @update-profile="updateProfile"
+                :user-profile="userProfile"
+              ></MyDialog>
             </v-card-text>
           </v-card>
         </v-dialog>
@@ -41,15 +53,14 @@
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              {{ userIsTeacher ? 'Número de empleado:' : 'Número de cuenta:' }} {{ accountNumber }}
+              {{ userIsTeacher ? "Número de empleado:" : "Número de cuenta:" }}
+              {{ accountNumber }}
             </h3>
           </v-col>
         </v-row>
         <v-row class="d-flex" v-if="!userIsTeacher">
           <v-col cols="6">
-            <h3 class="font-weight-bold banner-major">
-              Carrera: {{ career }}
-            </h3>
+            <h3 class="font-weight-bold banner-major">Carrera: {{ career }}</h3>
           </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
@@ -104,9 +115,21 @@ const store = useAppStore();
 const userLogged = store.user.user;
 const description = ref(userLogged.user.description);
 const personalEmail = ref(userLogged.user.email);
-const name = ref(userLogged.user.firstName + ` ` + userLogged.user.firstLastName);
-const fullName = ref(userLogged.user.firstName + ` ` + userLogged.user.secondName + ` ` +  userLogged.user.firstLastName + ` ` + userLogged.user.secondLastName);
-const accountNumber = computed(() => userIsTeacher.value ? userLogged.employeeNumber : userLogged.accountNumber);
+const name = ref(
+  userLogged.user.firstName + ` ` + userLogged.user.firstLastName
+);
+const fullName = ref(
+  userLogged.user.firstName +
+    ` ` +
+    userLogged.user.secondName +
+    ` ` +
+    userLogged.user.firstLastName +
+    ` ` +
+    userLogged.user.secondLastName
+);
+const accountNumber = computed(() =>
+  userIsTeacher.value ? userLogged.employeeNumber : userLogged.accountNumber
+);
 const dialogOpen = ref(false);
 const career = ref(userLogged.career);
 const institutionalEmail = ref(userLogged.institutionalEmail);
@@ -115,7 +138,9 @@ const isBoss = ref(userLogged.isBoss);
 const isCoordinator = ref(userLogged.isCoordinator);
 
 const userIsTeacher = computed(() => {
-  return isAdmin.value || isBoss.value || isCoordinator.value || userLogged.isTeacher;
+  return (
+    isAdmin.value || isBoss.value || isCoordinator.value || userLogged.isTeacher
+  );
 });
 
 const updateProfile = (data) => {
@@ -143,7 +168,6 @@ const userProfile = computed(() => ({
   personalEmail: personalEmail.value,
   // Agregar más propiedades según sea necesario
 }));
-
 </script>
 
 <style scoped>

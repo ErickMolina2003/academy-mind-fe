@@ -47,9 +47,9 @@
 <script setup>
 import router from "@/router";
 import { computed, ref } from "vue";
-import LoginService from "@/services/login/login.service";
 import ToasterVue from "@/components/Toaster.vue";
 import { useAppStore } from "@/store/app";
+import AdminLoginService from "@/services/login/adminLogin.service";
 
 const email = ref("");
 const password = ref("");
@@ -74,8 +74,7 @@ async function submitLogin() {
     email: email.value,
     password: password.value,
   };
-
-  const service = new LoginService();
+  const service = new AdminLoginService();
   const response = await service.getLoginToken(user);
   if (response === 201) router.push("/");
   else {

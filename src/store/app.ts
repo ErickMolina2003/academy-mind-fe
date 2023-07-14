@@ -5,13 +5,16 @@ import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", {
   state: () => ({
-    user: {},
+    user: {
+      isAdmin: false,
+      user: {},
+    },
     updateTeachers: false,
     updateStudents: false,
     toaster: {},
   }),
   actions: {
-    setUser(user: User) {
+    setUser(user) {
       this.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },

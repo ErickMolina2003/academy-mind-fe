@@ -97,13 +97,14 @@ const routes = [
       {
         path: "/login",
         name: "login",
-        component: () => import("@/components/Login/Login.vue")
+        component: () => import("@/components/Login/Login.vue"),
       },
       {
         path: "/reinicio",
         name: "reset",
-        component: () => import("@/components/Login/Reset.vue")
-      }],
+        component: () => import("@/components/Login/Reset.vue"),
+      },
+    ],
     beforeEnter: (to, from, next) => {
       const userExists = window.localStorage.getItem("academy-user");
 
@@ -117,6 +118,11 @@ const routes = [
       }
     },
   },
+  {
+    path: "/admin/inicio-sesion",
+    name: "admin-login",
+    component: () => import("@/components/Login/AdminLogin.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -127,6 +133,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const store = useAppStore();
   const userExists = store.userExists;
+  store.user = JSON.parse(window.localStorage.getItem("academy-user"));
 
   if (to.meta.middleware && !userExists) {
     next("login");
