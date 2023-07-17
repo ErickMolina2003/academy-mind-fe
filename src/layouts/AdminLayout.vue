@@ -230,7 +230,7 @@
             </v-form>
           </v-container>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="fixed-footer">
           <v-spacer></v-spacer>
           <v-btn color="blue-darken-1" variant="text" @click="closeModal">
             Cerrar
@@ -530,5 +530,12 @@ function setToaster(isActive: boolean, text: string, color: string) {
 .error-row {
   background-color: rgb(var(--v-theme-error));
   color: white;
+}
+.fixed-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  border-top: 1px solid rgba(var(--v-theme-base-border-color), 0.12);
+  padding: 16px;
 }
 </style>
