@@ -104,7 +104,7 @@ import StudentService from '@/services/student/student.service';
 import TeacherService from '@/services/teacher/teacher.service';
 const emit = defineEmits(['close', 'update-profile']);
 const store = useAppStore();
-const userLogged = store.user.user;
+const userLogged = store.user;
 const userIsTeacher = userLogged.isTeacher;
 const isAdmin = ref(userLogged.user.isAdmin);
 const studentService = new StudentService();
@@ -141,69 +141,69 @@ function closeDialog() {
 async function confirmInfo() {
 
 
-  if (email.value) {
-    if (formEmail.value) {
-      if (userIsTeacher) {
-        await teacherService.updateTeacher(dni, { "email": email.value });
-      } else {
-        await studentService.updateStudent(dni, { "email": email.value });
-      }
-
-      store.setToaster({
-        isActive: true,
-        text: "¡Correo personal actualizado correctamente!",
-        color: "success",
-      });
-    }
-  }
-
-  if (description.value) {
+if (email.value) {
+  if (formEmail.value) {
     if (userIsTeacher) {
-      await teacherService.updateTeacher(dni, { "description": description.value });
+      await teacherService.updateTeacher(dni, { "email": email.value });
     } else {
-      await studentService.updateStudent(dni, { "description": description.value });
+      await studentService.updateStudent(dni, { "email": email.value });
     }
 
     store.setToaster({
       isActive: true,
-      text: "¡Descripcion actualizada correctamente!",
+      text: "¡Correo personal actualizado correctamente!",
       color: "success",
     });
   }
+}
 
-  if (description.value && email.value && formEmail.value) {
-    store.setToaster({
-      isActive: true,
-      text: "¡Descripcion y correo personal actualizados correctamente!",
-      color: "success",
-    });
-
-  }
-  const updatedData = {};
-
-  if (description.value !== originalDescription.value) {
-    updatedData.description = description.value;
+if (description.value) {
+  if (userIsTeacher) {
+    await teacherService.updateTeacher(dni, { "description": description.value });
+  } else {
+    await studentService.updateStudent(dni, { "description": description.value });
   }
 
-  if (email.value !== originalEmail.value) {
-    updatedData.email = email.value;
-  }
+  store.setToaster({
+    isActive: true,
+    text: "¡Descripcion actualizada correctamente!",
+    color: "success",
+  });
+}
+
+if (description.value && email.value && formEmail.value) {
+  store.setToaster({
+    isActive: true,
+    text: "¡Descripcion y correo personal actualizados correctamente!",
+    color: "success",
+  });
+
+}
+const updatedData = {};
+
+if (description.value !== originalDescription.value) {
+  updatedData.description = description.value;
+}
+
+if (email.value !== originalEmail.value) {
+  updatedData.email = email.value;
+}
 
 // Aggrega otras validaciones de campos que se quieran agregar
 
-  if (Object.keys(updatedData).length > 0) {
-    emit('update-profile', updatedData);
+if (Object.keys(updatedData).length > 0) {
+  emit('update-profile', updatedData);
 
-    if (updatedData.description) {
-      originalDescription.value = updatedData.description;
-    }
-
-    if (updatedData.email) {
-      originalEmail.value = updatedData.email;
-    }
-    //De igual manera agregar los campos que se quieran actualizar
+  if (updatedData.description) {
+    originalDescription.value = updatedData.description;
   }
-  emit('close', false);
+
+  if (updatedData.email) {
+    originalEmail.value = updatedData.email;
+  }
+  //De igual manera agregar los campos que se quieran actualizar
+}
+emit('close', false);
 
 };
 

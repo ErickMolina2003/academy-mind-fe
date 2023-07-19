@@ -31,7 +31,7 @@ export const useAppStore = defineStore("app", {
       this.updateStudents = update;
     },
     setUpdatedUser(user) {
-      this.user.user.user = user;
+      this.user.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
     setToaster(toaster: Toaster) {
