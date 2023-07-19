@@ -285,7 +285,7 @@ const dniRules = {
 
 const emailRules = {
   validate: (value) =>
-    /^[\w.]+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value) ||
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(value) ||
     "Introduzca un correo electrónico válido",
 };
 
@@ -301,7 +301,6 @@ const addressRules = {
 
 //Esto es de Estudiantes
 const store = useAppStore();
-
 const router = useRoute();
 const showModal = ref(false);
 const files = ref([]);
