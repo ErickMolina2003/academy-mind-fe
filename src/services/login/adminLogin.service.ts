@@ -5,10 +5,10 @@ export default class AdminLoginService {
   store = useAppStore();
 
   async getLoginToken(user: any) {
-    const email = user.email;
+    const employeeNumber = user.employeeNumber;
     const password = user.password;
     const body = {
-      email: email,
+      employeeNumber: employeeNumber,
       password: password,
     };
 

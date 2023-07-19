@@ -11,7 +11,7 @@
         <v-text-field
           variant="outlined"
           class="mb-2"
-          v-model="email"
+          v-model="employeeNumber"
           :rules="[rules.required]"
           bg-color="primary"
           label="Correo"
@@ -54,6 +54,7 @@ import AdminLoginService from "@/services/login/adminLogin.service";
 const email = ref("");
 const password = ref("");
 const form = ref(false);
+const employeeNumber = ref("");
 const store = useAppStore();
 
 const rules = {
@@ -71,9 +72,10 @@ async function submitLogin() {
   }
 
   const user = {
-    email: email.value,
+    employeeNumber: employeeNumber.value,
     password: password.value,
   };
+  
   const service = new AdminLoginService();
   const response = await service.getLoginToken(user);
   if (response === 201) router.push("/");

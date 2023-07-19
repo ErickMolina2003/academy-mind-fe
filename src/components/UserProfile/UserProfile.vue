@@ -81,24 +81,24 @@
           </v-col>
         </v-row>
       </v-col>
-        <v-col v-if="!isAdmin" cols="3" class="user-description rounded-lg px-7 py-3">
+      <v-col v-if="!isAdmin" cols="3" class="user-description rounded-lg px-7 py-3">
         <h4 class="font-weight-regular mt-2">Descripción</h4>
         <p>{{ description }}</p>
-        </v-col>
-        <v-col v-if="!isAdmin" class="user-description rounded-lg ml-4 px-7 py-3">
-          <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
-          <v-row class="pt-2">
-            <v-col cols="6" md="6" lg="4" xl="3">
-              <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
-            </v-col>
-            <v-col cols="6" md="6" lg="4" xl="3">
-              <ClassCard clase="Contabilidad" periodo="2" anio="2023" />
-            </v-col>
-            <v-col cols="6" md="6" lg="4" xl="3">
-              <ClassCard clase="Sistemas Expertos" periodo="2" anio="2023" />
-            </v-col>
-          </v-row>
-        </v-col>
+      </v-col>
+      <v-col v-if="!isAdmin" class="user-description rounded-lg ml-4 px-7 py-3">
+        <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
+        <v-row class="pt-2">
+          <v-col cols="6" md="6" lg="4" xl="3">
+            <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
+          </v-col>
+          <v-col cols="6" md="6" lg="4" xl="3">
+            <ClassCard clase="Contabilidad" periodo="2" anio="2023" />
+          </v-col>
+          <v-col cols="6" md="6" lg="4" xl="3">
+            <ClassCard clase="Sistemas Expertos" periodo="2" anio="2023" />
+          </v-col>
+        </v-row>
+      </v-col>
       <v-col v-if="isAdmin" cols="12" class="user-description rounded-lg px-7 py-3">
         <h4 class="font-weight-regular mt-2">Descripción</h4>
         <p>{{ description }}</p>
@@ -114,7 +114,7 @@ import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
-const userLogged = store.user.user;
+const userLogged = store.user;
 const description = ref(userLogged.user.description);
 const personalEmail = ref(userLogged.user.email);
 const name = ref(
@@ -140,9 +140,7 @@ const isBoss = ref(userLogged.isBoss);
 const isCoordinator = ref(userLogged.isCoordinator);
 
 const userIsTeacher = computed(() => {
-  return (
-   isBoss.value || isCoordinator.value || userLogged.isTeacher
-  );
+  return isBoss.value || isCoordinator.value || userLogged.isTeacher;
 });
 
 const updateProfile = (data) => {
@@ -161,7 +159,7 @@ const openDialog = () => {
   dialogOpen.value = true;
 };
 
-function closeDialog(close: boolean) {
+function closeDialog(close:boolean) {
   dialogOpen.value = close;
 }
 
