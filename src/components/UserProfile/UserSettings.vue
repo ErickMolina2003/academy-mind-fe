@@ -10,8 +10,8 @@
       <h3 class="bg-blue-darken-1 my-3 pa-1">Información del Usuario</h3>
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
-        <v-text-field  v-if="!isAdmin" class="text-black font-weight-black" v-model="account"
-          :label=" !(userIsTeacher | userIsBoss | userIsCoordinator) ? 'Número de Cuenta' : 'Número de Empleado'"></v-text-field>
+        <v-text-field v-if="!isAdmin" class="text-black font-weight-black" v-model="account"
+          :label="!(userIsTeacher | userIsBoss | userIsCoordinator) ? 'Número de Cuenta' : 'Número de Empleado'"></v-text-field>
       </div>
       <div class="d-flex">
         <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
@@ -32,9 +32,9 @@
             <v-text-field class="text-black font-weight-black" v-model="currentPassword" type="password"
               :rules="[rules.required]" label="Actual Contraseña"></v-text-field>
             <v-text-field class="text-black font-weight-black" v-model="password" type="password"
-              :rules="[rules.required]" label="Nueva Contraseña"></v-text-field>
+              :rules="[rules.required, rules.passwordRule]" label="Nueva Contraseña"></v-text-field>
             <v-text-field class="text-black font-weight-black" v-model="confirmPassword" type="password"
-              :rules="[rules.required]" label="Confirmar Contraseña"></v-text-field>
+              :rules="[rules.required, rules.passwordRule]" label="Confirmar Contraseña"></v-text-field>
             <v-row justify="center">
               <v-col cols="12" md="auto" lg="auto">
                 <v-btn color="success" type="submit" class="mr-4">Cambiar Contraseña</v-btn>
@@ -66,7 +66,8 @@
 
     <div>
       <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">Video</h3>
-      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips accept="video/*" prepend-icon="mdi-camera"></v-file-input>
+      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips accept="video/*"
+        prepend-icon="mdi-camera"></v-file-input>
     </div>
 
     <div>
@@ -141,75 +142,76 @@ function closeDialog() {
 async function confirmInfo() {
 
 
-if (email.value) {
-  if (formEmail.value) {
+  if (email.value) {
+    if (formEmail.value) {
+      if (userIsTeacher) {
+        await teacherService.updateTeacher(dni, { "email": email.value });
+      } else {
+        await studentService.updateStudent(dni, { "email": email.value });
+      }
+
+      store.setToaster({
+        isActive: true,
+        text: "¡Correo personal actualizado correctamente!",
+        color: "success",
+      });
+    }
+  }
+
+  if (description.value) {
     if (userIsTeacher) {
-      await teacherService.updateTeacher(dni, { "email": email.value });
+      await teacherService.updateTeacher(dni, { "description": description.value });
     } else {
-      await studentService.updateStudent(dni, { "email": email.value });
+      await studentService.updateStudent(dni, { "description": description.value });
     }
 
     store.setToaster({
       isActive: true,
-      text: "¡Correo personal actualizado correctamente!",
+      text: "¡Descripcion actualizada correctamente!",
       color: "success",
     });
   }
-}
 
-if (description.value) {
-  if (userIsTeacher) {
-    await teacherService.updateTeacher(dni, { "description": description.value });
-  } else {
-    await studentService.updateStudent(dni, { "description": description.value });
+  if (description.value && email.value && formEmail.value) {
+    store.setToaster({
+      isActive: true,
+      text: "¡Descripcion y correo personal actualizados correctamente!",
+      color: "success",
+    });
+
+  }
+  const updatedData = {};
+
+  if (description.value !== originalDescription.value) {
+    updatedData.description = description.value;
   }
 
-  store.setToaster({
-    isActive: true,
-    text: "¡Descripcion actualizada correctamente!",
-    color: "success",
-  });
-}
-
-if (description.value && email.value && formEmail.value) {
-  store.setToaster({
-    isActive: true,
-    text: "¡Descripcion y correo personal actualizados correctamente!",
-    color: "success",
-  });
-
-}
-const updatedData = {};
-
-if (description.value !== originalDescription.value) {
-  updatedData.description = description.value;
-}
-
-if (email.value !== originalEmail.value) {
-  updatedData.email = email.value;
-}
-
-// Aggrega otras validaciones de campos que se quieran agregar
-
-if (Object.keys(updatedData).length > 0) {
-  emit('update-profile', updatedData);
-
-  if (updatedData.description) {
-    originalDescription.value = updatedData.description;
+  if (email.value !== originalEmail.value) {
+    updatedData.email = email.value;
   }
 
-  if (updatedData.email) {
-    originalEmail.value = updatedData.email;
+  // Aggrega otras validaciones de campos que se quieran agregar
+
+  if (Object.keys(updatedData).length > 0) {
+    emit('update-profile', updatedData);
+
+    if (updatedData.description) {
+      originalDescription.value = updatedData.description;
+    }
+
+    if (updatedData.email) {
+      originalEmail.value = updatedData.email;
+    }
+    //De igual manera agregar los campos que se quieran actualizar
   }
-  //De igual manera agregar los campos que se quieran actualizar
-}
-emit('close', false);
+  emit('close', false);
 
 };
 
 const rules = {
   required: (value: any) => !!value || "Campo obligatorio",
-  emailRule: (value: string) => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value) || "Email inválido."
+  emailRule: (value: string) => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value) || "Email inválido.",
+  passwordRule: (value: string) => /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+{};:,<.>])(?!.*\s).{8,}$/.test(value) || "La contraseña debe tener al menos 8 caracteres de longitud, 1 letra mayúscula, 1 número y 1 carácter especial."
 };
 
 
