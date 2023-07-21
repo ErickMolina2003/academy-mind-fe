@@ -94,9 +94,10 @@ onMounted(() => {
   isTeacher.value = store.user.user.isTeacher;
   isCoordinator.value = store.user.user.isCoordinator;
   isBossAcademic.value = store.user.user.isBoss;
-  isAdmin.value = store.user.user.user.isAdmin;
-  isStudent.value = store.user.user.user.career ? true : false;
+  isAdmin.value = store.user.user.isAdmin;
+  isStudent.value = store.user.user.career ? true : false;
 });
+
 
 function logout() {
   window.localStorage.removeItem("academy-user");
