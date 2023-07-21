@@ -1,42 +1,17 @@
 <template>
-  <v-sheet
-    class="d-flex align-center justify-center bg-blue-darken-3"
-    width="100%"
-    height="100%"
-    rounded
-  >
+  <v-sheet class="d-flex align-center justify-center bg-blue-darken-3" width="100%" height="100%" rounded>
     <v-card class="login-card pa-6 ma-6 bg-white">
-      <h2 class="text-center">Panel de Administración</h2>
+      <h2 class="text-center">Inicio de Sesión de Administración</h2>
       <v-form v-model="form" @submit.prevent="submitLogin" class="ma-6">
-        <v-text-field
-          variant="outlined"
-          class="mb-2"
-          v-model="employeeNumber"
-          :rules="[rules.required]"
-          bg-color="primary"
-          label="Correo"
-        ></v-text-field>
+        <v-text-field variant="outlined" class="mb-2" v-model="employeeNumber" :rules="[rules.required]"
+          bg-color="primary" label="Número de Empleado"></v-text-field>
 
-        <v-text-field
-          v-model="password"
-          :rules="[rules.required]"
-          type="password"
-          bg-color="primary"
-          variant="outlined"
-          label="Contraseña"
-          placeholder="Introduzca su contraseña"
-        ></v-text-field>
+        <v-text-field v-model="password" :rules="[rules.required]" type="password" bg-color="primary" variant="outlined"
+          label="Contraseña" placeholder="Introduzca su contraseña"></v-text-field>
 
         <br />
 
-        <v-btn
-          block
-          rounded="lg"
-          color="blue-darken-3"
-          size="large"
-          type="submit"
-          variant="elevated"
-        >
+        <v-btn block rounded="lg" color="blue-darken-3" size="large" type="submit" variant="elevated">
           Iniciar Sesion
         </v-btn>
       </v-form>
@@ -51,7 +26,7 @@ import ToasterVue from "@/components/Toaster.vue";
 import { useAppStore } from "@/store/app";
 import AdminLoginService from "@/services/login/adminLogin.service";
 
-const email = ref("");
+
 const password = ref("");
 const form = ref(false);
 const employeeNumber = ref("");
@@ -75,7 +50,7 @@ async function submitLogin() {
     employeeNumber: employeeNumber.value,
     password: password.value,
   };
-  
+
   const service = new AdminLoginService();
   const response = await service.getLoginToken(user);
   if (response === 201) router.push("/");
