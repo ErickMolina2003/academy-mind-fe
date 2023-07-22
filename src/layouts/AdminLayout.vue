@@ -178,7 +178,7 @@
                 <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="dni"
-                    :rules="[nameRules.required, dniRules.size]"
+                    :rules="[nameRules.required, dniRules.numbersOnly, dniRules.size]"
                     label="DNI"
                     :counter="13"
                     required
@@ -278,9 +278,8 @@ const nameRules = {
 };
 
 const dniRules = {
-  size: (value) =>
-    (value?.length == 13 && /^[^A-Za-z]+$/.test(value)) ||
-    "Introduzca un DNI válido",
+  numbersOnly: (value) => /^\d+$/.test(value) || "Introduzca un DNI válido, solo números sin guiones ni puntos",
+  size: (value) => (value?.length === 13) || "El DNI debe tener exactamente 13 caracteres",
 };
 
 const emailRules = {
