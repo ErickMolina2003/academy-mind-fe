@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useAppStore } from "@/store/app";
+import User from '../../models/user';
 
 export default class AdminLoginService {
   store = useAppStore();
 
   async getLoginToken(user: any) {
+    
     const employeeNumber = user.employeeNumber;
     const password = user.password;
     const body = {
@@ -24,10 +26,10 @@ export default class AdminLoginService {
         this.store.setUser(response.data);
         this.store.setToaster({
           isActive: true,
-          text: "Bienvenido.",
+          text:'¡Bienvenido!',
           color: "success",
         });
-        return response.status;
+        return response.data;
       }
     } catch (error) {
       this.store.setToaster({

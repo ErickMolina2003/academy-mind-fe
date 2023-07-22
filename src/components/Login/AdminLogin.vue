@@ -1,13 +1,26 @@
 <template>
+  <ToasterVue />
   <v-sheet class="d-flex align-center justify-center bg-blue-darken-3" width="100%" height="100%" rounded>
     <v-card class="login-card pa-6 ma-6 bg-white">
       <h2 class="text-center">Inicio de Sesión de Administración</h2>
       <v-form v-model="form" @submit.prevent="submitLogin" class="ma-6">
-        <v-text-field variant="outlined" class="mb-2" v-model="employeeNumber" :rules="[rules.required]"
-          bg-color="primary" label="Número de Empleado"></v-text-field>
-
-        <v-text-field v-model="password" :rules="[rules.required]" type="password" bg-color="primary" variant="outlined"
-          label="Contraseña" placeholder="Introduzca su contraseña"></v-text-field>
+        <v-text-field
+          variant="outlined"
+          class="mb-2"
+          v-model="employeeNumber"
+          :rules="[rules.required, rules.numbersOnly]"
+          bg-color="primary"
+          label="Número de Empleado"
+        ></v-text-field>
+        <v-text-field 
+          v-model="password" 
+          :rules="[rules.required]" 
+          type="password" 
+          bg-color="primary" 
+          variant="outlined"
+          label="Contraseña" 
+          placeholder="Introduzca su contraseña">
+        </v-text-field>
 
         <br />
 
@@ -34,6 +47,7 @@ const store = useAppStore();
 
 const rules = {
   required: (value) => !!value || "Campo obligatorio",
+  numbersOnly: (value) => /^[0-9]+$/.test(value) || "El número de empleado debe contener solo números",
 };
 
 async function submitLogin() {
@@ -53,11 +67,18 @@ async function submitLogin() {
 
   const service = new AdminLoginService();
   const response = await service.getLoginToken(user);
-  if (response === 201) router.push("/");
-  else {
+  if (response.statusCode === 200){
+    router.push("/");
+  } else if (response.statusCode === 400) {
     store.setToaster({
       isActive: true,
-      text: "Credenciales incorrectas!",
+      text: "El usuario no existe.",
+      color: "error",
+    });
+  } else if (response.statusCode === 401) {
+    store.setToaster({
+      isActive: true,
+      text: "Contraseña incorrecta.",
       color: "error",
     });
   }
