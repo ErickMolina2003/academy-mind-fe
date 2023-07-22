@@ -14,7 +14,7 @@ export const useAppStore = defineStore("app", {
     toaster: {},
   }),
   actions: {
-    setUser(user) {
+    setUser(user:any) {
       this.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
@@ -30,7 +30,7 @@ export const useAppStore = defineStore("app", {
     setUpdateStudent(update: boolean) {
       this.updateStudents = update;
     },
-    setUpdatedUser(user) {
+    setUpdatedUser(user:any) {
       this.user.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
