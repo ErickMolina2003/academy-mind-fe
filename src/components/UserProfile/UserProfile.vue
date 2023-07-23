@@ -18,7 +18,13 @@
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
         <p class="banner-major text-subtitle-1 font-weight-medium">
-          {{ isAdmin ? 'Administrador' : (isCoordinator || isBoss || userIsTeacher ? 'Docente' : career) }}
+          {{
+            isAdmin
+              ? "Administrador"
+              : isCoordinator || isBoss || userIsTeacher
+              ? "Docente"
+              : "Ingenieria en sistemas"
+          }}
         </p>
       </v-col>
       <v-col class="text-right">
@@ -42,7 +48,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="pt-6" style="padding-bottom: 15px;">
+    <v-row class="pt-6" style="padding-bottom: 15px">
       <v-col cols="12" class="user-info rounded-lg mb-6 px-7 py-6">
         <h4 class="font-weight-regular mb-3">Información personal</h4>
         <v-row class="d-flex">
@@ -59,9 +65,9 @@
           </v-col>
         </v-row>
         <v-row class="d-flex" v-if="!userIsTeacher">
-          <v-col v-if="!isAdmin" cols="6">
+          <!-- <v-col v-if="!isAdmin" cols="6">
             <h3 class="font-weight-bold banner-major">Carrera: {{ career }}</h3>
-          </v-col>
+          </v-col> -->
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
               Correo electrónico personal: {{ personalEmail }}
@@ -81,7 +87,11 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col v-if="!isAdmin" cols="3" class="user-description rounded-lg px-7 py-3">
+      <v-col
+        v-if="!isAdmin"
+        cols="3"
+        class="user-description rounded-lg px-7 py-3"
+      >
         <h4 class="font-weight-regular mt-2">Descripción</h4>
         <p>{{ description }}</p>
       </v-col>
@@ -99,7 +109,11 @@
           </v-col>
         </v-row>
       </v-col>
-      <v-col v-if="isAdmin" cols="12" class="user-description rounded-lg px-7 py-3">
+      <v-col
+        v-if="isAdmin"
+        cols="12"
+        class="user-description rounded-lg px-7 py-3"
+      >
         <h4 class="font-weight-regular mt-2">Descripción</h4>
         <p>{{ description }}</p>
       </v-col>
@@ -114,33 +128,42 @@ import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
-const userLogged = store.user;
-const description = ref(userLogged.user.description);
-const personalEmail = ref(userLogged.user.email);
-const name = ref(
-  userLogged.user.firstName + ` ` + userLogged.user.firstLastName
-);
+const userLogged = computed(() => {
+  if (store.user.teacher) {
+    return store.user.teacher;
+  }
+
+  if (store.user.student) {
+    return store.user.student;
+  }
+
+  return store.user;
+});
+const description = ref(userLogged.value.description);
+const personalEmail = ref(userLogged.value.email);
+const name = ref(store.user.firstName + ` ` + store.user.firstLastName);
 const fullName = ref(
-  userLogged.user.firstName +
+  store.user.firstName +
     ` ` +
-    userLogged.user.secondName +
+    store.user.secondName +
     ` ` +
-    userLogged.user.firstLastName +
+    store.user.firstLastName +
     ` ` +
-    userLogged.user.secondLastName
+    store.user.secondLastName
 );
-const accountNumber = computed(() =>
-  userIsTeacher.value ? userLogged.employeeNumber : userLogged.accountNumber
-);
+
+const accountNumber = computed(() => {
+  return userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
+});
 const dialogOpen = ref(false);
-const career = ref(userLogged.career);
-const institutionalEmail = ref(userLogged.institutionalEmail);
-const isAdmin = ref(userLogged.user.isAdmin);
-const isBoss = ref(userLogged.isBoss);
-const isCoordinator = ref(userLogged.isCoordinator);
+// const career = ref(userLogged.career);
+const institutionalEmail = ref(userLogged.value.institutionalEmail);
+const isAdmin = ref(store.user.isAdmin);
+const isBoss = ref(userLogged.value.isBoss);
+const isCoordinator = ref(userLogged.value.isCoordinator);
 
 const userIsTeacher = computed(() => {
-  return isBoss.value || isCoordinator.value || userLogged.isTeacher;
+  return isBoss.value || isCoordinator.value || store.user.isTeacher;
 });
 
 const updateProfile = (data) => {
@@ -159,7 +182,7 @@ const openDialog = () => {
   dialogOpen.value = true;
 };
 
-function closeDialog(close:boolean) {
+function closeDialog(close: boolean) {
   dialogOpen.value = close;
 }
 

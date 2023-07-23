@@ -5,16 +5,13 @@ import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", {
   state: () => ({
-    user: {
-      isAdmin: false,
-      user: {},
-    },
+    user: {},
     updateTeachers: false,
     updateStudents: false,
     toaster: {},
   }),
   actions: {
-    setUser(user:any) {
+    setUser(user: User) {
       this.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
@@ -30,7 +27,7 @@ export const useAppStore = defineStore("app", {
     setUpdateStudent(update: boolean) {
       this.updateStudents = update;
     },
-    setUpdatedUser(user:any) {
+    setUpdatedUser(user: any) {
       this.user.user = user;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },

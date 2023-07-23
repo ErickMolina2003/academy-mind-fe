@@ -1,22 +1,45 @@
 export default interface User {
-  instituteEmail?: string;
-  name?: string;
-  isTeacher?: boolean;
-
-  dni?: string;
-  firstName?: string;
-  secondName?: string;
-  firstLastName?: string;
-  secondLastName?: string;
-  email?: string;
-  password?: string;
-  address?: string;
-  phone?: number;
+  firstName: string;
+  secondName: string;
+  firstLastName: string;
+  secondLastName: string;
+  address: string;
   description?: string;
+  dni: string;
+  email?: string;
+  employeeNumber?: string;
+  isAdmin?: boolean;
+  phone?: string;
+  status?: boolean;
+  teacher?: Teacher;
+  student?: Student;
+}
+
+export interface Teacher {
+  email: string;
+  employeeNumber: string;
+  institutionalEmail: string;
+  isBoss: boolean;
+  isCoordinator: boolean;
+  description?: string;
+  photoOne?: string;
+  status?: boolean;
+  video?: string;
+}
+
+export interface Student {
+  accountNumber: string;
+  email: string;
+  institutionalEmail: string;
+  description?: string;
+  incomeNote?: number;
+  overallIndex?: number;
+  payment?: boolean;
+  periodIndex?: number;
   photoOne?: string;
   photoTwo?: string;
   photoThree?: string;
-  isAdmin?: boolean;
+  status?: boolean;
 }
 
 export interface TeacherUpdate {

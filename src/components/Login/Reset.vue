@@ -16,10 +16,10 @@
       <v-row class="mt-7" justify="center">
         <v-col class="pb-0" cols="12" md="8" lg="8">
           <v-text-field
-            v-model="accountNumber"
+            v-model="dni"
             :rules="[rules.required, rules.minLength]"
             bg-color="primary"
-            label="Numero de cuenta"
+            label="Número de identidad"
             variant="outlined"
           ></v-text-field>
         </v-col>
@@ -44,7 +44,7 @@
   </span>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import router from "@/router";
 import LoginService from "@/services/login/login.service";
 import { useAppStore } from "@/store/app";
@@ -60,7 +60,7 @@ const form = ref(false);
 
 const store = useAppStore();
 
-const accountNumber = ref("");
+const dni = ref("");
 
 async function resetPassword() {
   if (!form.value) {
@@ -72,8 +72,8 @@ async function resetPassword() {
     return;
   }
   const service = new LoginService();
-  const response = await service.resetPassword(accountNumber.value);
-  if (response.status === 201) {
+  const response = await service.resetStudentPassword(dni.value);
+  if (response.status === 201 && response.data.statusCode == 200) {
     router.push("/login");
   }
 }
