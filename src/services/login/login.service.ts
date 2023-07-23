@@ -5,37 +5,88 @@ import { useAppStore } from "@/store/app";
 export default class LoginService {
   store = useAppStore();
 
-  async getLoginToken(user: User) {
-    const email = user.email;
-    const password = user.password;
-    const isTeacher = user.isTeacher;
-    const body = {
-      accountNumber: isTeacher ? "-1" : email,
-      password: password,
-      employeeNumber: isTeacher ? email : "-1",
-    };
-    const url = "http://localhost:3001/api/auth";
+  async loginTeacher(id: string, password: string) {
+    const url = "http://localhost:3001/api/teacher/login";
 
     try {
       const response = await axios({
         method: "post",
         url: url,
-        data: body,
+        data: { password: password, employeeNumber: id },
       });
-
       if (response.status === 201) {
         const data = await response.data;
-        this.store.setUser(data);
-        if (response.status === 201) {
+        if (data.statusCode === 200) {
+          this.store.setUser(data);
           this.store.setToaster({
             isActive: true,
             text: "Bienvenido!",
             color: "success",
           });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña incorrecta.",
+            color: "error",
+          });
         }
-        return response.status;
+        return response;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Contraseña incorrecta.",
+          color: "error",
+        });
       }
     } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Contraseña incorrecta.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  async loginStudent(id: string, password: string) {
+    const url = "http://localhost:3001/api/student/login";
+
+    try {
+      const response = await axios({
+        method: "post",
+        url: url,
+        data: { password: password, accountNumber: id },
+      });
+      if (response.status === 201) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setUser(data);
+          this.store.setToaster({
+            isActive: true,
+            text: "Bienvenido!",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña incorrecta.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Contraseña incorrecta.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Contraseña incorrecta.",
+        color: "error",
+      });
       return error;
     }
   }
