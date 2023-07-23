@@ -269,7 +269,6 @@ function uploadingImage() {
   uploadBytes(imageRef, image).then((response) => {
     getDownloadURL(response.ref).then((url) => {
       uploadedImage.value = url;
-      console.log(url);
     });
     alert("image uploaded");
   });

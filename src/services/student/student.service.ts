@@ -6,7 +6,7 @@ export default class StudentService {
   store = useAppStore();
 
   async createStudents(students: any) {
-    const url = "http://localhost:3001/api/student";
+    const url = "http://localhost:3001/api/student/multiple";
     try {
       const response = await axios({
         method: "POST",

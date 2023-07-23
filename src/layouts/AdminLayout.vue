@@ -92,6 +92,8 @@
                       <td>{{ data.Correo }}</td>
                       <td>{{ data.Centro_regional }}</td>
                       <td>{{ data.dni }}</td>
+                      <td>{{ data.Telefono }}</td>
+                      <td>{{ data.Nota }}</td>
                     </tr>
                     <tr
                       v-for="data in csvDataFailed"
@@ -104,6 +106,8 @@
                       <td>{{ data.Correo }}</td>
                       <td>{{ data.Centro_regional }}</td>
                       <td>{{ data.dni }}</td>
+                      <td>{{ data.Telefono }}</td>
+                      <td>{{ data.Nota }}</td>
                     </tr>
                   </tbody>
                 </v-table>
@@ -178,7 +182,11 @@
                 <v-col cols="12" sm="6">
                   <v-text-field
                     v-model="dni"
-                    :rules="[nameRules.required, dniRules.numbersOnly, dniRules.size]"
+                    :rules="[
+                      nameRules.required,
+                      dniRules.numbersOnly,
+                      dniRules.size,
+                    ]"
                     label="DNI"
                     :counter="13"
                     required
@@ -226,6 +234,14 @@
                     label="Puesto"
                   ></v-select>
                 </v-col>
+                <v-col cols="12" sm="6">
+                  <v-file-input
+                    chips
+                    prepend-icon="mdi-camera"
+                    accept="image/*"
+                    v-model="uploadImage"
+                  ></v-file-input>
+                </v-col>
               </v-row>
             </v-form>
           </v-container>
@@ -255,6 +271,14 @@ import { useRoute } from "vue-router";
 import { useAppStore } from "@/store/app";
 import TeacherService from "@/services/teacher/teacher.service";
 import StudentService from "@/services/student/student.service";
+import { storage } from "@/firebase";
+import {
+  ref as firebaseRed,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+import { v4 } from "uuid";
+
 // Esto es de Docentes
 const firstName = ref("");
 const middleName = ref("");
@@ -266,6 +290,7 @@ const phone = ref("");
 const address = ref("");
 const role = ref("");
 const form = ref(false);
+const uploadImage = ref();
 
 const nameRules = {
   required: (value) => !!value || "Campo obligatorio",
@@ -278,14 +303,18 @@ const nameRules = {
 };
 
 const dniRules = {
-  numbersOnly: (value) => /^\d+$/.test(value) || "Introduzca un DNI válido, solo números sin guiones ni puntos",
-  size: (value) => (value?.length === 13) || "El DNI debe tener exactamente 13 caracteres",
+  numbersOnly: (value) =>
+    /^\d+$/.test(value) ||
+    "Introduzca un DNI válido, solo números sin guiones ni puntos",
+  size: (value) =>
+    value?.length === 13 || "El DNI debe tener exactamente 13 caracteres",
 };
 
 const emailRules = {
   validate: (value) =>
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(value) ||
-    "Introduzca un correo electrónico válido",
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/.test(
+      value
+    ) || "Introduzca un correo electrónico válido",
 };
 
 const phoneRules = {
@@ -313,6 +342,8 @@ const csvHeaders = [
   "Correo",
   "Centro regional",
   "dni",
+  "Telefono",
+  "Nota",
 ];
 const invalidCsv = ref(false);
 const errorMessage = ref("");
@@ -362,6 +393,7 @@ function closeModal() {
     address.value = "";
     role.value = "";
     showModal.value = false;
+    uploadImage.value = undefined;
   }
 }
 
@@ -384,6 +416,9 @@ async function submitModal() {
           email: student.Correo,
           address: student.Direccion,
           career: student.Carrera,
+          phone: student.Telefono,
+          incomeNote: student.Nota,
+          regionalCenter: student.Centro_regional,
         });
       });
       const studentService = new StudentService();
@@ -410,6 +445,9 @@ async function submitModal() {
       isBoss = true;
       isCoordinator = false;
     }
+
+    const imageUrl = await uploadingImage();
+
     const user = {
       dni: dni.value,
       firstName: firstName.value,
@@ -419,16 +457,30 @@ async function submitModal() {
       email: email.value,
       address: address.value,
       phone: phone.value,
-      isTeacher: true,
-      isBoss: isBoss,
-      isCoordinator: isCoordinator,
+      isBoss: `${isBoss}`,
+      isCoordinator: `${isCoordinator}`,
+      photoOne: imageUrl,
     };
+
     const teacherService = new TeacherService();
     const response = await teacherService.createTeacher(user);
     if (response) {
       closeModal();
     }
   }
+}
+
+async function uploadingImage() {
+  if (!uploadImage.value) return;
+  let imageUrl = "";
+  const image = uploadImage.value[0];
+  const imageRef = firebaseRed(storage, `images/teacher/${image.name + v4()}`);
+  const response = await uploadBytes(imageRef, image);
+  if (response) {
+    const url = await getDownloadURL(response.ref);
+    if (url) imageUrl = url;
+  }
+  return imageUrl;
 }
 
 function validateCsv(headers: Array<String>) {
@@ -486,7 +538,6 @@ const parseCSV = (csvText: string) => {
       csvDataFailed.value.push(row);
     }
   }
-
   return data;
 };
 
@@ -536,5 +587,4 @@ function setToaster(isActive: boolean, text: string, color: string) {
   border-top: 1px solid rgba(var(--v-theme-base-border-color), 0.12);
   padding: 16px;
 }
-
 </style>

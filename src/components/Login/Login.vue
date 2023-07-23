@@ -112,21 +112,24 @@ async function submitLogin() {
     });
     return;
   }
-
-  const user = {
-    email: email.value,
-    password: password.value,
-    isTeacher: isTeacher.value,
-  };
   const service = new LoginService();
-  const response = await service.getLoginToken(user);
-  if (response === 201) router.push("/");
-  else {
-    store.setToaster({
-      isActive: true,
-      text: "Credenciales incorrectas!",
-      color: "error",
-    });
+
+  if (isTeacher.value) {
+    const response = await service.loginTeacher(email.value, password.value);
+    if (response.status === 201) {
+      if (response.data.statusCode === 200) {
+        router.push("/");
+      }
+    }
+  }
+
+  if (!isTeacher.value) {
+    const response = await service.loginStudent(email.value, password.value);
+    if (response.status === 201) {
+      if (response.data.statusCode === 200) {
+        router.push("/");
+      }
+    }
   }
 }
 
