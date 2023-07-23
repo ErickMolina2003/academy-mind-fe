@@ -28,7 +28,7 @@ const store = useAppStore();
 
 const isStudent = ref(false);
 const isTeacher = ref(false);
-const isAdmin = ref(true);
+const isAdmin = ref(false);
 const isCoordinator = ref(false);
 const isBossAcademic = ref(false);
 
@@ -91,13 +91,12 @@ const studentOptions = ref([
   },
 ]);
 onMounted(() => {
-  isTeacher.value = store.user.user.isTeacher;
-  isCoordinator.value = store.user.user.isCoordinator;
-  isBossAcademic.value = store.user.user.isBoss;
-  isAdmin.value = store.user.user.isAdmin;
-  isStudent.value = store.user.user.career ? true : false;
+  isCoordinator.value = store.user.teacher?.isCoordinator ?? false;
+  isBossAcademic.value = store.user.teacher?.isBoss ?? false;
+  isAdmin.value = store.user.isAdmin;
+  isTeacher.value = store.user.isTeacher ?? false;
+  isStudent.value = store.user.student ?? false;
 });
-
 
 function logout() {
   window.localStorage.removeItem("academy-user");

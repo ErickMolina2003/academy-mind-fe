@@ -6,9 +6,7 @@
         alt="user-img"
         class="user-img rounded-lg"
       />
-      <h2>
-        {{ userLogged.user.firstName }} {{ userLogged.user.firstLastName }}
-      </h2>
+      <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
     </div>
     <br />
 
@@ -205,7 +203,7 @@
 <script setup lang="ts">
 import LoginService from "@/services/login/login.service";
 import { useAppStore } from "@/store/app";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { storage } from "@/firebase";
 import {
   ref as firebaseRed,
@@ -219,29 +217,39 @@ import TeacherService from "@/services/teacher/teacher.service";
 
 const emit = defineEmits(["close", "update-profile"]);
 const store = useAppStore();
-const userLogged = store.user;
-const userIsTeacher = userLogged.isTeacher;
-const isAdmin = ref(userLogged.user.isAdmin);
+const userLogged = computed(() => {
+  if (store.user.teacher) {
+    return store.user.teacher;
+  }
+
+  if (store.user.student) {
+    return store.user.student;
+  }
+
+  return store.user;
+});
+const userIsTeacher = store.user.teacher;
+const isAdmin = ref(store.user.isAdmin);
 const studentService = new StudentService();
 const teacherService = new TeacherService();
-const userIsBoss = userLogged.isBoss;
-const userIsCoordinator = userLogged.isCoordinator;
+const userIsBoss = userLogged.value.isBoss;
+const userIsCoordinator = userLogged.value.isCoordinator;
 const mockPassword = "********";
-const dni = userLogged.user.dni;
+const dni = store.user.dni;
 const description = ref("");
 const formEmail = ref(false);
 const email = ref("");
 const center = data.center;
-const emailpersonal = userLogged.user.email;
+const emailpersonal = userLogged.email;
 const props = Boolean;
 const name =
-  userLogged.user.firstName +
+  store.user.firstName +
   " " +
-  userLogged.user.secondName +
+  store.user.secondName +
   " " +
-  userLogged.user.firstLastName +
+  store.user.firstLastName +
   " " +
-  userLogged.user.secondLastName;
+  store.user.secondLastName;
 let account = "";
 const originalDescription = ref("");
 const originalEmail = ref("");
@@ -256,11 +264,7 @@ onMounted(() => {
   originalEmail.value = email.value;
   // Agregar los demas campos (si hay)
 });
-if (userIsTeacher | userIsBoss | userIsCoordinator) {
-  account = userLogged.employeeNumber;
-} else {
-  account = userLogged.accountNumber;
-}
+account = userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
 
 function uploadingImage() {
   if (!uploadImage.value) return;
@@ -393,13 +397,41 @@ async function submitChangePassword() {
 
   if (password.value === confirmPassword.value) {
     const service = new LoginService();
-    const response = await service.setPassword(
-      store.user.user.user.dni,
-      currentPassword.value,
-      password.value
-    );
-    if (response.status === 200) {
-      unTogglePassword();
+
+    if (store.user.isAdmin) {
+      const response = await service.setAdminPassword(
+        store.user.dni,
+        currentPassword.value,
+        password.value
+      );
+      if (response.status === 200 && response.data.statusCode === 200) {
+        unTogglePassword();
+      }
+      return;
+    }
+
+    if (store.user.student) {
+      const response = await service.setStudentPassword(
+        store.user.dni,
+        currentPassword.value,
+        password.value
+      );
+      if (response.status === 200 && response.data.statusCode === 200) {
+        unTogglePassword();
+      }
+      return;
+    }
+
+    if (store.user.teacher) {
+      const response = await service.setTeacherPassword(
+        store.user.dni,
+        currentPassword.value,
+        password.value
+      );
+      if (response.status === 200 && response.data.statusCode === 200) {
+        unTogglePassword();
+      }
+      return;
     }
   } else {
     store.setToaster({

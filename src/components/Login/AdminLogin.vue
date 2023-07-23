@@ -1,6 +1,11 @@
 <template>
   <ToasterVue />
-  <v-sheet class="d-flex align-center justify-center bg-blue-darken-3" width="100%" height="100%" rounded>
+  <v-sheet
+    class="d-flex align-center justify-center bg-blue-darken-3"
+    width="100%"
+    height="100%"
+    rounded
+  >
     <v-card class="login-card pa-6 ma-6 bg-white">
       <h2 class="text-center">Inicio de Sesión de Administración</h2>
       <v-form v-model="form" @submit.prevent="submitLogin" class="ma-6">
@@ -12,19 +17,27 @@
           bg-color="primary"
           label="Número de Empleado"
         ></v-text-field>
-        <v-text-field 
-          v-model="password" 
-          :rules="[rules.required]" 
-          type="password" 
-          bg-color="primary" 
+        <v-text-field
+          v-model="password"
+          :rules="[rules.required]"
+          type="password"
+          bg-color="primary"
           variant="outlined"
-          label="Contraseña" 
-          placeholder="Introduzca su contraseña">
+          label="Contraseña"
+          placeholder="Introduzca su contraseña"
+        >
         </v-text-field>
 
         <br />
 
-        <v-btn block rounded="lg" color="blue-darken-3" size="large" type="submit" variant="elevated">
+        <v-btn
+          block
+          rounded="lg"
+          color="blue-darken-3"
+          size="large"
+          type="submit"
+          variant="elevated"
+        >
           Iniciar Sesion
         </v-btn>
       </v-form>
@@ -39,7 +52,6 @@ import ToasterVue from "@/components/Toaster.vue";
 import { useAppStore } from "@/store/app";
 import AdminLoginService from "@/services/login/adminLogin.service";
 
-
 const password = ref("");
 const form = ref(false);
 const employeeNumber = ref("");
@@ -47,7 +59,9 @@ const store = useAppStore();
 
 const rules = {
   required: (value) => !!value || "Campo obligatorio",
-  numbersOnly: (value) => /^[0-9]+$/.test(value) || "El número de empleado debe contener solo números",
+  numbersOnly: (value) =>
+    /^[0-9]+$/.test(value) ||
+    "El número de empleado debe contener solo números",
 };
 
 async function submitLogin() {
@@ -67,20 +81,10 @@ async function submitLogin() {
 
   const service = new AdminLoginService();
   const response = await service.getLoginToken(user);
-  if (response.statusCode === 200){
-    router.push("/");
-  } else if (response.statusCode === 400) {
-    store.setToaster({
-      isActive: true,
-      text: "El usuario no existe.",
-      color: "error",
-    });
-  } else if (response.statusCode === 401) {
-    store.setToaster({
-      isActive: true,
-      text: "Contraseña incorrecta.",
-      color: "error",
-    });
+  if (response.status === 201) {
+    if (response.data.statusCode === 200) {
+      router.push("/");
+    }
   }
 }
 </script>

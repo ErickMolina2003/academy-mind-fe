@@ -17,7 +17,7 @@ export default class LoginService {
       if (response.status === 201) {
         const data = await response.data;
         if (data.statusCode === 200) {
-          this.store.setUser(data);
+          this.store.setUser(data.user);
           this.store.setToaster({
             isActive: true,
             text: "Bienvenido!",
@@ -60,7 +60,7 @@ export default class LoginService {
       if (response.status === 201) {
         const data = await response.data;
         if (data.statusCode === 200) {
-          this.store.setUser(data);
+          this.store.setUser(data.user);
           this.store.setToaster({
             isActive: true,
             text: "Bienvenido!",
@@ -91,65 +91,168 @@ export default class LoginService {
     }
   }
 
-  async setPassword(dni: string, password: string, newPassword: string) {
-    const body = {
-      password: password,
-      newPassword: newPassword,
-    };
-
-    const url = `http://localhost:3001/api/user/${dni}`;
+  async setStudentPassword(dni: string, password: string, newPassword: string) {
+    const url = `http://localhost:3001/api/student/change-password/${dni}`;
 
     try {
       const response = await axios({
         method: "PATCH",
         url: url,
-        data: body,
+        data: { password: password, newPassword: newPassword },
       });
-
-      const data = await response.data;
       if (response.status === 200) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "La contraseña ha sido cambiada exitosamente.",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña actual incorrecta.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
         this.store.setToaster({
           isActive: true,
-          text: "Las contraseña ha sido cambiada exitosamente.",
-          color: "success",
+          text: "La contraseña no ha sido cambiada exitosamente.",
+          color: "error",
         });
       }
-      return response;
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Las contraseñas no coinciden.",
+        text: "La contraseña no ha sido cambiada exitosamente.",
         color: "error",
       });
       return error;
     }
   }
 
-  async resetPassword(accountNumber: string) {
-    const body = {
-      accountNumber: accountNumber,
-    };
+  async setTeacherPassword(dni: string, password: string, newPassword: string) {
+    const url = `http://localhost:3001/api/teacher/change-password/${dni}`;
 
-    const url = "http://localhost:3001/api/v2/student";
+    try {
+      const response = await axios({
+        method: "PATCH",
+        url: url,
+        data: { password: password, newPassword: newPassword },
+      });
+      if (response.status === 200) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "La contraseña ha sido cambiada exitosamente.",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña actual incorrecta.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "La contraseña no ha sido cambiada exitosamente.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "La contraseña no ha sido cambiada exitosamente.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  async setAdminPassword(dni: string, password: string, newPassword: string) {
+    const url = `http://localhost:3001/api/user/change-password/${dni}`;
+
+    try {
+      const response = await axios({
+        method: "PATCH",
+        url: url,
+        data: { password: password, newPassword: newPassword },
+      });
+      if (response.status === 200) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "La contraseña ha sido cambiada exitosamente.",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña actual incorrecta.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "La contraseña no ha sido cambiada exitosamente.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "La contraseña no ha sido cambiada exitosamente.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  async resetStudentPassword(dni: string) {
+    const url = `http://localhost:3001/api/student/reset-password`;
 
     try {
       const response = await axios({
         method: "POST",
         url: url,
-        data: body,
+        data: { dni: dni },
       });
       if (response.status === 201) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "La contraseña ha sido reiniciada exitosamente.\nRevisa tu correo para ver la contraseña.",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Usuario no encontrado.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
         this.store.setToaster({
           isActive: true,
-          text: "Contraseña reiniciada con exito.",
-          color: "success",
+          text: "Usuario no encontrado.",
+          color: "error",
         });
       }
-      return response;
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "No se pudo reiniciar la contraseña.",
+        text: "Usuario no encontrado.",
         color: "error",
       });
       return error;

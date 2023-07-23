@@ -1,12 +1,11 @@
 import axios from "axios";
 import { useAppStore } from "@/store/app";
-import User from '../../models/user';
+import User from "../../models/user";
 
 export default class AdminLoginService {
   store = useAppStore();
 
   async getLoginToken(user: any) {
-    
     const employeeNumber = user.employeeNumber;
     const password = user.password;
     const body = {
@@ -23,13 +22,28 @@ export default class AdminLoginService {
         data: body,
       });
       if (response.status === 201) {
-        this.store.setUser(response.data);
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setUser(response.data.user);
+          this.store.setToaster({
+            isActive: true,
+            text: "¡Bienvenido!",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Contraseña incorrecta.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
         this.store.setToaster({
           isActive: true,
-          text:'¡Bienvenido!',
-          color: "success",
+          text: "Contraseña incorrecta.",
+          color: "error",
         });
-        return response.data;
       }
     } catch (error) {
       this.store.setToaster({
