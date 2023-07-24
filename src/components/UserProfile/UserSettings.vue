@@ -106,32 +106,31 @@
         prepend-icon="mdi-camera"
         accept="image/*"
         v-model="uploadImage"
+        :rules="[rules.maxLength]"
       ></v-file-input>
       <v-btn @click="uploadingImage">Subir Imagenes</v-btn>
       <v-container justify="start">
         <v-row>
-          <v-col cols="auto"
+          <v-col cols="auto" v-if="uploadedImage[0]"
             ><v-img
               :height="110"
               :width="110"
               cover
-              :src="uploadedImage"
+              :src="uploadedImage[0]"
             ></v-img
           ></v-col>
-          <v-col cols="auto"
+          <v-col cols="auto" v-if="uploadedImage[1]"
             ><img
               :height="110"
               :width="110"
-              src="@/assets/logo.png"
-              alt="user-img"
+              :src="uploadedImage[1]"
               class="user-img rounded-lg"
           /></v-col>
-          <v-col cols="auto"
+          <v-col cols="auto" v-if="uploadedImage[2]"
             ><img
               :height="110"
               :width="110"
-              src="@/assets/user-img.png"
-              alt="user-img"
+              :src="uploadedImage[2]"
               class="user-img rounded-lg"
           /></v-col>
         </v-row>
@@ -151,21 +150,6 @@
         accept="video/*"
         prepend-icon="mdi-camera"
       ></v-file-input>
-    </div>
-
-    <div>
-      <h3 class="bg-blue-darken-1 my-3 pa-1">Correo Electronico</h3>
-      <v-form v-model="formEmail">
-        <v-responsive class="text-left" max-width="344">
-          <v-text-field
-            hide-details="auto"
-            placeholder="johndoe@gmail.com"
-            type="email"
-            v-model="email"
-            :rules="[rules.emailRule]"
-          ></v-text-field>
-        </v-responsive>
-      </v-form>
     </div>
 
     <br />
@@ -255,9 +239,7 @@ const originalDescription = ref("");
 const originalEmail = ref("");
 
 const uploadImage = ref();
-const uploadedImage = ref(
-  "https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-);
+const uploadedImage = ref([]);
 
 onMounted(() => {
   originalDescription.value = description.value;
@@ -268,14 +250,39 @@ account = userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
 
 function uploadingImage() {
   if (!uploadImage.value) return;
-  const image = uploadImage.value[0];
-  const imageRef = firebaseRed(storage, `images/admin/${image.name + v4()}`);
-  uploadBytes(imageRef, image).then((response) => {
-    getDownloadURL(response.ref).then((url) => {
-      uploadedImage.value = url;
+  let bucket = "";
+  if (store.user.teacher) {
+    bucket = "teacher";
+  }
+
+  if (store.user.student) {
+    bucket = "student";
+  }
+
+  if (store.user.isAdmin) {
+    bucket = "admin";
+  }
+
+  console.log(uploadImage.value);
+
+  uploadImage.value.forEach((image) => {
+    const imageRef = firebaseRed(
+      storage,
+      `images/${bucket}/${image.name + v4()}`
+    );
+    uploadBytes(imageRef, image).then((response) => {
+      getDownloadURL(response.ref).then((url) => {
+        uploadedImage.value.push(url);
+      });
     });
-    alert("image uploaded");
   });
+  if (uploadedImage.value.length > 0) {
+    store.setToaster({
+      isActive: true,
+      text: "Imágenes subidas con éxito.",
+      color: "success",
+    });
+  }
 }
 
 function closeDialog() {
@@ -283,22 +290,6 @@ function closeDialog() {
 }
 
 async function confirmInfo() {
-  if (email.value) {
-    if (formEmail.value) {
-      if (userIsTeacher) {
-        await teacherService.updateTeacher(dni, { email: email.value });
-      } else {
-        await studentService.updateStudent(dni, { email: email.value });
-      }
-
-      store.setToaster({
-        isActive: true,
-        text: "¡Correo personal actualizado correctamente!",
-        color: "success",
-      });
-    }
-  }
-
   if (description.value) {
     if (userIsTeacher) {
       await teacherService.updateTeacher(dni, {
@@ -317,13 +308,6 @@ async function confirmInfo() {
     });
   }
 
-  if (description.value && email.value && formEmail.value) {
-    store.setToaster({
-      isActive: true,
-      text: "¡Descripcion y correo personal actualizados correctamente!",
-      color: "success",
-    });
-  }
   const updatedData = {};
 
   if (description.value !== originalDescription.value) {
@@ -353,6 +337,12 @@ async function confirmInfo() {
 
 const rules = {
   required: (value: any) => !!value || "Campo obligatorio",
+  maxLength: (value: File[]) => {
+    if (value.length <= 3) {
+      return true;
+    }
+    return "Se permiten como máximo 3 imágenes.";
+  },
   emailRule: (value: string) =>
     /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
       value
