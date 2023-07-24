@@ -90,6 +90,39 @@ const studentOptions = ref([
     icon: "mdi-account-school",
   },
 ]);
+const bossAcademicOptions = ref([
+  {
+    name: "perfil",
+    to: "/perfil",
+    icon: "mdi-account-box-outline",
+  },
+  {
+    name: "clases",
+    to: "/clases",
+    icon: "mdi-book-variant",
+  },
+  {
+    name: "matricula",
+    to: "/matricula",
+    icon: "mdi-account-school",
+  },
+  {
+    name: "Historial Estudiantil",
+    to: "/historial-estudiantil",
+    icon: "mdi-account-search",
+  },
+  {
+    name: "Gestion de Docentes",
+    to: "/gestion-docentes",
+    icon: "mdi-account-tie",
+  },
+  {
+    name: "Periodo Académico",
+    to: "/periodo-academico",
+    icon: "mdi-calendar-month-outline",
+  }
+]);
+  
 onMounted(() => {
   isCoordinator.value = store.user.teacher?.isCoordinator ?? false;
   isBossAcademic.value = store.user.teacher?.isBoss ?? false;
@@ -118,7 +151,7 @@ const userOptions = computed(() => {
   }
 
   if (isBossAcademic.value) {
-    return teacherOptions.value;
+    return bossAcademicOptions.value;
   }
 
   if (isAdmin.value) {

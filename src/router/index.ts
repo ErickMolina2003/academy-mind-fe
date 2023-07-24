@@ -84,6 +84,49 @@ const routes = [
           },
         ],
       },
+      {
+        path: "/historial-estudiantil",
+        name: "historial-estudiantil",
+        //component: () => import(""),
+      },
+      {
+        path: "/gestion-docentes",
+        name: "gestion-docentes",
+        //component: () => import(""),
+      },
+      {
+        path: "/periodo-academico",
+        name: "Periodo Académico",
+        //redirect: { name: "planificacion-periodo" },
+        component: () => import("@/layouts/academicPeriodLayout.vue"),
+        children: [
+          {
+            path: "/planificacion-periodo",
+            name: "planificación-periodo",
+            //component: () => import(""),
+          },
+          {
+            path: "/estudiantes-matriculados",
+            name: "estudiantes-matriculados",
+            //component: () => import(""),
+          },
+          {
+            path: "/seccion-estadistica",
+            name: "sección-estadística",
+            //component: () => import(""),
+          },
+          {
+            path: "/evaluacion-estudiantes",
+            name: "evaluación-estudiantes",
+            //component: () => import("@"),
+          },
+          {
+            path: "/notas-ingresadas",
+            name: "notas-ingresadas",
+            //component: () => import("@/"),
+          },
+        ],
+      },
     ],
   },
   {
