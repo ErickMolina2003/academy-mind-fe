@@ -41,14 +41,9 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="8" lg="8">
-          <p
+          <p v-if="!isTeacher"
             @click="forgot"
-            :class="
-              isTeacher
-                ? 'forgot-password text-end text-secondary-lighthen-1'
-                : 'forgot-password text-end text-secondary'
-            "
-          >
+            class="forgot-password text-end text-secondary">
             Olvidé mi contraseña
           </p>
         </v-col>

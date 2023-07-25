@@ -108,7 +108,7 @@ const routes = [
           {
             path: "/estudiantes-matriculados",
             name: "estudiantes-matriculados",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/EnrolledStudents.vue"),
           },
           {
             path: "/seccion-estadistica",
@@ -123,7 +123,7 @@ const routes = [
           {
             path: "/notas-ingresadas",
             name: "notas-ingresadas",
-            //component: () => import("@/"),
+            component: () => import("@/components/DepartmentBoss/ViewGrades.vue"),
           },
         ],
       },

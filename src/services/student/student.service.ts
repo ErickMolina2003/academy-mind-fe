@@ -82,9 +82,9 @@ export default class StudentService {
       });
 
       if (response.status === 200) {
-        const user = await response.data.user;
-
-        this.store.setUpdatedUser(user);
+        const user = await response.data.user.teacher;
+     
+        this.store.setUpdateStudent(true,user);
 
         this.store.setToaster({
           isActive: true,

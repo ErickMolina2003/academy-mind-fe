@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="teacher in filteredTeachers" :key="teacher.employeeNumber">
+        <tr v-for="teacher in displayedTeachers" :key="teacher.employeeNumber">
           <td>{{ teacher.employeeNumber }}</td>
           <td>
             {{
@@ -31,6 +31,8 @@
         </tr>
       </tbody>
     </table>
+    <v-pagination v-model="currentPage" :total-visible="5" :length="totalPages"
+      @input="updateDisplayedTeachers()"></v-pagination>
   </div>
 </template>
 
@@ -47,8 +49,28 @@ const isLoading = ref(false);
 const originalTeachers = ref([]);
 const teacherService = new TeacherService();
 
+const filteredTeachers = computed(() => teachers.value);
+
+// paginación
+
+const itemsPerPage = 10;
+const currentPage = ref(1);
+const displayedTeachers = ref([]);
+
+const totalPages = computed(() => Math.ceil(filteredTeachers.value.length / itemsPerPage));
+
+const updateDisplayedTeachers = () => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  displayedTeachers.value = filteredTeachers.value.slice(startIndex, startIndex + itemsPerPage);
+};
+
+watch(currentPage, updateDisplayedTeachers);
+watch(filteredTeachers, updateDisplayedTeachers);
+
+
 onMounted(async () => {
-  getTeachers();
+  await getTeachers();
+  updateDisplayedTeachers();
 });
 
 async function getTeachers() {
@@ -69,7 +91,7 @@ const filterTeachers = (query) => {
   }
 };
 
-const filteredTeachers = computed(() => teachers.value);
+
 
 // Capturar el evento personalizado 'filter' emitido desde NavBar.vue
 document.addEventListener("filter", (event) => {
