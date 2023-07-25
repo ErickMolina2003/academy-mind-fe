@@ -16,6 +16,7 @@
           :rules="[rules.required, rules.numbersOnly]"
           bg-color="primary"
           label="Número de Empleado"
+          placeholder="Introduzca número de empleado"
         ></v-text-field>
         <v-text-field
           v-model="password"
@@ -38,7 +39,7 @@
           type="submit"
           variant="elevated"
         >
-          Iniciar Sesion
+          Iniciar Sesión
         </v-btn>
       </v-form>
     </v-card>

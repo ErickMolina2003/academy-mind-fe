@@ -36,7 +36,7 @@
             :rules="[rules.required]"
             type="password"
             bg-color="primary"
-            label="contraseña"
+            label="Contraseña"
             variant="outlined"
           ></v-text-field>
         </v-col>
@@ -65,7 +65,9 @@
             color="secondary-lighthen-1"
             hide-details
             inset
-            :label="`Registro: ${isTeacher ? 'docentes' : 'estudiantes'}`"
+            :label="`Inicio de Sesión: ${
+              isTeacher ? 'docentes' : 'estudiantes'
+            }`"
           ></v-switch>
         </v-col>
       </v-row>
