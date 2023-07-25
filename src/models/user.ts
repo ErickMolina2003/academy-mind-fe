@@ -47,6 +47,12 @@ export interface TeacherUpdate {
   address?: string;
   phone?: string;
   video?: string;
+  photoOne?: string;
+}
+
+export interface AdminUpdate {
+  description?: string;
+  photoOne?: string;
 }
 
 export interface StudentUpdate {

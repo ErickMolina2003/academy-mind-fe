@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in filteredStudents" :key="student.dni">
+        <tr v-for="student in displayedStudents" :key="student.dni">
           <td>{{ student.accountNumber }}</td>
           <td>
             {{
@@ -23,6 +23,9 @@
         </tr>
       </tbody>
     </table>
+
+    <v-pagination v-model="currentPage" :total-visible="5" :length="totalPages"
+      @input="updateDisplayedStudents()"></v-pagination>
   </div>
 </template>
 
@@ -39,9 +42,31 @@ const isLoading = ref(false);
 const originalStudents = ref([]);
 const studentService = new StudentService();
 
+
+const filteredStudents = computed(() => students.value);
+
+// paginación
+
+const itemsPerPage = 10;
+const currentPage = ref(1);
+const displayedStudents = ref([]);
+
+const totalPages = computed(() => Math.ceil(filteredStudents.value.length / itemsPerPage));
+
+const updateDisplayedStudents = () => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  displayedStudents.value = filteredStudents.value.slice(startIndex, startIndex + itemsPerPage);
+};
+
+watch(currentPage, updateDisplayedStudents);
+watch(filteredStudents, updateDisplayedStudents);
+
 onMounted(async () => {
-  getStudents();
+  await getStudents();
+  updateDisplayedStudents();
 });
+
+
 
 async function getStudents() {
   isLoading.value = true;
@@ -61,7 +86,6 @@ const filterStudents = (query) => {
   }
 };
 
-const filteredStudents = computed(() => students.value);
 
 document.addEventListener("filter", (event) => {
   filterStudents(event.detail);
@@ -73,6 +97,14 @@ watch(updateStudents, () => {
     store.setUpdateStudent(false);
   }
 });
+
+
+
+
+
+
+
+
 </script>
 
 <style>

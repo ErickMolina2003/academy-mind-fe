@@ -1,11 +1,7 @@
 <template>
   <div rounded>
     <div class="text-center">
-      <img
-        src="@/assets/user-img.png"
-        alt="user-img"
-        class="user-img rounded-lg"
-      />
+      <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
       <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
     </div>
     <br />
@@ -13,171 +9,83 @@
     <v-form disabled>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Información del Usuario</h3>
       <div class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="name"
-          label="Nombre"
-        ></v-text-field>
-        <v-text-field
-          v-if="!isAdmin"
-          class="text-black font-weight-black"
-          v-model="account"
-          :label="
-            !(userIsTeacher | userIsBoss | userIsCoordinator)
-              ? 'Número de Cuenta'
-              : 'Número de Empleado'
-          "
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
+        <v-text-field v-if="!isAdmin" class="text-black font-weight-black" v-model="account" :label="!(userIsTeacher | userIsBoss | userIsCoordinator)
+          ? 'Número de Cuenta'
+          : 'Número de Empleado'
+          "></v-text-field>
       </div>
       <div class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="center"
-          label="Centro Universitario"
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
       </div>
       <div v-if="isAdmin" class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="emailpersonal"
-          label="email"
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="emailpersonal" label="email"></v-text-field>
       </div>
     </v-form>
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Contraseña</h3>
       <v-row>
         <v-col v-if="!togglePassword">
-          <v-text-field
-            class="text-black font-weight-black"
-            v-model="mockPassword"
-            label="Contraseña"
-            disabled
-          ></v-text-field>
+          <v-text-field class="text-black font-weight-black" v-model="mockPassword" label="Contraseña"
+            disabled></v-text-field>
         </v-col>
         <v-col v-if="togglePassword">
           <v-form v-model="form" @submit.prevent="submitChangePassword">
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="currentPassword"
-              type="password"
-              :rules="[rules.required]"
-              label="Actual Contraseña"
-            ></v-text-field>
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="password"
-              type="password"
-              :rules="[rules.required, rules.passwordRule]"
-              label="Nueva Contraseña"
-            ></v-text-field>
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="confirmPassword"
-              type="password"
-              :rules="[rules.required, rules.passwordRule]"
-              label="Confirmar Contraseña"
-            ></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="currentPassword" type="password"
+              :rules="[rules.required]" label="Actual Contraseña"></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="password" type="password"
+              :rules="[rules.required, rules.passwordRule]" label="Nueva Contraseña"></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="confirmPassword" type="password"
+              :rules="[rules.required, rules.passwordRule]" label="Confirmar Contraseña"></v-text-field>
             <v-row justify="center">
               <v-col cols="12" md="auto" lg="auto">
-                <v-btn color="success" type="submit" class="mr-4"
-                  >Cambiar Contraseña</v-btn
-                >
+                <v-btn color="success" type="submit" class="mr-4">Cambiar Contraseña</v-btn>
                 <v-btn color="error" @click="unTogglePassword">Cancelar</v-btn>
               </v-col>
             </v-row>
           </v-form>
         </v-col>
         <v-col cols="12" md="auto" lg="auto" align-self="center">
-          <v-btn
-            v-if="!togglePassword"
-            color="secondary-lighthen-1"
-            @click="togglePassword = !togglePassword"
-            >Cambiar Contraseña</v-btn
-          >
+          <v-btn v-if="!togglePassword" color="secondary-lighthen-1" @click="togglePassword = !togglePassword">Cambiar
+            Contraseña</v-btn>
         </v-col>
       </v-row>
     </div>
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Imagenes</h3>
-      <v-file-input
-        chips
-        multiple
-        prepend-icon="mdi-camera"
-        accept="image/*"
-        v-model="uploadImage"
-        :rules="[rules.maxLength]"
-      ></v-file-input>
+      <v-file-input chips multiple prepend-icon="mdi-camera" accept="image/*" v-model="uploadImage"
+        :rules="[rules.maxLength]"></v-file-input>
       <v-btn @click="uploadingImage">Subir Imagenes</v-btn>
       <v-container justify="start">
         <v-row>
-          <v-col cols="auto" v-if="uploadedImage[0]"
-            ><v-img
-              :height="110"
-              :width="110"
-              cover
-              :src="uploadedImage[0]"
-            ></v-img
-          ></v-col>
-          <v-col cols="auto" v-if="uploadedImage[1]"
-            ><img
-              :height="110"
-              :width="110"
-              :src="uploadedImage[1]"
-              class="user-img rounded-lg"
-          /></v-col>
-          <v-col cols="auto" v-if="uploadedImage[2]"
-            ><img
-              :height="110"
-              :width="110"
-              :src="uploadedImage[2]"
-              class="user-img rounded-lg"
-          /></v-col>
+          <v-col cols="auto" v-if="uploadedImage[0]"><v-img :height="110" :width="110" cover
+              :src="uploadedImage[0]"></v-img></v-col>
+          <v-col cols="auto" v-if="uploadedImage[1]"><img :height="110" :width="110" :src="uploadedImage[1]"
+              class="user-img rounded-lg" /></v-col>
+          <v-col cols="auto" v-if="uploadedImage[2]"><img :height="110" :width="110" :src="uploadedImage[2]"
+              class="user-img rounded-lg" /></v-col>
         </v-row>
       </v-container>
     </div>
 
     <div>
-      <h3
-        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
-        class="bg-blue-darken-1 my-3 pa-1"
-      >
+      <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">
         Video
       </h3>
-      <v-file-input
-        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
-        chips
-        accept="video/*"
-        prepend-icon="mdi-camera"
-      ></v-file-input>
+      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips v-model="video" accept="video/*"
+        prepend-icon="mdi-camera"></v-file-input>
     </div>
 
     <br />
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Descripción</h3>
-      <v-textarea
-        label="Escriba aqui"
-        variant="solo"
-        v-model="description"
-      ></v-textarea>
+      <v-textarea label="Escriba aqui" variant="solo" v-model="description"></v-textarea>
     </div>
     <div class="text-right mb-3">
       <v-spacer></v-spacer>
-      <v-btn
-        style="width: 150px"
-        class="bg-blue-grey-darken-1 mr-6"
-        variant="text"
-        rounded
-        @click="closeDialog"
-        >Cerrar</v-btn
-      >
-      <v-btn
-        style="width: 150px"
-        class="bg-blue-darken-4 text-right"
-        rounded
-        variant="text"
-        @click="confirmInfo"
-      >
+      <v-btn style="width: 150px" class="bg-blue-grey-darken-1 mr-6" variant="text" rounded
+        @click="closeDialog">Cerrar</v-btn>
+      <v-btn style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text" @click="confirmInfo">
         Confirmar
       </v-btn>
     </div>
@@ -198,6 +106,7 @@ import { v4 } from "uuid";
 import data from "../../mock/studentProfile.json";
 import StudentService from "@/services/student/student.service";
 import TeacherService from "@/services/teacher/teacher.service";
+import AdminService from "@/services/admin/admin.service";
 
 const emit = defineEmits(["close", "update-profile"]);
 const store = useAppStore();
@@ -216,13 +125,15 @@ const userIsTeacher = store.user.teacher;
 const isAdmin = ref(store.user.isAdmin);
 const studentService = new StudentService();
 const teacherService = new TeacherService();
+const adminService = new AdminService();
 const userIsBoss = userLogged.value.isBoss;
 const userIsCoordinator = userLogged.value.isCoordinator;
+const userIsAdmin = userLogged.value.isAdmin;
 const mockPassword = "********";
 const dni = store.user.dni;
 const description = ref("");
-const formEmail = ref(false);
-const email = ref("");
+// const formEmail = ref(false);
+// const email = ref("");
 const center = data.center;
 const emailpersonal = userLogged.email;
 const props = Boolean;
@@ -237,13 +148,13 @@ const name =
 let account = "";
 const originalDescription = ref("");
 const originalEmail = ref("");
-
+const video = ref()
 const uploadImage = ref();
 const uploadedImage = ref([]);
 
 onMounted(() => {
   originalDescription.value = description.value;
-  originalEmail.value = email.value;
+  // originalEmail.value = email.value;
   // Agregar los demas campos (si hay)
 });
 account = userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
@@ -263,7 +174,7 @@ function uploadingImage() {
     bucket = "admin";
   }
 
-  console.log(uploadImage.value);
+  console.log(uploadedImage.value);
 
   uploadImage.value.forEach((image) => {
     const imageRef = firebaseRed(
@@ -295,6 +206,11 @@ async function confirmInfo() {
       await teacherService.updateTeacher(dni, {
         description: description.value,
       });
+
+    } else if (userIsAdmin) {
+      await adminService.updateAdmin(dni, {
+        description: description.value,
+      });
     } else {
       await studentService.updateStudent(dni, {
         description: description.value,
@@ -308,15 +224,51 @@ async function confirmInfo() {
     });
   }
 
+  if (uploadedImage.value) {
+    if (userIsTeacher) {
+      await teacherService.updateTeacher(dni, {
+        photoOne: uploadedImage.value[0],
+      });
+    } else if (userIsAdmin) {
+      await adminService.updateAdmin(dni, {
+        photoOne: uploadedImage.value[0],
+      });
+    } else {
+
+      if (uploadedImage.value[0]) {
+        await studentService.updateStudent(dni, {
+          photoOne: uploadedImage.value[0],
+        });
+        if (uploadedImage.value[1]) {
+          await studentService.updateStudent(dni, {
+            photoTwo: uploadedImage.value[1],
+          });
+          if (uploadedImage.value[2]) {
+            await studentService.updateStudent(dni, {
+              photoThree: uploadedImage.value[2],
+            });
+          }
+        }
+      }
+
+    }
+  }
+
+  if (video.value) {
+    await teacherService.updateTeacher(dni, {
+      video: video.value[0].name,
+    });
+  }
+
   const updatedData = {};
 
   if (description.value !== originalDescription.value) {
     updatedData.description = description.value;
   }
 
-  if (email.value !== originalEmail.value) {
-    updatedData.email = email.value;
-  }
+  // if (email.value !== originalEmail.value) {
+  //   updatedData.email = email.value;
+  // }
 
   // Aggrega otras validaciones de campos que se quieran agregar
 
@@ -432,3 +384,4 @@ async function submitChangePassword() {
   }
 }
 </script>
+

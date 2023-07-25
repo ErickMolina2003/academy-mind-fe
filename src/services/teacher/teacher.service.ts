@@ -81,8 +81,9 @@ export default class TeacherService {
       });
 
       if (response.status === 200) {
-        const user = await response.data;
-        this.store.setUpdatedUser(user);
+        const user = await response.data.user.teacher;
+     
+        this.store.setUpdateTeacher(true,user);
         this.store.setToaster({
           isActive: true,
           text: "¡Información actualizada correctamente!",
