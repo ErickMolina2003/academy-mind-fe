@@ -118,7 +118,7 @@ const routes = [
           {
             path: "/evaluacion-estudiantes",
             name: "evaluación-estudiantes",
-            //component: () => import("@"),
+            component: () => import("@/components/Enroll/TeacherEvaluationBA.vue"),
           },
           {
             path: "/notas-ingresadas",
