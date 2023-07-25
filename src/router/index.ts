@@ -100,9 +100,24 @@ const routes = [
         //redirect: { name: "planificacion-periodo" },
         component: () => import("@/layouts/academicPeriodLayout.vue"),
         children: [
+          // {
+          //   path: "/planificacion-periodo",
+          //   name: "planificación-periodo",
+          //   //component: () => import(""),
+          // },
           {
-            path: "/planificacion-periodo",
-            name: "planificación-periodo",
+            path: "/crear-secciones",
+            name: "crear-secciones",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/MainPlanification.vue"),
+          },
+          {
+            path: "/listas-de-espera",
+            name: "listas-de-espera",
+            //component: () => import(""),
+          },
+          {
+            path: "/cancelar-secciones",
+            name: "cancelar-secciones",
             //component: () => import(""),
           },
           {
