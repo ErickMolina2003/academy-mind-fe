@@ -108,7 +108,7 @@ const routes = [
           {
             path: "/crear-secciones",
             name: "crear-secciones",
-            component: () => import("@/components/DepartmentBoss/PeriodPlanification/MainPlanification.vue"),
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"),
           },
           {
             path: "/listas-de-espera",
@@ -118,7 +118,7 @@ const routes = [
           {
             path: "/cancelar-secciones",
             name: "cancelar-secciones",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"),
           },
           {
             path: "/estudiantes-matriculados",
