@@ -87,12 +87,12 @@ const routes = [
       {
         path: "/historial-estudiantil",
         name: "historial-estudiantil",
-        //component: () => import(""),
+        component: () => import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
       },
       {
         path: "/gestion-docentes",
         name: "gestion-docentes",
-        //component: () => import(""),
+        component: () => import("@/components/DepartmentBoss/TeacherManagement.vue"),
       },
       {
         path: "/periodo-academico",
