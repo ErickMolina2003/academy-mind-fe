@@ -87,12 +87,12 @@ const routes = [
       {
         path: "/historial-estudiantil",
         name: "historial-estudiantil",
-        //component: () => import(""),
+        component: () => import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
       },
       {
         path: "/gestion-docentes",
         name: "gestion-docentes",
-        //component: () => import(""),
+        component: () => import("@/components/DepartmentBoss/TeacherManagement.vue"),
       },
       {
         path: "/periodo-academico",
@@ -108,7 +108,7 @@ const routes = [
           {
             path: "/crear-secciones",
             name: "crear-secciones",
-            component: () => import("@/components/DepartmentBoss/PeriodPlanification/MainPlanification.vue"),
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"),
           },
           {
             path: "/listas-de-espera",
@@ -118,7 +118,7 @@ const routes = [
           {
             path: "/cancelar-secciones",
             name: "cancelar-secciones",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"),
           },
           {
             path: "/estudiantes-matriculados",
