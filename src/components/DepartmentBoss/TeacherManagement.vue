@@ -1,7 +1,6 @@
 <template>
     <div>
         <SearchableNavBar :title="myTitle" :label="myLabel" />
-
         <table>
         <thead>
             <tr>

@@ -36,12 +36,7 @@
         icon: "mdi-account-multiple",
       },
       {
-        name: "Sección Estadistica",
-        to: "/seccion-estadistica",
-        icon: "mdi-chart-line",
-      },
-      {
-        name: "Evaluacion de estudiantes",
+        name: "Evaluación de estudiantes",
         to: "/evaluacion-estudiantes",
         icon: "mdi-checkbox-multiple-marked-circle",
       },
@@ -49,6 +44,11 @@
         name: "Notas Ingresadas",
         to: "/notas-ingresadas",
         icon: "mdi-file-document-edit-outline",
+      },
+      {
+        name: "Sección Estadística",
+        to: "/seccion-estadistica",
+        icon: "mdi-chart-line",
       },
     ],
   }
