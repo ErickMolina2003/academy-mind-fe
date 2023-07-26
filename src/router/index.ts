@@ -92,7 +92,7 @@ const routes = [
       {
         path: "/gestion-docentes",
         name: "gestion-docentes",
-        //component: () => import(""),
+        component: () => import("@/components/DepartmentBoss/TeacherManagement.vue"),
       },
       {
         path: "/periodo-academico",
