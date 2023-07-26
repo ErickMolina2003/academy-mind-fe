@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Cód.Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
 
@@ -45,7 +45,7 @@
     </v-container>
 
     <v-dialog v-model="showCreateModal" persistent width="1440">
-        <v-card class="pa-4">
+        <v-card class="pa-6">
             <v-card-title class="text-h5 pa-0 pb-4">
                 Crear una sección
             </v-card-title>
@@ -66,19 +66,18 @@
                         </v-messages>
                     </v-col>
                     <v-col cols="12" sm="4">
+                        <v-text-field v-model="units"  label="Unidades Valorativas" :readonly="true" ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                        <v-select v-model="selectedDays" :items="generateDayOptions(units)" label="Días"
+                            :disabled="!units || !initialHour"></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="4">
                         <v-text-field v-model="finalHour" label="Hora Final" :readonly="true"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-autocomplete v-model="selectedTeacher" :items="formattedTeacherOptions" label="Elija un docente"
                             return-object :rules="[rules.required]"></v-autocomplete>
-                    </v-col>
-                    <v-col cols="12" sm="4">
-                        <v-text-field v-model="units" type="number" label="Unidades Valorativas" :rules="[rules.required]"
-                            min="1" max="10"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="4">
-                        <v-select v-model="selectedDays" :items="generateDayOptions(units)" label="Días"
-                            :disabled="!units || !initialHour" multiple></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-select v-model="selectedBuilding" :items="formattedBuildingOptions" label="Elija un edificio"
@@ -100,7 +99,7 @@
                     Cerrar
                 </v-btn>
                 <v-btn :disabled="!isCreateValid" color="blue-darken-1" variant="text" @click="submitSection">
-                    Guardar
+                    Crear sección
                 </v-btn>
             </v-card-actions>
 
@@ -114,7 +113,7 @@
             <v-card-title class="text-h5 pa-0 pb-4">
                 Modificar una sección
             </v-card-title>
-            <v-form ref="modifyForm">
+            <v-form ref="modifyForm" v-model="isModifyValid">
                 <v-row>
                     <v-col cols="12" sm="6">
                         <v-autocomplete v-model="modifyTeacher" :items="formattedTeacherOptions" label="Elija un docente"
@@ -132,7 +131,7 @@
                     Cerrar
                 </v-btn>
                 <v-btn color="blue-darken-1" variant="text" @click="modifySection">
-                    Guardar
+                    Modificar sección
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -148,6 +147,7 @@ const store = useAppStore();
 
 const sections = store.sections;
 const isCreateValid = ref(false);
+const isModifyValid= ref(false);
 const showModifyModal = ref(false);
 const showCreateModal = ref(false);
 const displayClassNames = ref([]);
@@ -160,8 +160,10 @@ const selectedTeacher = ref("");
 const units = ref("");
 const selectedDays = ref([]);
 const selectedBuilding = ref("");
+const classRooms = ref([]);
 const selectedClassroom = ref("");
 const seats = ref("");
+
 //Modificar
 const modifyTeacher = ref(""); 
 const modifySeats = ref(0); 
@@ -179,8 +181,8 @@ const teachers = [
 ];
 
 const classNames = [
-    { code: "IS201", className: "Contabilidad I" },
-    { code: "IS203", className: "Sistemas Expertos" },
+    { code: "IS201", className: "Contabilidad I",uv: "4" },
+    { code: "IS203", className: "Sistemas Expertos",uv: "3" },
 ];
 
 const dayOptionsPerUnits = {
@@ -190,23 +192,49 @@ const dayOptionsPerUnits = {
     4: ["LuMaMiJu", "MaMiJuVi"],
     5: ["LuMaMiJuVi"],
 };
+const daysOptions = [
+    "Lu", "Ma", "Mi", "Ju", "Vi","LuMa", "MaMi", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi","LuMaMiJuVi"
+]
 
 // Variables para almacenar la lista de edificios y aulas
 const buildings = [
-    { id: 1, name: "B2", classrooms: ["101", "102", "103"] },
-    { id: 2, name: "B2", classrooms: ["201", "202", "203"] },
+    { id: 1, name: "B1", classrooms: ["101", "102", "103","201", "202", "203"] },
+    { id: 2, name: "B2", classrooms: ["101", "102", "103","201", "202", "203"] },
 ];
 
-const classRooms = ref([]);
 
+
+
+
+
+//Al seleccionar una clase, se asignan las unidades valorativas
+watch(selectedClass, ()=>{
+   
+    if(selectedClass.value){
+        [code.value, className.value] = selectedClass.value.split(" - ");
+
+        units.value = classNames.find(className => className.code===code.value).uv;
+        
+    }
+    
+})
+
+// Reiniciar el valor de selectedDays cuando cambian unidades valorativas
 watch(units, () => {
-    // Reiniciar el valor de selectedDays cuando cambian unidades valorativas
     selectedDays.value = [];
 });
 
 
+// Watcher para actualizar la lista de aulas cuando se selecciona un edificio
+watch(selectedBuilding, () => {
+    if (selectedBuilding.value) {
+        classRooms.value = getClassroomsByBuilding(selectedBuilding.value);
+        selectedClassroom.value = "";
+    }
+});
+
+// Actualizar la hora final según las unidades y días seleccionados
 watch([units, selectedDays, initialHour], () => {
-    // Actualizar la hora final según las unidades y días seleccionados
     if (units.value && selectedDays.value.length && initialHour.value) {
         const hoursPerDay = selectedDays.value.length;
         const totalHours = Number(units.value);
@@ -221,27 +249,34 @@ watch([units, selectedDays, initialHour], () => {
     }
 });
 
-// Función para obtener la lista de aulas según el edificio seleccionado
-function getClassroomsByBuilding(buildingName) {
-    const building = buildings.find((b) => b.name === buildingName);
-    return building ? building.classrooms : [];
-}
 
-// Watcher para actualizar la lista de aulas cuando se selecciona un edificio
-watch(selectedBuilding, () => {
-    if (selectedBuilding.value) {
-        classRooms.value = getClassroomsByBuilding(selectedBuilding.value);
-        selectedClassroom.value = "";
-    }
-});
-
-
+//Para obtener el label de los inputs
 const formattedClassOptions = classNames.map((item) => `${item.code} - ${item.className}`);
 const formattedTeacherOptions = teachers.map((teacher) => teacher.name);
 const formattedBuildingOptions = buildings.map((building) => building.name);
 
+
+
 function generateDayOptions(units) {
     return dayOptionsPerUnits[units] || [];
+}
+
+
+// Función para generar las opciones de horas en formato "0600" a "2000"
+const generateHourOptions = () => {
+    const options = [];
+    for (let hour = 6; hour <= 20; hour++) {
+        const formattedHour = hour.toString().padStart(2, '0') + '00';
+        options.push(formattedHour);
+    }
+    return options;
+};
+
+
+// Función para obtener la lista de aulas según el edificio seleccionado
+function getClassroomsByBuilding(buildingName) {
+    const building = buildings.find((b) => b.name === buildingName);
+    return building ? building.classrooms : [];
 }
 
 function openModifyModal(section) {
@@ -251,17 +286,25 @@ function openModifyModal(section) {
 }
 
 function modifySection() {
-    if (!isModifyValid.value) return;
-
-    selectedSection.value.teacher = modifyTeacher.value;
-    selectedSection.value.seats = modifySeats.value;
+    // if (!isModifyValid.value) return;
+    if (!modifyTeacher.value && !modifySeats.value) {
+        store.setToaster({
+      isActive: true,
+      text: "Debe realizar al menos un cambio para actualizar.",
+      color: "error",
+    });
+    }
+    // selectedSection.value.teacher = modifyTeacher.value;
+    // selectedSection.value.seats = modifySeats.value;
 
     showModifyModal.value = false;
     clearModifyForm();
 }
 
 function clearModifyForm() {
-    $refs.modifyForm.reset();
+    const modifyTeacher = ""; 
+    const modifySeats = 0; 
+    const seatsIncrement = 1; 
 }
 
 function closeModal() {
@@ -277,8 +320,7 @@ function createSection(modalCreate) {
 function submitSection() {
     if (!isCreateValid.value) return
 
-    [code.value, className.value] = selectedClass.value.split(" - ");
-
+    
 
     store.setSection({
         id:(Math.floor(Math.random() * (100 - 1 + 1)) + 1),
@@ -312,19 +354,6 @@ function clear() {
     seats.value = "";
 }
 
-// HORAS
-
-// Función para generar las opciones de horas en formato "0600" a "2000"
-const generateHourOptions = () => {
-    const options = [];
-    for (let hour = 6; hour <= 20; hour++) {
-        const formattedHour = hour.toString().padStart(2, '0') + '00';
-        options.push(formattedHour);
-    }
-    return options;
-};
-
-
 
 
 const rules = {
@@ -340,6 +369,11 @@ const initialHourRules = [
     (value) => !!value || "Debe seleccionar una hora inicial.",
     (value) => !finalHour.value || value < finalHour.value || "La hora inicial debe ser menor que la hora final."
 ];
+
+const unitsRules = [
+    (value) => !!value || "Debe ingresar las unidades valorativas.",
+    (value) => !isNaN(value) && value >= 1 || "Debe ingresar un número mayor o igual a 1."
+]
 
 
 </script>

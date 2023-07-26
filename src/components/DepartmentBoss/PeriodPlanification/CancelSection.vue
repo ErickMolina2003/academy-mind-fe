@@ -47,14 +47,14 @@ import { useAppStore } from "@/store/app";
 const store = useAppStore();
 
 const sections = store.sections;
-const selectedClasses = ref([]);
+const selectedSections = ref([]);
 const isValid = ref(false);
 
 
 
 function isSelected(item) {
-    for (const key in selectedClasses.value) {
-        if (selectedClasses.value[key].id === item.id) {
+    for (const key in selectedSections.value) {
+        if (selectedSections.value[key].id === item.id) {
             return true;
         }
     }
@@ -64,22 +64,22 @@ function isSelected(item) {
 function toggleSelection(item) {
     let index = -1;
 
-    for (let i = 0; i < selectedClasses.value.length; i++) {
-        if (selectedClasses.value[i].id === item.id) {
+    for (let i = 0; i < selectedSections.value.length; i++) {
+        if (selectedSections.value[i].id === item.id) {
             index = i;
             break;
         }
     }
 
     if (index === -1) {
-        selectedClasses.value.push(item);
+        selectedSections.value.push(item);
     } else {
-        selectedClasses.value.splice(index, 1);
+        selectedSections.value.splice(index, 1);
     }
 }
 
 function checkTable() {
-    if (selectedClasses.value.length === 0) {
+    if (selectedSections.value.length === 0) {
         isValid.value = false;
         return isValid.value;
     } else {
@@ -89,17 +89,22 @@ function checkTable() {
 }
 
 function cancelSection(cancel) {
-    // if (checkTable()) {
-    //     
-    // }
+    if (selectedSections.value.length === 0) {
+        store.setToaster({
+      isActive: true,
+      text: "Debe realizar al menos una sección para cancelar.",
+      color: "error",
+    });
+    }
 }
-
 
 
 </script>
 
 <style scoped>
 .classes-table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: .7rem;
 }
 
@@ -108,8 +113,15 @@ function cancelSection(cancel) {
     cursor: pointer;
 }
 
-.error-message {
-    color: red;
-    font-size: .8rem;
+
+
+th,td {
+    padding: 8px;
+    border-bottom: 2px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
 }
 </style>
