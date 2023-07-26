@@ -113,7 +113,7 @@ const routes = [
           {
             path: "/listas-de-espera",
             name: "listas-de-espera",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/WaintingList.vue"),
           },
           {
             path: "/cancelar-secciones",
