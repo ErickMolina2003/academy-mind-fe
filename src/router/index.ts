@@ -87,7 +87,7 @@ const routes = [
       {
         path: "/historial-estudiantil",
         name: "historial-estudiantil",
-        //component: () => import(""),
+        component: () => import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
       },
       {
         path: "/gestion-docentes",

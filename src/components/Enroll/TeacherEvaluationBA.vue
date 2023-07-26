@@ -27,8 +27,8 @@
         <v-dialog v-model="showModal" persistent max-width="950">
         <v-card>
             <v-toolbar color="primary" dark>
-            <v-toolbar-title>{{ selectedClass.subject + ' - ' + selectedClass.section }}</v-toolbar-title>
-            <v-spacer></v-spacer>
+                <v-toolbar-title>{{ selectedClass.subject + ' - ' + selectedClass.section }}</v-toolbar-title>
+                <v-spacer></v-spacer>
             </v-toolbar>
             <v-card-text>
             <div>
