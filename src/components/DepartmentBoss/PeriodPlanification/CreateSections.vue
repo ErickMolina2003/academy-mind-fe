@@ -59,18 +59,15 @@
                         </v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="initialHour" :items="generateHourOptions()" label="Hora Inicial"
-                            :rules="initialHourRules"></v-autocomplete>
-                        <v-messages :value="initialHourError" v-if="initialHourError" class="error--text">
-                            {{ initialHourError }}
-                        </v-messages>
-                    </v-col>
-                    <v-col cols="12" sm="4">
                         <v-text-field v-model="units"  label="Unidades Valorativas" :readonly="true" ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-select v-model="selectedDays" :items="generateDayOptions(units)" label="Días"
-                            :disabled="!units || !initialHour"></v-select>
+                        <v-select v-model="selectedDays" :items="journey" label="Días"
+                            :disabled="!units" ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                        <v-autocomplete v-model="initialHour" :items="generateHourOptions()" label="Hora Inicial"
+                            :rules="initialHourRules"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-text-field v-model="finalHour" label="Hora Final" :readonly="true"></v-text-field>
@@ -170,9 +167,6 @@ const modifySeats = ref(0);
 const seatsIncrement = 1; 
 
 
-// Variables para almacenar los mensajes de error para las horas inicial y final
-const initialHourError = ref("");
-const finalHourError = ref("");
 
 
 const teachers = [
@@ -183,18 +177,23 @@ const teachers = [
 const classNames = [
     { code: "IS201", className: "Contabilidad I",uv: "4" },
     { code: "IS203", className: "Sistemas Expertos",uv: "3" },
+    { code: "IS204", className: "Dibujo",uv: "2" },
 ];
 
 const dayOptionsPerUnits = {
-    1: ["Lu", "Ma", "Mi", "Ju", "Vi"],
+    1: ["Lu", "Ma", "Mi", "Ju", "Vi","Sa"],
     2: ["LuMa", "MaMi", "MiJu", "JuVi"],
     3: ["LuMaMi", "MaMiJu"],
     4: ["LuMaMiJu", "MaMiJuVi"],
     5: ["LuMaMiJuVi"],
 };
 const daysOptions = [
-    "Lu", "Ma", "Mi", "Ju", "Vi","LuMa", "MaMi", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi","LuMaMiJuVi"
+    "Vi","Sa","LuMa","LuMi", "MaMi","MaJu", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi","LuMaMiJuVi"
 ]
+
+const journey = computed(()=>{
+    return daysOptions.filter((dayOption)=> dayOption.length===units.value*2 || dayOption.length===2)
+});
 
 // Variables para almacenar la lista de edificios y aulas
 const buildings = [
@@ -216,12 +215,17 @@ watch(selectedClass, ()=>{
         units.value = classNames.find(className => className.code===code.value).uv;
         
     }
+    initialHour.value="";
+    finalHour.value="";
+    selectedDays.value=[];
     
 })
 
 // Reiniciar el valor de selectedDays cuando cambian unidades valorativas
 watch(units, () => {
     selectedDays.value = [];
+    initialHour.value="";
+    finalHour.value="";
 });
 
 
@@ -233,21 +237,42 @@ watch(selectedBuilding, () => {
     }
 });
 
-// Actualizar la hora final según las unidades y días seleccionados
 watch([units, selectedDays, initialHour], () => {
-    if (units.value && selectedDays.value.length && initialHour.value) {
-        const hoursPerDay = selectedDays.value.length;
-        const totalHours = Number(units.value);
-        const initialTime = Number(initialHour.value.substring(0, 2)) * 60 + Number(initialHour.value.substring(2));
-        const endTime = initialTime + totalHours * 60 / hoursPerDay;
-        const endHour = String(Math.floor(endTime / 60)).padStart(2, '0');
-        const endMinute = String(endTime % 60).padStart(2, '0');
+  if (units.value && selectedDays.value.length && initialHour.value) {
+    const initialTime = Number(initialHour.value.substring(0, 2));
+    let endHour;
 
-        finalHour.value = endHour + endMinute;
+    if (selectedDays.value.length === units.value * 2) {
+      // Si la cantidad de días es el doble de las unidades, sumar 1 hora a la hora inicial
+      endHour = initialTime + 1;
     } else {
-        finalHour.value = "";
+      // Si no, sumar las unidades a la hora inicial
+      endHour = initialTime + Number(units.value);
     }
+
+    // Asegurarse de que el endHour esté entre 6 y 20 (límites de horas permitidos)
+    // endHour = Math.min(Math.max(endHour, 6), 20);
+
+    // Formatear la hora final como "HH:mm"
+    const formattedEndHour = String(endHour).padStart(2, "0") + "00";
+
+    // Validar si la hora final se pasa de las 20:00
+    if (endHour > 20) {
+      store.setToaster({
+      isActive: true,
+      text: "La hora final no puede exceder las 20:00 (8:00 PM).",
+      color: "error",
+    });
+      finalHour.value = "";
+      initialHour.value="";
+    } else {
+      finalHour.value = formattedEndHour;
+    }
+  } else {
+    finalHour.value = "";
+  }
 });
+
 
 
 //Para obtener el label de los inputs
@@ -262,10 +287,10 @@ function generateDayOptions(units) {
 }
 
 
-// Función para generar las opciones de horas en formato "0600" a "2000"
+// Función para generar las opciones de horas en formato "0600" a "1900"
 const generateHourOptions = () => {
     const options = [];
-    for (let hour = 6; hour <= 20; hour++) {
+    for (let hour = 6; hour <= 19; hour++) {
         const formattedHour = hour.toString().padStart(2, '0') + '00';
         options.push(formattedHour);
     }
@@ -320,7 +345,6 @@ function createSection(modalCreate) {
 function submitSection() {
     if (!isCreateValid.value) return
 
-    
 
     store.setSection({
         id:(Math.floor(Math.random() * (100 - 1 + 1)) + 1),
