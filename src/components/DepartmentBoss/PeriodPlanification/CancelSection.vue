@@ -3,7 +3,7 @@
             @createSection="cancelSection" />
     <div >
         <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
-        <v-table class="classes-table pb-4" fixed-header density="comfortable">
+        <v-table class="classes-table  pb-4" fixed-header density="comfortable">
             <thead>
                 <tr>
                     <th>Cód.</th>
@@ -119,9 +119,11 @@ th,td {
     padding: 8px;
     border-bottom: 2px solid #ddd;
     text-align: center;
+    
 }
 
 th {
     background-color: #f2f2f2;
+    
 }
 </style>

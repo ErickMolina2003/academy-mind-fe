@@ -40,9 +40,8 @@ export const useAppStore = defineStore("app", {
       this.toaster = toaster;
     },
     setSection(section:any){
-      if(section){
         this.sections.push(section);
-      }
+        console.log(this.sections);
     }
   },
   getters: {

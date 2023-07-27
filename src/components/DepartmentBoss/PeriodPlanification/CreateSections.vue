@@ -160,6 +160,7 @@ const selectedBuilding = ref("");
 const classRooms = ref([]);
 const selectedClassroom = ref("");
 const seats = ref("");
+const assignedSection = ref("");
 
 //Modificar
 const modifyTeacher = ref(""); 
@@ -195,7 +196,6 @@ const journey = computed(()=>{
     return daysOptions.filter((dayOption)=> dayOption.length===units.value*2 || dayOption.length===2)
 });
 
-// Variables para almacenar la lista de edificios y aulas
 const buildings = [
     { id: 1, name: "B1", classrooms: ["101", "102", "103","201", "202", "203"] },
     { id: 2, name: "B2", classrooms: ["101", "102", "103","201", "202", "203"] },
@@ -250,10 +250,7 @@ watch([units, selectedDays, initialHour], () => {
       endHour = initialTime + Number(units.value);
     }
 
-    // Asegurarse de que el endHour esté entre 6 y 20 (límites de horas permitidos)
-    // endHour = Math.min(Math.max(endHour, 6), 20);
-
-    // Formatear la hora final como "HH:mm"
+    
     const formattedEndHour = String(endHour).padStart(2, "0") + "00";
 
     // Validar si la hora final se pasa de las 20:00
@@ -311,7 +308,6 @@ function openModifyModal(section) {
 }
 
 function modifySection() {
-    // if (!isModifyValid.value) return;
     if (!modifyTeacher.value && !modifySeats.value) {
         store.setToaster({
       isActive: true,
@@ -319,8 +315,6 @@ function modifySection() {
       color: "error",
     });
     }
-    // selectedSection.value.teacher = modifyTeacher.value;
-    // selectedSection.value.seats = modifySeats.value;
 
     showModifyModal.value = false;
     clearModifyForm();
@@ -343,27 +337,43 @@ function createSection(modalCreate) {
 }
 
 function submitSection() {
-    if (!isCreateValid.value) return
+    if (!isCreateValid.value) return;
 
+  // Verificar si ya existe una sección con la misma "code" y "seccion"
+  if (sectionExists(code.value, initialHour.value)) {
+    const lastDigit = Number(initialHour.value.charAt(3));
+    const nextSectionDigit = (lastDigit + 1) % 10;
+    const nextSection = initialHour.value.substring(0, 3) + nextSectionDigit;
 
-    store.setSection({
+    assignedSection.value = nextSection;
+  } else {
+    assignedSection.value = initialHour.value;
+  }
+  store.setSection({
         id:(Math.floor(Math.random() * (100 - 1 + 1)) + 1),
         classCode: code.value,
         className: className.value,
-        section: initialHour.value,
+        section: assignedSection.value,
         initialHour: initialHour.value,
         finalHour: finalHour.value,
         teacher: selectedTeacher.value,
         uv: units.value,
-        days: selectedDays.value[0],
+        days: selectedDays.value,
         building: selectedBuilding.value,
         classroom: selectedClassroom.value,
         seats: seats.value,
         modify: "Modificar"
     });
 
+
+    
+
     showCreateModal.value = false;
     clear();
+}
+
+function sectionExists(code, section) {
+  return sections.some((item) => item.classCode === code && item.section === section);
 }
 
 function clear() {
@@ -399,14 +409,13 @@ const unitsRules = [
     (value) => !isNaN(value) && value >= 1 || "Debe ingresar un número mayor o igual a 1."
 ]
 
-
 </script>
 
 <style scoped>
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: .8rem;
+    font-size: .7rem;
 }
 
 th,
