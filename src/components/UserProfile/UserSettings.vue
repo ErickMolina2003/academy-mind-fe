@@ -1,29 +1,23 @@
 <template>
   <div rounded>
     <div class="text-center">
-      <img
-        v-if="userIsTeacher"
-        :src="store.user.teacher.photoOne"
-        alt="user-img"
-        class="user-img rounded-lg"
-      />
-      <img
-        v-if="userIsStudent"
-        :src="store.user.student.photoOne"
-        alt="user-img"
-        class="user-img rounded-lg"
-      />
-      <img
-        v-if="userIsAdmin"
-        :src="store.user.admin.photoOne"
-        alt="user-img"
-        class="user-img rounded-lg"
-      />
-      <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
       <v-row>
         <v-col cols="12" md="12" lg="12">
           <img
-            src="@/assets/user-img.png"
+            v-if="store.user.teacher"
+            :src="store.user.teacher.photoOne"
+            alt="user-img"
+            class="user-img rounded-lg"
+          />
+          <img
+            v-if="store.user.student"
+            :src="store.user.student.photoOne"
+            alt="user-img"
+            class="user-img rounded-lg"
+          />
+          <img
+            v-if="store.user.isAdmin"
+            :src="store.user.admin.photoOne"
             alt="user-img"
             class="user-img rounded-lg"
           />
