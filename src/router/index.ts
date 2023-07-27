@@ -113,7 +113,7 @@ const routes = [
           {
             path: "/seccion-estadistica",
             name: "sección-estadística",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/StatisticalSection.vue"),
           },
           {
             path: "/evaluacion-estudiantes",
