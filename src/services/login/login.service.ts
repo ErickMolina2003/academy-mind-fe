@@ -258,4 +258,48 @@ export default class LoginService {
       return error;
     }
   }
+
+  async resetTeacherPassword(dni: string) {
+    const url = `http://localhost:3001/api/teacher/reset-password`;
+    try {
+      const response = await axios({
+        method: "POST",
+        url: url,
+        data: { dni: dni },
+      });
+      if (response.status === 201) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "¡La contraseña ha sido reiniciada exitosamente!",
+            color: "success",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "Usuario no encontrado.",
+            color: "error",
+          });
+        }
+        return response;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Usuario no encontrado.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Usuario no encontrado.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 }
+
+
+

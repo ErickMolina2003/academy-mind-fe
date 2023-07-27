@@ -53,7 +53,9 @@
                         <p class="mb-2"><strong>Nombre:</strong> {{ selectedTeacher.user.firstName }} {{ selectedTeacher.user.secondName }} {{ selectedTeacher.user.firstLastName }} {{ selectedTeacher.user.secondLastName }}</p>
                         <p class="mb-2"><strong>Correo Institucional:</strong> {{ selectedTeacher.institutionalEmail }}</p>
                         <p class="mb-2"><strong>Número de empleado:</strong> {{ selectedTeacher.employeeNumber }}</p>
+                        <p class="mb-2"><strong>DNI:</strong> {{ selectedTeacher.user.dni}}</p>
                         <p class="mb-2"><strong>Email Personal:</strong> {{ selectedTeacher.email }}</p>
+                        
                     </v-col>
                     </v-row>
                 </v-container>
@@ -62,8 +64,8 @@
 
             <v-card-actions class="fixed-footer">
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-4" text @click="showModal = false">Cerrar Modal</v-btn>
-            <v-btn color="blue darken-4" @click="confirmResetPassword">Reiniciar Clave</v-btn>
+            <v-btn color="blue darken-4" text @click="showModal = false">Cerrar</v-btn>
+            <v-btn color="blue darken-4" @click="resetPassword(selectedTeacher.user.dni)">Reiniciar Clave</v-btn>
             </v-card-actions>
         </v-card>
         </v-dialog>
@@ -74,6 +76,9 @@
 import { ref, onMounted, computed, watch } from "vue";
 import TeacherService from "@/services/teacher/teacher.service";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
+import LoginService from "@/services/login/login.service";
+import ToasterVue from "@/components/Toaster.vue";
+
 
 const myTitle = "Reinicio de Clave de Docentes";
 const myLabel = "No. Empleado";
@@ -128,15 +133,13 @@ const showClassDetails = (teacher) => {
 selectedTeacher.value = teacher;
 showModal.value = true;
 };
-const confirmResetPassword = () => {
-  const confirmation = window.confirm("¿Estás seguro de que deseas reiniciar la clave del docente? Se le enviara un correo con el acceso para cambiarla.");
-  if (confirmation) {
-    resetPassword();
-  }
-};
-const resetPassword = () => {
-    showModal.value = false;
 
+const resetPassword = async (dni) => {
+    const service = new LoginService();
+    const response = await service.resetTeacherPassword(dni);
+    if (response) {
+        showModal.value = false;
+    }
 };
 
 onMounted(async () => {
