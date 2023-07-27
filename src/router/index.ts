@@ -39,6 +39,11 @@ const routes = [
         ],
       },
       {
+        path: "/chat",
+        name: "chat",
+        component: () => import("@/components/Chat/ContactList.vue"),
+      },
+      {
         path: "/matricula",
         name: "matricula",
         redirect: { name: "historial-academico" },
