@@ -25,7 +25,7 @@
                   accountRules.size,
                 ]"
                 clearable
-                placeholder="Ingrese numero de cuenta"
+                placeholder="Ingrese número de cuenta"
                 class="ma-6"
               ></v-text-field>
             </v-form>
