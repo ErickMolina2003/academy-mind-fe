@@ -1,0 +1,23 @@
+[
+  { "text": "Hello!", "isReceived": true },
+  { "text": "Hi there!", "isReceived": false },
+  { "text": "How are you?", "isReceived": true },
+  { "text": "I am doing great!", "isReceived": false },
+  { "text": "Mensaje 1", "isReceived": true },
+  { "text": "Mensaje 2", "isReceived": true },
+  { "text": "Mensaje 3", "isReceived": false },
+  { "text": "Mensaje 4", "isReceived": true },
+  { "text": "Mensaje 5", "isReceived": false },
+  {
+    "text": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus aliquam totam dignissimos laudantium unde quasi cum animi illum a. Optio nostrum ducimus repellendus nihil quisquam? Velit nisi quae dolorem in earum minus laborum natus sit hic quidem esse non, cupiditate deleniti, dolore autem nesciunt dignissimos quam et totam nam ducimus.!",
+    "isReceived": true
+  },
+  {
+    "text": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus aliquam totam dignissimos laudantium unde quasi cum animi illum a. Optio nostrum ducimus repellendus nihil quisquam? Velit nisi quae dolorem in earum minus laborum natus sit hic quidem esse non, cupiditate deleniti, dolore autem nesciunt dignissimos quam et totam nam ducimus.!",
+    "isReceived": false
+  },
+  {
+    "text": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus aliquam totam dignissimos laudantium unde quasi cum animi illum a. Optio nostrum ducimus repellendus nihil quisquam? Velit nisi quae dolorem in earum minus laborum natus sit hic quidem esse non, cupiditate deleniti, dolore autem nesciunt dignissimos quam et totam nam ducimus.!",
+    "isReceived": true
+  }
+]
