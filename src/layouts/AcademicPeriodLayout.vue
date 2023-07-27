@@ -23,8 +23,22 @@
   const periodOptions = ref([
     {
       name: "Planificación Periodo",
-      to: "/planificacion-periodo",
+      // to: "/planificacion-periodo",
       icon: "mdi-calendar-clock",
+      submenu: [
+      {
+        name: "Crear secciones",
+        to: "/crear-secciones"
+      },
+      {
+        name: "Listas de espera",
+        to: "/listas-de-espera"
+      },
+      {
+        name: "Cancelar secciones",
+        to: "/cancelar-secciones"
+      }
+    ]
     },
     {
     name: "Periodo Actual",

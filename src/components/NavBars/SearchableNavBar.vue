@@ -18,14 +18,24 @@
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
       </v-col>
+      <v-col v-if="btnTitle" cols="12" md="auto" lg="auto" align-self="center">
+        <v-btn variant="tonal" color="success" @click="$emit('createSection',true)">{{
+          btnTitle
+        }}</v-btn>
+      </v-col>
     </v-row>
   </v-app-bar>
 </template>
 
-<script setup>
-import { ref, onMounted, defineProps } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 
-defineProps(["title", "label"]);
+
+defineProps<{
+  title: string;
+  label: string;
+  btnTitle?: string;
+}>();
 
 const toggleSearch = ref(false);
 const searchQuery = ref("");

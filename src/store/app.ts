@@ -9,6 +9,7 @@ export const useAppStore = defineStore("app", {
     updateTeachers: false,
     updateStudents: false,
     toaster: {},
+    sections:[]
   }),
   actions: {
     setUser(user: User) {
@@ -38,6 +39,10 @@ export const useAppStore = defineStore("app", {
     setToaster(toaster: Toaster) {
       this.toaster = toaster;
     },
+    setSection(section:any){
+        this.sections.push(section);
+        console.log(this.sections);
+    }
   },
   getters: {
     userExists(state) {

@@ -1,7 +1,9 @@
 <template>
   <div rounded>
     <div class="text-center">
-      <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
+      <img v-if="userIsTeacher" :src="store.user.teacher.photoOne" alt="user-img" class="user-img rounded-lg" />
+      <img v-if="userIsStudent" :src="store.user.student.photoOne" alt="user-img" class="user-img rounded-lg" />
+      <img v-if="userIsAdmin" :src="store.user.admin.photoOne" alt="user-img" class="user-img rounded-lg" />
       <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
     </div>
     <br />
@@ -174,7 +176,6 @@ function uploadingImage() {
     bucket = "admin";
   }
 
-  console.log(uploadedImage.value);
 
   uploadImage.value.forEach((image) => {
     const imageRef = firebaseRed(
@@ -384,4 +385,12 @@ async function submitChangePassword() {
   }
 }
 </script>
+
+<style scoped>
+.user-img {
+  width: 128px;
+  height: 128px;
+  border: 7px solid #fff;
+}
+</style>
 

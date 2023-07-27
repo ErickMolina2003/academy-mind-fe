@@ -65,3 +65,16 @@ export interface StudentUpdate {
   photoTwo?: string;
   photoThree?: string;
 }
+
+export interface Sections{
+  classCode:string;
+  class:string;
+  section:string;
+  initialHour:string;
+  finalHour:string;
+  teacher:string;
+  uv:string;
+  days:string;
+  building:string;
+  classroom:string;
+}

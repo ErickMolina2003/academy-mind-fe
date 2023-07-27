@@ -100,10 +100,25 @@ const routes = [
         //redirect: { name: "planificacion-periodo" },
         component: () => import("@/layouts/academicPeriodLayout.vue"),
         children: [
+          // {
+          //   path: "/planificacion-periodo",
+          //   name: "planificación-periodo",
+          //   //component: () => import(""),
+          // },
           {
-            path: "/planificacion-periodo",
-            name: "planificación-periodo",
-            //component: () => import(""),
+            path: "/crear-secciones",
+            name: "crear-secciones",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"),
+          },
+          {
+            path: "/listas-de-espera",
+            name: "listas-de-espera",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/WaintingList.vue"),
+          },
+          {
+            path: "/cancelar-secciones",
+            name: "cancelar-secciones",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"),
           },
           {
             path: "/estudiantes-matriculados",
