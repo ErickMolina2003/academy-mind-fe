@@ -165,8 +165,7 @@ const submitAddContact = () => {
   const value = validateFields();
   if (value) {
     console.log("Contacto guardado:", accountNum.value);
-
-    closeModal();
+    closeAddContact();
   } else {
     console.log("Validación", value);
   }
@@ -186,6 +185,7 @@ const accountRules = {
 const closeInbox = () => {
   dialogInbox.value = false;
 };
+
 function acceptContact(index) {
   console.log("Contacto aceptado:", `id: ${index}`);
 }
