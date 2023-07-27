@@ -10,8 +10,8 @@
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
         <img v-if="userIsTeacher" :src="store.user.teacher.photoOne" alt="user-img" class="user-img rounded-lg" />
-        <img v-if="userIsStudent" :src="store.user.student.photoOne" alt="user-img" class="user-img rounded-lg" />
-        <img v-if="userIsAdmin" :src="store.user.admin.photoOne" alt="user-img" class="user-img rounded-lg" />
+        <img v-if="store.user.student" :src="store.user.student.photoOne" alt="user-img" class="user-img rounded-lg" />
+        <img v-if="store.user.isAdmin" :src="store.user.admin.photoOne" alt="user-img" class="user-img rounded-lg" />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
