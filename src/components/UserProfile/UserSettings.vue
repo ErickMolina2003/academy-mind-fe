@@ -1,91 +1,252 @@
 <template>
   <div rounded>
     <div class="text-center">
-      <img src="@/assets/user-img.png" alt="user-img" class="user-img rounded-lg" />
-      <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
+      <v-row>
+        <v-col cols="12" md="12" lg="12">
+          <img
+            v-if="store.user.teacher"
+            :src="store.user.teacher.photoOne"
+            alt="user-img"
+            class="user-img rounded-lg"
+          />
+          <img
+            v-if="store.user.student"
+            :src="store.user.student.photoOne"
+            alt="user-img"
+            class="user-img rounded-lg"
+          />
+          <img
+            v-if="store.user.isAdmin"
+            :src="store.user.admin.photoOne"
+            alt="user-img"
+            class="user-img rounded-lg"
+          />
+        </v-col>
+        <v-col cols="12" md="12" lg="12">
+          <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
+        </v-col>
+        <v-col v-if="store.user.student" cols="12" md="12" lg="12">
+          <v-btn @click="pictureModal = true" color="secondary-lighthen-1"
+            >Actualizar foto de perfil</v-btn
+          >
+        </v-col>
+        <v-dialog class="px-5" v-model="pictureModal" width="auto" persistent>
+          <v-card width="800px">
+            <v-container>
+              <v-row>
+                <v-col
+                  v-if="
+                    userImages[0] === undefined ||
+                    userImages[1] === undefined ||
+                    userImages[2] === undefined
+                  "
+                  cols="12"
+                  md="12"
+                  lg="12"
+                >
+                  <div>
+                    <h3 class="bg-blue-darken-1 my-3 pa-1">Imagenes</h3>
+                    <v-file-input
+                      chips
+                      prepend-icon="mdi-camera"
+                      accept="image/*"
+                      v-model="uploadImage"
+                    ></v-file-input>
+                    <v-container justify="start">
+                      <v-row justify="center">
+                        <v-col cols="auto" v-if="uploadImage[0]">
+                          <v-img
+                            height="110"
+                            width="110"
+                            cover
+                            :src="getImageUrl"
+                          ></v-img>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="12" lg="12">
+                  <div>
+                    <h3 class="bg-blue-darken-1 my-3 pa-1">Fotos Sugeridas</h3>
+                    <v-container justify="start">
+                      <v-row justify="center">
+                        <v-col
+                          cols="auto"
+                          v-for="image in userImages"
+                          :key="image"
+                        >
+                          <v-img
+                            height="110"
+                            width="110"
+                            cover
+                            :src="image"
+                          ></v-img>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+
+            <div class="text-right mb-3 mx-3">
+              <v-spacer></v-spacer>
+              <v-btn
+                style="width: 150px"
+                class="bg-blue-grey-darken-1 mr-6"
+                variant="text"
+                rounded
+                @click="closeImageDialog"
+                >Cerrar</v-btn
+              >
+              <v-btn
+                style="width: 150px"
+                class="bg-blue-darken-4 text-right"
+                rounded
+                variant="text"
+                @click="uploadingImage"
+              >
+                Confirmar
+              </v-btn>
+            </div>
+          </v-card>
+        </v-dialog>
+      </v-row>
     </div>
     <br />
 
     <v-form disabled>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Información del Usuario</h3>
       <div class="d-flex">
-        <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
-        <v-text-field v-if="!isAdmin" class="text-black font-weight-black" v-model="account" :label="!(userIsTeacher | userIsBoss | userIsCoordinator)
-          ? 'Número de Cuenta'
-          : 'Número de Empleado'
-          "></v-text-field>
+        <v-text-field
+          class="text-black font-weight-black"
+          v-model="name"
+          label="Nombre"
+        ></v-text-field>
+        <v-text-field
+          v-if="!isAdmin"
+          class="text-black font-weight-black"
+          v-model="account"
+          :label="
+            !(userIsTeacher | userIsBoss | userIsCoordinator)
+              ? 'Número de Cuenta'
+              : 'Número de Empleado'
+          "
+        ></v-text-field>
       </div>
       <div class="d-flex">
-        <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
+        <v-text-field
+          class="text-black font-weight-black"
+          v-model="center"
+          label="Centro Universitario"
+        ></v-text-field>
       </div>
       <div v-if="isAdmin" class="d-flex">
-        <v-text-field class="text-black font-weight-black" v-model="emailpersonal" label="email"></v-text-field>
+        <v-text-field
+          class="text-black font-weight-black"
+          v-model="emailpersonal"
+          label="email"
+        ></v-text-field>
       </div>
     </v-form>
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Contraseña</h3>
       <v-row>
         <v-col v-if="!togglePassword">
-          <v-text-field class="text-black font-weight-black" v-model="mockPassword" label="Contraseña"
-            disabled></v-text-field>
+          <v-text-field
+            class="text-black font-weight-black"
+            v-model="mockPassword"
+            label="Contraseña"
+            disabled
+          ></v-text-field>
         </v-col>
         <v-col v-if="togglePassword">
           <v-form v-model="form" @submit.prevent="submitChangePassword">
-            <v-text-field class="text-black font-weight-black" v-model="currentPassword" type="password"
-              :rules="[rules.required]" label="Actual Contraseña"></v-text-field>
-            <v-text-field class="text-black font-weight-black" v-model="password" type="password"
-              :rules="[rules.required, rules.passwordRule]" label="Nueva Contraseña"></v-text-field>
-            <v-text-field class="text-black font-weight-black" v-model="confirmPassword" type="password"
-              :rules="[rules.required, rules.passwordRule]" label="Confirmar Contraseña"></v-text-field>
+            <v-text-field
+              class="text-black font-weight-black"
+              v-model="currentPassword"
+              type="password"
+              :rules="[rules.required]"
+              label="Actual Contraseña"
+            ></v-text-field>
+            <v-text-field
+              class="text-black font-weight-black"
+              v-model="password"
+              type="password"
+              :rules="[rules.required, rules.passwordRule]"
+              label="Nueva Contraseña"
+            ></v-text-field>
+            <v-text-field
+              class="text-black font-weight-black"
+              v-model="confirmPassword"
+              type="password"
+              :rules="[rules.required, rules.passwordRule]"
+              label="Confirmar Contraseña"
+            ></v-text-field>
             <v-row justify="center">
               <v-col cols="12" md="auto" lg="auto">
-                <v-btn color="success" type="submit" class="mr-4">Cambiar Contraseña</v-btn>
+                <v-btn color="success" type="submit" class="mr-4"
+                  >Cambiar Contraseña</v-btn
+                >
                 <v-btn color="error" @click="unTogglePassword">Cancelar</v-btn>
               </v-col>
             </v-row>
           </v-form>
         </v-col>
         <v-col cols="12" md="auto" lg="auto" align-self="center">
-          <v-btn v-if="!togglePassword" color="secondary-lighthen-1" @click="togglePassword = !togglePassword">Cambiar
-            Contraseña</v-btn>
+          <v-btn
+            v-if="!togglePassword"
+            color="secondary-lighthen-1"
+            @click="togglePassword = !togglePassword"
+            >Cambiar Contraseña</v-btn
+          >
         </v-col>
       </v-row>
     </div>
-    <div>
-      <h3 class="bg-blue-darken-1 my-3 pa-1">Imagenes</h3>
-      <v-file-input chips multiple prepend-icon="mdi-camera" accept="image/*" v-model="uploadImage"
-        :rules="[rules.maxLength]"></v-file-input>
-      <v-btn @click="uploadingImage">Subir Imagenes</v-btn>
-      <v-container justify="start">
-        <v-row>
-          <v-col cols="auto" v-if="uploadedImage[0]"><v-img :height="110" :width="110" cover
-              :src="uploadedImage[0]"></v-img></v-col>
-          <v-col cols="auto" v-if="uploadedImage[1]"><img :height="110" :width="110" :src="uploadedImage[1]"
-              class="user-img rounded-lg" /></v-col>
-          <v-col cols="auto" v-if="uploadedImage[2]"><img :height="110" :width="110" :src="uploadedImage[2]"
-              class="user-img rounded-lg" /></v-col>
-        </v-row>
-      </v-container>
-    </div>
 
     <div>
-      <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">
+      <h3
+        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
+        class="bg-blue-darken-1 my-3 pa-1"
+      >
         Video
       </h3>
-      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips v-model="video" accept="video/*"
-        prepend-icon="mdi-camera"></v-file-input>
+      <v-file-input
+        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
+        chips
+        v-model="video"
+        accept="video/*"
+        prepend-icon="mdi-camera"
+      ></v-file-input>
     </div>
 
     <br />
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Descripción</h3>
-      <v-textarea label="Escriba aqui" variant="solo" v-model="description"></v-textarea>
+      <v-textarea
+        label="Escriba aqui"
+        variant="solo"
+        v-model="description"
+      ></v-textarea>
     </div>
     <div class="text-right mb-3">
       <v-spacer></v-spacer>
-      <v-btn style="width: 150px" class="bg-blue-grey-darken-1 mr-6" variant="text" rounded
-        @click="closeDialog">Cerrar</v-btn>
-      <v-btn style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text" @click="confirmInfo">
+      <v-btn
+        style="width: 150px"
+        class="bg-blue-grey-darken-1 mr-6"
+        variant="text"
+        rounded
+        @click="closeDialog"
+        >Cerrar</v-btn
+      >
+      <v-btn
+        style="width: 150px"
+        class="bg-blue-darken-4 text-right"
+        rounded
+        variant="text"
+        @click="confirmInfo"
+      >
         Confirmar
       </v-btn>
     </div>
@@ -95,7 +256,7 @@
 <script setup lang="ts">
 import LoginService from "@/services/login/login.service";
 import { useAppStore } from "@/store/app";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { storage } from "@/firebase";
 import {
   ref as firebaseRed,
@@ -148,11 +309,34 @@ const name =
 let account = "";
 const originalDescription = ref("");
 const originalEmail = ref("");
-const video = ref()
-const uploadImage = ref();
+const video = ref();
+
+const userImages = ref([]);
+const pictureModal = ref(false);
+const uploadImage = ref([]);
 const uploadedImage = ref([]);
 
+const getImageUrl = computed(() => {
+  return URL.createObjectURL(uploadImage.value[0]);
+});
+const getSecondImageUrl = computed(() => {
+  return URL.createObjectURL(uploadImage.value[1]);
+});
+const getThirdImageUrl = computed(() => {
+  return URL.createObjectURL(uploadImage.value[2]);
+});
+
 onMounted(() => {
+  if (store.user.student) {
+    userImages.value = [
+      store.user.student?.photoOne ?? undefined,
+      store.user.student?.photoTwo ?? undefined,
+      store.user.student?.photoThree ?? undefined,
+    ];
+  }
+  if (store.user.teacher) {
+    userImages.value = [store.user.student?.photoOne ?? undefined];
+  }
   originalDescription.value = description.value;
   // originalEmail.value = email.value;
   // Agregar los demas campos (si hay)
@@ -174,8 +358,6 @@ function uploadingImage() {
     bucket = "admin";
   }
 
-  console.log(uploadedImage.value);
-
   uploadImage.value.forEach((image) => {
     const imageRef = firebaseRed(
       storage,
@@ -194,6 +376,16 @@ function uploadingImage() {
       color: "success",
     });
   }
+  pictureModal.value = false;
+  store.setToaster({
+    isActive: true,
+    text: "Imagen subida exitosamente.",
+    color: "success",
+  });
+}
+
+function closeImageDialog() {
+  pictureModal.value = false;
 }
 
 function closeDialog() {
@@ -206,7 +398,6 @@ async function confirmInfo() {
       await teacherService.updateTeacher(dni, {
         description: description.value,
       });
-
     } else if (userIsAdmin) {
       await adminService.updateAdmin(dni, {
         description: description.value,
@@ -234,7 +425,6 @@ async function confirmInfo() {
         photoOne: uploadedImage.value[0],
       });
     } else {
-
       if (uploadedImage.value[0]) {
         await studentService.updateStudent(dni, {
           photoOne: uploadedImage.value[0],
@@ -250,7 +440,6 @@ async function confirmInfo() {
           }
         }
       }
-
     }
   }
 
@@ -385,3 +574,10 @@ async function submitChangePassword() {
 }
 </script>
 
+<style scoped>
+.user-img {
+  width: 128px;
+  height: 128px;
+  border: 7px solid #fff;
+}
+</style>

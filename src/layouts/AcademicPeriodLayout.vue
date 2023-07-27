@@ -23,8 +23,22 @@
   const periodOptions = ref([
     {
       name: "Planificación Periodo",
-      to: "/planificacion-periodo",
+      // to: "/planificacion-periodo",
       icon: "mdi-calendar-clock",
+      submenu: [
+      {
+        name: "Crear secciones",
+        to: "/crear-secciones"
+      },
+      {
+        name: "Listas de espera",
+        to: "/listas-de-espera"
+      },
+      {
+        name: "Cancelar secciones",
+        to: "/cancelar-secciones"
+      }
+    ]
     },
     {
     name: "Periodo Actual",
@@ -36,12 +50,7 @@
         icon: "mdi-account-multiple",
       },
       {
-        name: "Sección Estadistica",
-        to: "/seccion-estadistica",
-        icon: "mdi-chart-line",
-      },
-      {
-        name: "Evaluacion de estudiantes",
+        name: "Evaluación de estudiantes",
         to: "/evaluacion-estudiantes",
         icon: "mdi-checkbox-multiple-marked-circle",
       },
@@ -49,6 +58,11 @@
         name: "Notas Ingresadas",
         to: "/notas-ingresadas",
         icon: "mdi-file-document-edit-outline",
+      },
+      {
+        name: "Sección Estadística",
+        to: "/seccion-estadistica",
+        icon: "mdi-chart-line",
       },
     ],
   }

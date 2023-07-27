@@ -41,7 +41,7 @@
   },
   {
     "codigo": "SC-101",
-    "asignatura": "Sociologia ",
+    "asignatura": "Sociologia",
     "uv": 4,
     "seccion": 1100,
     "anio": 2020,
@@ -50,48 +50,8 @@
     "obs": "APR"
   },
   {
-    "codigo": "SC-101",
-    "asignatura": "Sociologia ",
-    "uv": 4,
-    "seccion": 1100,
-    "anio": 2020,
-    "periodo": 1,
-    "calificacion": 85,
-    "obs": "APR"
-  },
-  {
-    "codigo": "SC-101",
-    "asignatura": "Sociologia ",
-    "uv": 4,
-    "seccion": 1100,
-    "anio": 2020,
-    "periodo": 1,
-    "calificacion": 85,
-    "obs": "APR"
-  },
-  {
-    "codigo": "SC-101",
-    "asignatura": "Sociologia ",
-    "uv": 4,
-    "seccion": 1100,
-    "anio": 2020,
-    "periodo": 1,
-    "calificacion": 85,
-    "obs": "APR"
-  },
-  {
-    "codigo": "SC-101",
-    "asignatura": "Sociologia ",
-    "uv": 4,
-    "seccion": 1100,
-    "anio": 2020,
-    "periodo": 1,
-    "calificacion": 85,
-    "obs": "APR"
-  },
-  {
-    "codigo": "SC-101",
-    "asignatura": "Sociologia ",
+    "codigo": "PS-102",
+    "asignatura": "Psicologia General 1 ",
     "uv": 4,
     "seccion": 1100,
     "anio": 2020,

@@ -127,7 +127,6 @@
             </span>
           </v-list-item-icon>
         </div>
-
         <v-list-item-subtitle>
           {{ item.lastmessage }}
         </v-list-item-subtitle>

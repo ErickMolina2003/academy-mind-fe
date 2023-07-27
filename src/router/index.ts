@@ -97,12 +97,12 @@ const routes = [
       {
         path: "/historial-estudiantil",
         name: "historial-estudiantil",
-        //component: () => import(""),
+        component: () => import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
       },
       {
         path: "/gestion-docentes",
         name: "gestion-docentes",
-        //component: () => import(""),
+        component: () => import("@/components/DepartmentBoss/TeacherManagement.vue"),
       },
       {
         path: "/periodo-academico",
@@ -110,10 +110,25 @@ const routes = [
         //redirect: { name: "planificacion-periodo" },
         component: () => import("@/layouts/academicPeriodLayout.vue"),
         children: [
+          // {
+          //   path: "/planificacion-periodo",
+          //   name: "planificación-periodo",
+          //   //component: () => import(""),
+          // },
           {
-            path: "/planificacion-periodo",
-            name: "planificación-periodo",
-            //component: () => import(""),
+            path: "/crear-secciones",
+            name: "crear-secciones",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"),
+          },
+          {
+            path: "/listas-de-espera",
+            name: "listas-de-espera",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/WaintingList.vue"),
+          },
+          {
+            path: "/cancelar-secciones",
+            name: "cancelar-secciones",
+            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"),
           },
           {
             path: "/estudiantes-matriculados",
@@ -124,7 +139,7 @@ const routes = [
           {
             path: "/seccion-estadistica",
             name: "sección-estadística",
-            //component: () => import(""),
+            component: () => import("@/components/DepartmentBoss/StatisticalSection.vue"),
           },
           {
             path: "/evaluacion-estudiantes",
