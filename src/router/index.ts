@@ -82,6 +82,11 @@ const routes = [
             name: "forma",
             component: () => import("@/components/Forma03/Forma03.vue"),
           },
+          {
+            path: "/estado-cuenta",
+            name: "estado-cuenta",
+            component: () => import("@/components/Enroll/AccountStatement.vue"),
+          },
         ],
       },
       {
@@ -108,7 +113,8 @@ const routes = [
           {
             path: "/estudiantes-matriculados",
             name: "estudiantes-matriculados",
-            component: () => import("@/components/DepartmentBoss/EnrolledStudents.vue"),
+            component: () =>
+              import("@/components/DepartmentBoss/EnrolledStudents.vue"),
           },
           {
             path: "/seccion-estadistica",
@@ -118,12 +124,14 @@ const routes = [
           {
             path: "/evaluacion-estudiantes",
             name: "evaluación-estudiantes",
-            component: () => import("@/components/Enroll/TeacherEvaluationBA.vue"),
+            component: () =>
+              import("@/components/Enroll/TeacherEvaluationBA.vue"),
           },
           {
             path: "/notas-ingresadas",
             name: "notas-ingresadas",
-            component: () => import("@/components/DepartmentBoss/ViewGrades.vue"),
+            component: () =>
+              import("@/components/DepartmentBoss/ViewGrades.vue"),
           },
         ],
       },
