@@ -9,9 +9,8 @@
         />
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
-        <img v-if="userIsTeacher" :src="store.user.teacher.photoOne" alt="user-img" class="user-img rounded-lg" />
-        <img v-if="store.user.student" :src="store.user.student.photoOne" alt="user-img" class="user-img rounded-lg" />
-        <img v-if="store.user.isAdmin" :src="store.user.admin.photoOne" alt="user-img" class="user-img rounded-lg" />
+        <img v-if="profilePicture" :src="profilePicture" alt="user-img" class="user-img rounded-lg" />
+        <img v-else src="@/assets/default-picture.jpg" alt="user-img" class="user-img rounded-lg" />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
@@ -125,16 +124,21 @@ import { ref, computed } from "vue";
 import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
 
+const profilePicture = ref();
 const store = useAppStore();
 const userLogged = computed(() => {
   if (store.user.teacher) {
+    profilePicture.value = store.user.teacher.photoOne;
     return store.user.teacher;
   }
 
   if (store.user.student) {
+    profilePicture.value = store.user.student.photoOne;
     return store.user.student;
   }
 
+  profilePicture.value = store.user.photoOne;
+  
   return store.user;
 });
 const description = ref(userLogged.value.description);

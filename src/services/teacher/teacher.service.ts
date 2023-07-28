@@ -19,7 +19,8 @@ export default class TeacherService {
           text: "Docente creado exitosamente.",
           color: "success",
         });
-        this.store.setUpdateTeacher(true);
+        const teacher = await response.data.user.teacher;
+        this.store.setUpdateTeacher(true,teacher);
 
         return response.data;
       }
@@ -81,9 +82,9 @@ export default class TeacherService {
       });
 
       if (response.status === 200) {
-        const user = await response.data.user.teacher;
-     
-        this.store.setUpdateTeacher(true,user);
+        const teacher = await response.data.user.teacher;
+        this.store.setUpdateTeacher(true,teacher);
+        
         this.store.setToaster({
           isActive: true,
           text: "¡Información actualizada correctamente!",

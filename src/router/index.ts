@@ -102,14 +102,8 @@ const routes = [
       {
         path: "/periodo-academico",
         name: "Periodo Académico",
-        //redirect: { name: "planificacion-periodo" },
         component: () => import("@/layouts/academicPeriodLayout.vue"),
         children: [
-          // {
-          //   path: "/planificacion-periodo",
-          //   name: "planificación-periodo",
-          //   //component: () => import(""),
-          // },
           {
             path: "/crear-secciones",
             name: "crear-secciones",
@@ -151,6 +145,12 @@ const routes = [
         ],
       },
     ],
+  },
+  {
+    path: "/reinicio-clave",
+    name: "reinicio-clave",
+    component: () => import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
+    
   },
   {
     path: "/inicio",
