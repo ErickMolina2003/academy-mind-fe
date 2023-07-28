@@ -58,7 +58,6 @@
 
 <script setup>
 import { ref } from "vue";
-import ContactList from "./ContactList.vue";
 import chat from "../../mock/chat.json";
 const newMessage = ref("");
 
