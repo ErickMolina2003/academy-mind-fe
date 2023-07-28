@@ -30,6 +30,7 @@ export const useAppStore = defineStore("app", {
     setUpdateStudent(update: boolean,student:any) {
       this.updateStudents = update;
       this.user.student = student;
+      
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
     setUpdatedUser(user: any) {
@@ -41,7 +42,6 @@ export const useAppStore = defineStore("app", {
     },
     setSection(section:any){
         this.sections.push(section);
-        console.log(this.sections);
     }
   },
   getters: {

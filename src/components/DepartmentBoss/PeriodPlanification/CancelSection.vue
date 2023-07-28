@@ -37,6 +37,39 @@
             </tbody>
         </v-table>
     </div>
+
+    <v-dialog v-model="showCancelModal" persistent max-width="500">
+        <v-card class="pa-6">
+            <v-card-title class="text-h5 pa-0 mb-2">
+                Cancelar una sección
+            </v-card-title>
+            <h3 class="mb-3">
+                {{ selectedSections[0].section }} -
+                {{ selectedSections[0].className }}
+            </h3>
+
+
+            <v-form ref="form" v-model="isValid">
+                <v-row>
+                    <v-col cols="12" >
+                        <v-textarea variant="solo" label="Justificación" v-model="justification" :rules="[rules.required]" ></v-textarea>
+                    </v-col>
+                </v-row>
+            </v-form>
+            <v-card-actions class="fixed-footer">
+                <v-spacer></v-spacer>
+                <v-btn color="blue-darken-1" variant="text" @click="closeModal">
+                    Cerrar
+                </v-btn>
+                <v-btn :disabled="!isValid" color="blue-darken-1" variant="text" @click="submitJustification">
+                    Ingresar justificación
+                </v-btn>
+            </v-card-actions>
+
+
+
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
@@ -45,12 +78,11 @@ import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
-
+const showCancelModal = ref(false)
 const sections = store.sections;
 const selectedSections = ref([]);
 const isValid = ref(false);
-
-
+const justification = ref("");
 
 function isSelected(item) {
     for (const key in selectedSections.value) {
@@ -63,6 +95,8 @@ function isSelected(item) {
 
 function toggleSelection(item) {
     let index = -1;
+
+    selectedSections.value=[];
 
     for (let i = 0; i < selectedSections.value.length; i++) {
         if (selectedSections.value[i].id === item.id) {
@@ -92,12 +126,33 @@ function cancelSection(cancel) {
     if (selectedSections.value.length === 0) {
         store.setToaster({
       isActive: true,
-      text: "Debe realizar al menos una sección para cancelar.",
+      text: "Debe seleccionar una sección para cancelar.",
       color: "error",
     });
     }
+    showCancelModal.value = true;
+    console.log(selectedSections.value[0].section)
+
 }
 
+function submitJustification(){
+    if (!isValid.value) return;
+    closeModal();
+}
+
+function closeModal() {
+    showCancelModal.value = false;
+    clear();
+}
+
+function clear() {
+    justification.value = "";
+}
+
+
+const rules = {
+    required: (value) => !!value || "Campo obligatorio.",
+};
 
 </script>
 

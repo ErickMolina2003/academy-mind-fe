@@ -105,7 +105,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="showModifyModal" persistent width="1440">
+    <v-dialog v-model="showModifyModal" persistent max-width="700">
         <v-card class="pa-4">
             <v-card-title class="text-h5 pa-0 pb-4">
                 Modificar una sección
@@ -113,11 +113,11 @@
             <v-form ref="modifyForm" v-model="isModifyValid">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <v-autocomplete v-model="modifyTeacher" :items="formattedTeacherOptions" label="Elija un docente"
+                        <v-autocomplete v-model="modifyTeacher" :items="formattedTeacherOptions" label="Cambiar un docente"
                             return-object ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
-                        <v-text-field v-model="modifySeats" type="number" label="Cupos"></v-text-field>
+                        <v-text-field v-model="modifySeats" type="number" label="Aumentar cupos"></v-text-field>
                     </v-col>
                 </v-row>
             </v-form>
@@ -127,7 +127,7 @@
                 <v-btn color="blue-darken-1" variant="text" @click="closeModal">
                     Cerrar
                 </v-btn>
-                <v-btn color="blue-darken-1" variant="text" @click="modifySection">
+                <v-btn :disabled="!modifyTeacher && !modifySeats" color="blue-darken-1" variant="text" @click="modifySection">
                     Modificar sección
                 </v-btn>
             </v-card-actions>

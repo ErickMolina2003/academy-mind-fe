@@ -19,7 +19,9 @@ export default class StudentService {
           text: "Estudiantes creados exitosamente.",
           color: "success",
         });
-        this.store.setUpdateStudent(true);
+        const student = await response.data.user.student;
+     
+        this.store.setUpdateStudent(true,student);
         return response.data;
       }
     } catch (error) {
@@ -74,6 +76,7 @@ export default class StudentService {
   async updateStudent(id: string, studentData: StudentUpdate) {
     const url = `http://localhost:3001/api/student/${id}`;
 
+
     try {
       const response = await axios({
         method: "patch",
@@ -82,10 +85,11 @@ export default class StudentService {
       });
 
       if (response.status === 200) {
-        const user = await response.data.user.teacher;
-     
-        this.store.setUpdateStudent(true,user);
+        const student = await response.data.user.student;
+        
+        this.store.setUpdateStudent(true,student);
 
+        
         this.store.setToaster({
           isActive: true,
           text: "¡Información actualizada correctamente!",
@@ -93,6 +97,8 @@ export default class StudentService {
         });
       }
     } catch (error) {
+      
+      
       this.store.setToaster({
         isActive: true,
         text: "¡Ha habido un error al actualizar!",

@@ -3,85 +3,41 @@
     <div class="text-center">
       <v-row>
         <v-col cols="12" md="12" lg="12">
-          <img
-            v-if="store.user.teacher"
-            :src="store.user.teacher.photoOne"
-            alt="user-img"
-            class="user-img rounded-lg"
-          />
-          <img
-            v-if="store.user.student"
-            :src="store.user.student.photoOne"
-            alt="user-img"
-            class="user-img rounded-lg"
-          />
-          <img
-            v-if="store.user.isAdmin"
-            :src="store.user.admin.photoOne"
-            alt="user-img"
-            class="user-img rounded-lg"
-          />
+          <img v-if="profilePicture" :src="profilePicture" alt="user-img" class="user-img rounded-lg" />
+          <img v-else src="@/assets/default-picture.jpg" alt="user-img" class="user-img rounded-lg" />
         </v-col>
         <v-col cols="12" md="12" lg="12">
           <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
         </v-col>
         <v-col v-if="store.user.student" cols="12" md="12" lg="12">
-          <v-btn @click="pictureModal = true" color="secondary-lighthen-1"
-            >Actualizar foto de perfil</v-btn
-          >
+          <v-btn @click="pictureModal = true" color="secondary-lighthen-1">Actualizar foto de perfil</v-btn>
         </v-col>
         <v-dialog class="px-5" v-model="pictureModal" width="auto" persistent>
           <v-card width="800px">
             <v-container>
               <v-row>
-                <v-col
-                  v-if="
-                    userImages[0] === undefined ||
-                    userImages[1] === undefined ||
-                    userImages[2] === undefined
-                  "
-                  cols="12"
-                  md="12"
-                  lg="12"
-                >
+                <v-col v-if="userImages[0] === undefined || userImages[1] === undefined || userImages[2] === undefined"
+                  cols="12" md="12" lg="12">
                   <div>
                     <h3 class="bg-blue-darken-1 my-3 pa-1">Imagenes</h3>
-                    <v-file-input
-                      chips
-                      prepend-icon="mdi-camera"
-                      accept="image/*"
-                      v-model="uploadImage"
-                    ></v-file-input>
+                    <v-file-input chips prepend-icon="mdi-camera" accept="image/*" v-model="uploadImage"></v-file-input>
                     <v-container justify="start">
                       <v-row justify="center">
                         <v-col cols="auto" v-if="uploadImage[0]">
-                          <v-img
-                            height="110"
-                            width="110"
-                            cover
-                            :src="getImageUrl"
-                          ></v-img>
+                          <v-img height="110" width="110" cover :src="getImageUrl"></v-img>
                         </v-col>
                       </v-row>
                     </v-container>
                   </div>
                 </v-col>
-                <v-col cols="12" md="12" lg="12">
+                <v-col v-if="userImages[0] !== undefined || userImages[1] !== undefined || userImages[2] !== undefined"
+                  cols="12" md="12" lg="12">
                   <div>
                     <h3 class="bg-blue-darken-1 my-3 pa-1">Fotos Sugeridas</h3>
                     <v-container justify="start">
                       <v-row justify="center">
-                        <v-col
-                          cols="auto"
-                          v-for="image in userImages"
-                          :key="image"
-                        >
-                          <v-img
-                            height="110"
-                            width="110"
-                            cover
-                            :src="image"
-                          ></v-img>
+                        <v-col cols="auto" v-for="image in userImages" :key="image">
+                          <v-img height="110" width="110" cover :src="image"></v-img>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -92,21 +48,10 @@
 
             <div class="text-right mb-3 mx-3">
               <v-spacer></v-spacer>
-              <v-btn
-                style="width: 150px"
-                class="bg-blue-grey-darken-1 mr-6"
-                variant="text"
-                rounded
-                @click="closeImageDialog"
-                >Cerrar</v-btn
-              >
-              <v-btn
-                style="width: 150px"
-                class="bg-blue-darken-4 text-right"
-                rounded
-                variant="text"
-                @click="uploadingImage"
-              >
+              <v-btn style="width: 150px" class="bg-blue-grey-darken-1 mr-6" variant="text" rounded
+                @click="closeImageDialog">Cerrar</v-btn>
+              <v-btn style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text"
+                @click="uploadingImage">
                 Confirmar
               </v-btn>
             </div>
@@ -119,134 +64,67 @@
     <v-form disabled>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Información del Usuario</h3>
       <div class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="name"
-          label="Nombre"
-        ></v-text-field>
-        <v-text-field
-          v-if="!isAdmin"
-          class="text-black font-weight-black"
-          v-model="account"
-          :label="
-            !(userIsTeacher | userIsBoss | userIsCoordinator)
-              ? 'Número de Cuenta'
-              : 'Número de Empleado'
-          "
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="name" label="Nombre"></v-text-field>
+        <v-text-field v-if="!isAdmin" class="text-black font-weight-black" v-model="account" :label="!(userIsTeacher | userIsBoss | userIsCoordinator)
+          ? 'Número de Cuenta'
+          : 'Número de Empleado'
+          "></v-text-field>
       </div>
       <div class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="center"
-          label="Centro Universitario"
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="center" label="Centro Universitario"></v-text-field>
       </div>
       <div v-if="isAdmin" class="d-flex">
-        <v-text-field
-          class="text-black font-weight-black"
-          v-model="emailpersonal"
-          label="email"
-        ></v-text-field>
+        <v-text-field class="text-black font-weight-black" v-model="emailPersonal" label="Email"></v-text-field>
       </div>
     </v-form>
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Contraseña</h3>
       <v-row>
         <v-col v-if="!togglePassword">
-          <v-text-field
-            class="text-black font-weight-black"
-            v-model="mockPassword"
-            label="Contraseña"
-            disabled
-          ></v-text-field>
+          <v-text-field class="text-black font-weight-black" v-model="mockPassword" label="Contraseña"
+            disabled></v-text-field>
         </v-col>
         <v-col v-if="togglePassword">
           <v-form v-model="form" @submit.prevent="submitChangePassword">
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="currentPassword"
-              type="password"
-              :rules="[rules.required]"
-              label="Actual Contraseña"
-            ></v-text-field>
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="password"
-              type="password"
-              :rules="[rules.required, rules.passwordRule]"
-              label="Nueva Contraseña"
-            ></v-text-field>
-            <v-text-field
-              class="text-black font-weight-black"
-              v-model="confirmPassword"
-              type="password"
-              :rules="[rules.required, rules.passwordRule]"
-              label="Confirmar Contraseña"
-            ></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="currentPassword" type="password"
+              :rules="[rules.required]" label="Actual Contraseña"></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="password" type="password"
+              :rules="[rules.required, rules.passwordRule]" label="Nueva Contraseña"></v-text-field>
+            <v-text-field class="text-black font-weight-black" v-model="confirmPassword" type="password"
+              :rules="[rules.required, rules.passwordRule]" label="Confirmar Contraseña"></v-text-field>
             <v-row justify="center">
               <v-col cols="12" md="auto" lg="auto">
-                <v-btn color="success" type="submit" class="mr-4"
-                  >Cambiar Contraseña</v-btn
-                >
+                <v-btn color="success" type="submit" class="mr-4">Cambiar Contraseña</v-btn>
                 <v-btn color="error" @click="unTogglePassword">Cancelar</v-btn>
               </v-col>
             </v-row>
           </v-form>
         </v-col>
         <v-col cols="12" md="auto" lg="auto" align-self="center">
-          <v-btn
-            v-if="!togglePassword"
-            color="secondary-lighthen-1"
-            @click="togglePassword = !togglePassword"
-            >Cambiar Contraseña</v-btn
-          >
+          <v-btn v-if="!togglePassword" color="secondary-lighthen-1" @click="togglePassword = !togglePassword">Cambiar
+            Contraseña</v-btn>
         </v-col>
       </v-row>
     </div>
 
     <div>
-      <h3
-        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
-        class="bg-blue-darken-1 my-3 pa-1"
-      >
+      <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">
         Video
       </h3>
-      <v-file-input
-        v-if="userIsTeacher | userIsBoss | userIsCoordinator"
-        chips
-        v-model="video"
-        accept="video/*"
-        prepend-icon="mdi-camera"
-      ></v-file-input>
+      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips v-model="video" accept="video/*"
+        prepend-icon="mdi-camera"></v-file-input>
     </div>
 
     <br />
     <div>
       <h3 class="bg-blue-darken-1 my-3 pa-1">Descripción</h3>
-      <v-textarea
-        label="Escriba aqui"
-        variant="solo"
-        v-model="description"
-      ></v-textarea>
+      <v-textarea label="Escriba aqui" variant="solo" v-model="description"></v-textarea>
     </div>
     <div class="text-right mb-3">
       <v-spacer></v-spacer>
-      <v-btn
-        style="width: 150px"
-        class="bg-blue-grey-darken-1 mr-6"
-        variant="text"
-        rounded
-        @click="closeDialog"
-        >Cerrar</v-btn
-      >
-      <v-btn
-        style="width: 150px"
-        class="bg-blue-darken-4 text-right"
-        rounded
-        variant="text"
-        @click="confirmInfo"
-      >
+      <v-btn style="width: 150px" class="bg-blue-grey-darken-1 mr-6" variant="text" rounded
+        @click="closeDialog">Cerrar</v-btn>
+      <v-btn style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text" @click="confirmInfo">
         Confirmar
       </v-btn>
     </div>
@@ -271,17 +149,22 @@ import AdminService from "@/services/admin/admin.service";
 
 const emit = defineEmits(["close", "update-profile"]);
 const store = useAppStore();
+const profilePicture = ref();
 const userLogged = computed(() => {
   if (store.user.teacher) {
+    profilePicture.value = store.user.teacher.photoOne;
     return store.user.teacher;
   }
 
   if (store.user.student) {
+    profilePicture.value = store.user.student.photoOne;
     return store.user.student;
   }
 
+  profilePicture.value = store.user.photoOne; //del admin
   return store.user;
 });
+
 const userIsTeacher = store.user.teacher;
 const isAdmin = ref(store.user.isAdmin);
 const studentService = new StudentService();
@@ -293,10 +176,11 @@ const userIsAdmin = userLogged.value.isAdmin;
 const mockPassword = "********";
 const dni = store.user.dni;
 const description = ref("");
+
 // const formEmail = ref(false);
 // const email = ref("");
 const center = data.center;
-const emailpersonal = userLogged.email;
+const emailPersonal = userLogged.value.email;
 const props = Boolean;
 const name =
   store.user.firstName +
@@ -326,7 +210,7 @@ const getThirdImageUrl = computed(() => {
   return URL.createObjectURL(uploadImage.value[2]);
 });
 
-onMounted(() => {
+const getImagesOfUser = () => {
   if (store.user.student) {
     userImages.value = [
       store.user.student?.photoOne ?? undefined,
@@ -337,14 +221,20 @@ onMounted(() => {
   if (store.user.teacher) {
     userImages.value = [store.user.student?.photoOne ?? undefined];
   }
+}
+
+onMounted(() => {
+  getImagesOfUser();
   originalDescription.value = description.value;
   // originalEmail.value = email.value;
   // Agregar los demas campos (si hay)
 });
 account = userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
+const imageToUpload = ref("");
+async function uploadingImage() {
 
-function uploadingImage() {
   if (!uploadImage.value) return;
+
   let bucket = "";
   if (store.user.teacher) {
     bucket = "teacher";
@@ -358,33 +248,63 @@ function uploadingImage() {
     bucket = "admin";
   }
 
-  uploadImage.value.forEach((image) => {
-    const imageRef = firebaseRed(
-      storage,
-      `images/${bucket}/${image.name + v4()}`
-    );
-    uploadBytes(imageRef, image).then((response) => {
-      getDownloadURL(response.ref).then((url) => {
-        uploadedImage.value.push(url);
+  for (const image of uploadImage.value) {
+    const imageRef = firebaseRed(storage, `images/${bucket}/${image.name + v4()}`);
+    try {
+      const response = await uploadBytes(imageRef, image);
+      const url = await getDownloadURL(response.ref);
+
+      uploadedImage.value.push(url);
+      imageToUpload.value = uploadedImage.value[0];
+
+    } catch (error) {
+      store.setToaster({
+        isActive: true,
+        text: "Error al subir imagen.",
+        color: "error",
       });
-    });
-  });
+      
+    }
+  }
   if (uploadedImage.value.length > 0) {
-    store.setToaster({
-      isActive: true,
-      text: "Imágenes subidas con éxito.",
-      color: "success",
-    });
+
+    try {
+      if (!store.user.student.photoOne) {
+        await studentService.updateStudent(dni, {
+          photoOne: imageToUpload.value,
+        });
+
+      } else if (!store.user.student.photoTwo) {
+        await studentService.updateStudent(dni, {
+          photoTwo: imageToUpload.value,
+        });
+      } else {
+        await studentService.updateStudent(dni, {
+          photoThree: imageToUpload.value,
+        });
+      }
+      store.setToaster({
+        isActive: true,
+        text: "Imágenes subidas con éxito.",
+        color: "success",
+      });
+      profilePicture.value = store.user.student.photoOne;
+    } catch (error) {
+      store.setToaster({
+        isActive: true,
+        text: "Error al subir imagen.",
+        color: "error",
+      });
+    }
   }
   pictureModal.value = false;
-  store.setToaster({
-    isActive: true,
-    text: "Imagen subida exitosamente.",
-    color: "success",
-  });
+  uploadImage.value = [];
+  getImagesOfUser();
 }
 
+
 function closeImageDialog() {
+  uploadImage.value = [];
   pictureModal.value = false;
 }
 
@@ -415,33 +335,6 @@ async function confirmInfo() {
     });
   }
 
-  if (uploadedImage.value) {
-    if (userIsTeacher) {
-      await teacherService.updateTeacher(dni, {
-        photoOne: uploadedImage.value[0],
-      });
-    } else if (userIsAdmin) {
-      await adminService.updateAdmin(dni, {
-        photoOne: uploadedImage.value[0],
-      });
-    } else {
-      if (uploadedImage.value[0]) {
-        await studentService.updateStudent(dni, {
-          photoOne: uploadedImage.value[0],
-        });
-        if (uploadedImage.value[1]) {
-          await studentService.updateStudent(dni, {
-            photoTwo: uploadedImage.value[1],
-          });
-          if (uploadedImage.value[2]) {
-            await studentService.updateStudent(dni, {
-              photoThree: uploadedImage.value[2],
-            });
-          }
-        }
-      }
-    }
-  }
 
   if (video.value) {
     await teacherService.updateTeacher(dni, {
