@@ -88,6 +88,12 @@ const routes = [
             component: () => import("@/components/Forma03/Forma03.vue"),
           },
           {
+            path: "/cancelar-asignatura-lista-espera",
+            name: "cancelar-asignatura-lista-espera",
+            component: () =>
+              import("@/components/Enroll/WaitingListCancellation.vue"),
+          },
+          {
             path: "/estado-cuenta",
             name: "estado-cuenta",
             component: () => import("@/components/Enroll/AccountStatement.vue"),
@@ -97,12 +103,14 @@ const routes = [
       {
         path: "/historial-estudiantil",
         name: "historial-estudiantil",
-        component: () => import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
+        component: () =>
+          import("@/components/AcademicHistory/AcademicHistoryBA.vue"),
       },
       {
         path: "/gestion-docentes",
         name: "gestion-docentes",
-        component: () => import("@/components/DepartmentBoss/TeacherManagement.vue"),
+        component: () =>
+          import("@/components/DepartmentBoss/TeacherManagement.vue"),
       },
       {
         path: "/periodo-academico",
@@ -112,17 +120,26 @@ const routes = [
           {
             path: "/crear-secciones",
             name: "crear-secciones",
-            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"),
+            component: () =>
+              import(
+                "@/components/DepartmentBoss/PeriodPlanification/CreateSections.vue"
+              ),
           },
           {
             path: "/listas-de-espera",
             name: "listas-de-espera",
-            component: () => import("@/components/DepartmentBoss/PeriodPlanification/WaintingList.vue"),
+            component: () =>
+              import(
+                "@/components/DepartmentBoss/PeriodPlanification/WaintingList.vue"
+              ),
           },
           {
             path: "/cancelar-secciones",
             name: "cancelar-secciones",
-            component: () => import("@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"),
+            component: () =>
+              import(
+                "@/components/DepartmentBoss/PeriodPlanification/CancelSection.vue"
+              ),
           },
           {
             path: "/estudiantes-matriculados",
@@ -133,7 +150,8 @@ const routes = [
           {
             path: "/seccion-estadistica",
             name: "sección-estadística",
-            component: () => import("@/components/DepartmentBoss/StatisticalSection.vue"),
+            component: () =>
+              import("@/components/DepartmentBoss/StatisticalSection.vue"),
           },
           {
             path: "/evaluacion-estudiantes",
@@ -154,8 +172,8 @@ const routes = [
   {
     path: "/reinicio-clave",
     name: "reinicio-clave",
-    component: () => import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
-    
+    component: () =>
+      import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
   },
   {
     path: "/inicio",
