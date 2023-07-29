@@ -83,6 +83,23 @@
             </h3>
           </v-col>
         </v-row>
+        <v-row v-if="profileVideo">
+          <v-col cols="12">
+            <v-card 
+            variant="outlined"
+            class="mx-auto"
+            width="850"
+            color="grey lighten-4"
+            >
+              <v-container fluid class="video-container">
+                <video v-if="profileVideo" width="800" controls>
+                  <source :src="profileVideo" type="video/mp4">
+                  Tu navegador no soporta el elemento de video.
+                </video>
+              </v-container>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-col>
       <v-col
         v-if="!isAdmin"
@@ -125,10 +142,12 @@ import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
 
 const profilePicture = ref();
+const profileVideo = ref();
 const store = useAppStore();
 const userLogged = computed(() => {
   if (store.user.teacher) {
     profilePicture.value = store.user.teacher.photoOne;
+    profileVideo.value = store.user.teacher.video;
     return store.user.teacher;
   }
 
@@ -163,9 +182,12 @@ const institutionalEmail = ref(userLogged.value.institutionalEmail);
 const isAdmin = ref(store.user.isAdmin);
 const isBoss = ref(userLogged.value.isBoss);
 const isCoordinator = ref(userLogged.value.isCoordinator);
+const isTeacher = computed(() => {
+  return store.user.teacher !== undefined;
+});
 
 const userIsTeacher = computed(() => {
-  return isBoss.value || isCoordinator.value || store.user.isTeacher;
+  return isBoss.value || isCoordinator.value || isTeacher.value;
 });
 
 const updateProfile = (data) => {
@@ -176,8 +198,9 @@ const updateProfile = (data) => {
   if (data.personalEmail) {
     personalEmail.value = data.personalEmail;
   }
-
-  // Agregar más actualizaciones según sea necesario
+  if (data.profileVideo) {
+    profileVideo.value = data.profileVideo;
+  }
 };
 
 const openDialog = () => {
@@ -191,6 +214,7 @@ function closeDialog(close: boolean) {
 const userProfile = computed(() => ({
   description: description.value,
   personalEmail: personalEmail.value,
+  profileVideo : profileVideo.value,
   // Agregar más propiedades según sea necesario
 }));
 </script>
@@ -223,4 +247,11 @@ const userProfile = computed(() => ({
 .font-weight-regular {
   color: rgb(var(--v-theme-text-3));
 }
+
+.video-container {
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 </style>
