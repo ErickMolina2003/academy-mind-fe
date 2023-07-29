@@ -36,6 +36,11 @@ const routes = [
             name: "docentes-view",
             component: () => import("@/components/Teachers.vue"),
           },
+          {
+            path: "/procesos-periodos",
+            name: "procesos-periodos",
+            component: () => import("@/components/PeriodManagement/PeriodManagement.vue"),
+          },
         ],
       },
       {

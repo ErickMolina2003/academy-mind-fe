@@ -34,18 +34,23 @@ const isBossAcademic = ref(false);
 
 const adminOptions = ref([
   {
-    name: "perfil",
+    name: "Perfil",
     to: "/perfil",
     icon: "mdi-account-box-outline",
   },
   {
-    name: "docentes",
+    name: "Docentes",
     to: "/docentes",
     icon: "mdi-book-variant",
   },
   {
-    name: "estudiantes",
+    name: "Estudiantes",
     to: "/estudiantes",
+    icon: "mdi-account-school",
+  },
+  {
+    name: "Procesos de Periodos",
+    to: "/procesos-periodos",
     icon: "mdi-account-school",
   },
 ]);
