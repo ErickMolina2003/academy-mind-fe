@@ -107,17 +107,20 @@
       </v-row>
     </div>
 
-    <div>
-      <h3 v-if="userIsTeacher | userIsBoss | userIsCoordinator" class="bg-blue-darken-1 my-3 pa-1">
-        Video
-      </h3>
-      <v-file-input v-if="userIsTeacher | userIsBoss | userIsCoordinator" chips v-model="video" accept="video/*"
-        prepend-icon="mdi-camera"></v-file-input>
+    <div v-if="userIsTeacher | userIsBoss | userIsCoordinator">
+      <h3 class="bg-blue-darken-1 my-3 pa-1 pb-0 mb-0">Video</h3>
+      <v-file-input chips accept="video/*" prepend-icon="mdi-video" v-model="uploadVideo"></v-file-input>
+      <div class="text-center mb-2">
+        <!-- Boton para video -->
+        <v-btn v-if="uploadVideo" style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text" @click="uploadingVideo">
+          Confirmar
+        </v-btn>
+      </div>
     </div>
 
     <br />
     <div>
-      <h3 class="bg-blue-darken-1 my-3 pa-1">Descripción</h3>
+      <h3 class="bg-blue-darken-1 my-3 pa-1 pt-0 mt-0">Descripción</h3>
       <v-textarea label="Escriba aqui" variant="solo" v-model="description"></v-textarea>
     </div>
     <div class="text-right mb-3">
@@ -164,8 +167,10 @@ const userLogged = computed(() => {
   profilePicture.value = store.user.photoOne; //del admin
   return store.user;
 });
+const userIsTeacher = computed(() => {
+  return store.user.teacher !== undefined;
+});
 
-const userIsTeacher = store.user.teacher;
 const isAdmin = ref(store.user.isAdmin);
 const studentService = new StudentService();
 const teacherService = new TeacherService();
@@ -199,6 +204,36 @@ const userImages = ref([]);
 const pictureModal = ref(false);
 const uploadImage = ref([]);
 const uploadedImage = ref([]);
+const uploadVideo = ref(null);
+
+async function uploadingVideo() {
+  if (!uploadVideo.value) return;
+
+  const videoRef = firebaseRed(storage, `videos/${uploadVideo.value[0].name + v4()}`);
+  try {
+    const response = await uploadBytes(videoRef, uploadVideo.value[0]);
+    const url = await getDownloadURL(response.ref);
+
+    await teacherService.updateTeacher(dni, {
+      video: url,
+    });
+
+    store.setToaster({
+      isActive: true,
+      text: "Video subido con éxito.",
+      color: "success",
+    });
+  } catch (error) {
+    store.setToaster({
+      isActive: true,
+      text: "Error al subir video.",
+      color: "error",
+    });
+  }
+  uploadVideo.value = null;
+  getImagesOfUser();
+  
+}
 
 const getImageUrl = computed(() => {
   return URL.createObjectURL(uploadImage.value[0]);
@@ -209,6 +244,15 @@ const getSecondImageUrl = computed(() => {
 const getThirdImageUrl = computed(() => {
   return URL.createObjectURL(uploadImage.value[2]);
 });
+const getVideoUrl = computed(() => {
+  return URL.createObjectURL(uploadVideo.value[0]);
+});
+
+const getVideoOfUser = () => {
+  if (store.user.teacher) {
+    video.value = store.user.teacher?.video ?? undefined;
+  }
+}
 
 const getImagesOfUser = () => {
   if (store.user.student) {
@@ -225,7 +269,9 @@ const getImagesOfUser = () => {
 
 onMounted(() => {
   getImagesOfUser();
+  getVideoOfUser();
   originalDescription.value = description.value;
+
   // originalEmail.value = email.value;
   // Agregar los demas campos (si hay)
 });
@@ -325,7 +371,7 @@ async function confirmInfo() {
     } else {
       await studentService.updateStudent(dni, {
         description: description.value,
-      });
+      }); 
     }
 
     store.setToaster({
