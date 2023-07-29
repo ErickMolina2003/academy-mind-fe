@@ -88,6 +88,11 @@ const routes = [
             component: () => import("@/components/Forma03/Forma03.vue"),
           },
           {
+            path: "/lista-espera",
+            name: "lista-espera",
+            component: () => import("@/components/Enroll/WaitingList.vue"),
+          },
+          {
             path: "/cancelar-asignatura-lista-espera",
             name: "cancelar-asignatura-lista-espera",
             component: () =>
