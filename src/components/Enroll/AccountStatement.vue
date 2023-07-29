@@ -41,10 +41,6 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-const dialog = ref(false);
-const payments = ref(json);
-
 function TotalPay() {
   let pay = 0;
   if (!store.user.student.payment) {
