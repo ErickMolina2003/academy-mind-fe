@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <NavBar v-if="router.fullPath !== '/procesos-periodos'"
+    <NavBar v-if="router.fullPath !== '/estados-periodo'"
       :title="getNavBarTitles.title"
       :btnTitle="getNavBarTitles.btnTitle"
       @createUser="toggleModal"

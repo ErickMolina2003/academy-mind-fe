@@ -1,78 +1,98 @@
+
+
 <template>
   <div>
-    <SearchableNavBar title="Procesos de Periodos" />
+    <SearchableNavBar title="Estados del Periodo" />
 
-    <v-row class="justify-center mt-4">
-      <v-btn-toggle v-model="selectedPeriod" mandatory>
-        <v-btn v-for="(option, index) in periodOptions" :key="index" :value="option.value">
-          {{ option.label }}
-        </v-btn>
-      </v-btn-toggle>
-    </v-row>
+    <v-table class="mx-6 mt-4">
+      <thead>
+        <tr>
+          <th class="text-left">Periodo</th>
+          <th class="text-left">Estado</th>
+          <th class="text-left pa-0">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ periodData.label }}</td>
+          <td>{{ periodData.state }}</td>
+          <td>
+            <v-row align="center">
+              <v-icon class="me-3" @click="showStates">{{ 'mdi-pencil' }}</v-icon>
+              <v-autocomplete v-if="showAutocomplete" v-model="chosenState" class="mt-4" label="Estados"
+                :items="filteredStates()"></v-autocomplete>
+            </v-row>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
 
-    <v-form>
-      <v-row class="justify-center mt-4" style="margin: 0 4em;">
-        <v-col cols="12" class="align-center">
-          <h3>Procesos para {{ selectedPeriod === 'current' ? 'Período Actual' : 'Período Siguiente' }}</h3>
-          <v-divider class="mb-6"></v-divider>
-
-          <v-row class="process mb-6 align-center" v-for="(process, key) in getAvailableProcesses" :key="key">
-            <v-col cols="6" >
-              <h4>{{ process.label }}</h4>
-            </v-col>
-            <v-col cols="6" class="pa-0  mt-3">
-              <v-switch v-model="process.active" inset :disabled="selectedPeriod === 'next' && process.period !== 'next'"
-                color="success" @change="activateProcess(process.label)">
-              </v-switch>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-form>
+    <v-dialog v-model="dialog" width="300px">
+      <v-card>
+        <v-card-text>
+          ¿Está seguro que quiere cambiar el estado del período a: <strong>{{ chosenState }}</strong>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn color="blue" @click="confirmAndChange()">Confirmar</v-btn>
+          <v-btn color="red" @click="closeDialog()">Cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
-  
+
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import SearchableNavBar from '../NavBars/SearchableNavBar.vue';
 
-const processes = ref({
-  enrollment: { label: 'Matrícula', period: 'current', active: false },
-  gradesEntry: { label: 'Ingreso de Notas', period: 'current', active: false },
-  exceptionalCancellations: { label: 'Cancelaciones Excepcionales', period: 'current', active: false },
-  planning: { label: 'Planificación Académica', period: 'next', active: false },
+const periodData = ref({
+  label: 'II PAC 2023',
+  state: 'Ningún estado'
 });
 
-const selectedPeriod = ref('current');
-
-
-const periodOptions = [
-  { label: 'Período actual', value: 'current' },
-  { label: 'Período siguiente', value: 'next' },
+const dialog = ref(false);
+const showAutocomplete = ref(false);
+const chosenState = ref("");
+const states = [
+  'Matrícula',
+  'Ingreso de Notas',
+  'Cancelaciones Excepcionales',
+  'Planificación Académica',
+  'Ningún estado'
 ];
 
-//Activar el proceso selecccionado y desactivar los que podrian estar activos
-function activateProcess(label) {
-  Object.values(processes.value).forEach((process) => {
-    if (process.label !== label && process.active) process.active = false
-  });
+
+
+function filteredStates() {
+  return states.filter((state) => state !== periodData.value.state);
 }
 
-// Procesos para el período actual o siguiente
-const getAvailableProcesses = computed(() => {
-  return Object.values(processes.value).filter((process) => {
-    return process.period === selectedPeriod.value
-  });
-});
+function showStates() {
+  showAutocomplete.value = !showAutocomplete.value;
+}
+
+function closeDialog() {
+  dialog.value = false;
+  chosenState.value = '';
+  showAutocomplete.value = false;
+}
+
+function confirmAndChange() {
+  periodData.value.state = chosenState.value;
+  dialog.value = false;
+  chosenState.value = '';
+  showAutocomplete.value = false;
+}
+
+watch(chosenState, (newValue) => {
+  if (newValue !== null && newValue !== '') {
+
+    dialog.value = true;
+  }
+})
 </script>
 
-<style scoped>
-.process{
-  border-radius: 20px;
-    background-color: #dfeff1;
-    padding: 0 1.5em;
-    font-size: 1.7rem;
-}
-</style>
+
+
   
   

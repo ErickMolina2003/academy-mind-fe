@@ -37,8 +37,8 @@ const routes = [
             component: () => import("@/components/Teachers.vue"),
           },
           {
-            path: "/procesos-periodos",
-            name: "procesos-periodos",
+            path: "/estados-periodo",
+            name: "estados-periodo",
             component: () => import("@/components/PeriodManagement/PeriodManagement.vue"),
           },
         ],
@@ -161,6 +161,12 @@ const routes = [
     name: "reinicio-clave",
     component: () => import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
     
+  },
+  {
+    path: "/calificaciones",
+    name: "calificaciones",
+    component: () => import("@/components/Grades/ViewGrades.vue"),
+
   },
   {
     path: "/inicio",

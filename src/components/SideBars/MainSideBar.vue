@@ -49,9 +49,9 @@ const adminOptions = ref([
     icon: "mdi-account-school",
   },
   {
-    name: "Procesos de Periodos",
-    to: "/procesos-periodos",
-    icon: "mdi-account-school",
+    name: "Estados del Periodo",
+    to: "/estados-periodo",
+    icon: "mdi-state-machine",
   },
 ]);
 
