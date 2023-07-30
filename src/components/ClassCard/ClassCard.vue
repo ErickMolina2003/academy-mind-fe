@@ -9,12 +9,14 @@
     <v-row class="class-card-footer">
       <v-col class="py-0" cols="12" md="12" lg="12">
         <v-card-text class="pt-4 pb-0 text-white">
+          <v-icon size="small">mdi-calendar</v-icon>
           {{ periodo }} PAC {{ anio }}
         </v-card-text>
       </v-col>
       <v-col class="py-0" cols="12" md="12" lg="12">
         <v-card-text class="text-white">
-          <div>{{ clase }}</div>
+          <v-icon left size="small">mdi-book-open</v-icon>
+          {{ clase }}
         </v-card-text>
       </v-col>
     </v-row>
@@ -30,6 +32,6 @@ defineProps<{
 
 <style scoped>
 .class-card-footer {
-  background-color: rgb(var(--v-theme-secondary-darken-1));
+  background-color: #527da2;
 }
 </style>
