@@ -47,7 +47,7 @@ import SearchableNavBar from '../NavBars/SearchableNavBar.vue';
 
 const periodData = ref({
   label: 'II PAC 2023',
-  state: 'Ningún estado'
+  state: 'Por Definir'
 });
 
 const dialog = ref(false);
@@ -58,7 +58,7 @@ const states = [
   'Ingreso de Notas',
   'Cancelaciones Excepcionales',
   'Planificación Académica',
-  'Ningún estado'
+  'Por Definir'
 ];
 
 

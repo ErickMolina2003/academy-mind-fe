@@ -186,12 +186,6 @@ const routes = [
       import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
   },
   {
-    path: "/calificaciones",
-    name: "calificaciones",
-    component: () => import("@/components/Grades/ViewGrades.vue"),
-
-  },
-  {
     path: "/inicio",
     component: () => import("@/components/LandingPage/LandingPage.vue"),
   },
