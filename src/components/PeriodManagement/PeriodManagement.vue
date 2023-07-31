@@ -18,16 +18,30 @@
           <td>{{ periodData.state }}</td>
           <td>
             <v-row align="center">
-              <v-icon class="me-3" @click="showStates">{{ 'mdi-pencil' }}</v-icon>
-              <v-autocomplete v-if="showAutocomplete" v-model="chosenState" class="mt-4" label="Estados"
-                :items="filteredStates()"></v-autocomplete>
+              <v-icon class="me-3" @click="dialog = true;">{{ 'mdi-pencil' }}</v-icon>
+
             </v-row>
           </td>
         </tr>
       </tbody>
     </v-table>
 
-    <v-dialog v-model="dialog" width="300px">
+    <v-dialog v-model="dialog" width="500px">
+      <v-card>
+        <v-card-text>
+          <v-form  v-model="form">
+            <v-autocomplete v-model="chosenState" class="mt-4" label="Estados" :items="filteredStates()" :rules="[rules.required]">
+            </v-autocomplete>
+          </v-form>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn color="blue" @click=" openConfirmationDialog()">Cambiar de estado</v-btn>
+          <v-btn color="red" @click="closeDialog()">Cancelar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogConfirmation" width="300px">
       <v-card>
         <v-card-text>
           ¿Está seguro que quiere cambiar el estado del período a: <strong>{{ chosenState }}</strong>
@@ -51,6 +65,8 @@ const periodData = ref({
 });
 
 const dialog = ref(false);
+const form = ref(false);
+const dialogConfirmation = ref(false);
 const showAutocomplete = ref(false);
 const chosenState = ref("");
 const states = [
@@ -67,11 +83,15 @@ function filteredStates() {
   return states.filter((state) => state !== periodData.value.state);
 }
 
-function showStates() {
-  showAutocomplete.value = !showAutocomplete.value;
+function openConfirmationDialog() {
+  if (!form.value)  return;
+  
+  dialogConfirmation.value = true;
+  
 }
 
 function closeDialog() {
+  dialogConfirmation.value = false;
   dialog.value = false;
   chosenState.value = '';
   showAutocomplete.value = false;
@@ -79,17 +99,12 @@ function closeDialog() {
 
 function confirmAndChange() {
   periodData.value.state = chosenState.value;
-  dialog.value = false;
-  chosenState.value = '';
-  showAutocomplete.value = false;
+  closeDialog();
 }
 
-watch(chosenState, (newValue) => {
-  if (newValue !== null && newValue !== '') {
-
-    dialog.value = true;
-  }
-})
+const rules = {
+  required: (value) => !!value || "Campo obligatorio.",
+};
 </script>
 
 
