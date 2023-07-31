@@ -36,6 +36,11 @@ const routes = [
             name: "docentes-view",
             component: () => import("@/components/Teachers.vue"),
           },
+          {
+            path: "/estados-periodo",
+            name: "estados-periodo",
+            component: () => import("@/components/PeriodManagement/PeriodManagement.vue"),
+          },
         ],
       },
       {

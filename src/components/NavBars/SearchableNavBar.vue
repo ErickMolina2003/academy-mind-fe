@@ -13,7 +13,7 @@
           @input="onSearchInput"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" md="1" lg="1">
+      <v-col v-if="label" cols="12" md="1" lg="1">
         <v-btn icon @click="toggleSearch = !toggleSearch">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
@@ -33,7 +33,7 @@ import { ref, onMounted } from "vue";
 
 defineProps<{
   title: string;
-  label: string;
+  label?: string;
   btnTitle?: string;
 }>();
 
