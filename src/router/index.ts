@@ -108,6 +108,11 @@ const routes = [
             name: "estado-cuenta",
             component: () => import("@/components/Enroll/AccountStatement.vue"),
           },
+          {
+            path: "/calificaciones",
+            name: "calificaciones",
+            component: () => import("@/components/Grades/ViewGrades.vue"),
+          }
         ],
       },
       {
