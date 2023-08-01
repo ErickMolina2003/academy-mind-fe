@@ -56,31 +56,79 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch,onMounted } from 'vue';
 import SearchableNavBar from '../NavBars/SearchableNavBar.vue';
+import StatePeriodService from "@/services/state-period/statePeriod.service";
+import PeriodService from "@/services/period/period.service";
 
-const periodData = ref({
-  label: 'II PAC 2023',
-  state: 'Por Definir'
-});
+
 
 const dialog = ref(false);
 const form = ref(false);
 const dialogConfirmation = ref(false);
 const showAutocomplete = ref(false);
 const chosenState = ref("");
-const states = [
-  'Matrícula',
-  'Ingreso de Notas',
-  'Cancelaciones Excepcionales',
-  'Planificación Académica',
-  'Por Definir'
-];
+
+const states = ref([]);
+const serviceStatePeriod = new StatePeriodService();
+const servicePeriod = new PeriodService();
+const periodData = ref({
+  id:0,
+  label: '',
+  state: ''
+});
+
+
+onMounted(()=>{
+  getStates();
+  getRecentPeriod();
+})
+
+async function getRecentPeriod(){
+    let mostRecentPeriod = null;
+
+    const response = await servicePeriod.getPeriods();
+    
+    const periods = response.periods;
+    
+
+    // Filtrar el periodo más reciente basado en el año y número de periodo
+    const currentYear = new Date().getFullYear();
+    const mostRecentYear = Math.max(...periods.map((period) => period.year));
+    const mostRecentPeriodNumber = Math.max(
+      ...periods
+        .filter((period) => period.year === mostRecentYear)
+        .map((period) => period.numberPeriod)
+    );
+
+    mostRecentPeriod = periods.find(
+      (period) =>
+        period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
+    );
+    periodData.value.label = `${mostRecentPeriod.numberPeriod} PAC ${mostRecentPeriod.year}`;
+    periodData.value.state = mostRecentPeriod.idStatePeriod.name;
+    periodData.value.id = mostRecentPeriod.id;
+    
+  
+};
+
+async function getStates(){
+  states.value = await serviceStatePeriod.getStatePeriods();
+  
+}
+
+
 
 
 
 function filteredStates() {
-  return states.filter((state) => state !== periodData.value.state);
+  let statesNames = [];
+  states.value.statePeriods.forEach((state) => {
+    if(state.name !== periodData.value.state){
+      statesNames.push(state.name);
+    }
+  });
+  return statesNames;
 }
 
 function openConfirmationDialog() {
@@ -97,7 +145,13 @@ function closeDialog() {
   showAutocomplete.value = false;
 }
 
-function confirmAndChange() {
+async function confirmAndChange() {
+  
+  const newState = states.value.statePeriods.find((state) => state.name===chosenState.value);
+  
+  await servicePeriod.updatePeriod(periodData.value.id, {
+    idStatePeriod: newState.id,
+  });
   periodData.value.state = chosenState.value;
   closeDialog();
 }
