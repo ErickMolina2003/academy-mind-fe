@@ -54,16 +54,15 @@
             <v-form ref="form" v-model="isCreateValid">
                 <v-row>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="selectedClass" :items="formattedClassOptions" label="Elija una asignatura"
+                        <v-autocomplete v-model="selectedClass" :items="classNames.map((item) => `${item.code}  ${item.name}`)" label="Elija una asignatura"
                             return-object :rules="[rules.required]">
                         </v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-text-field v-model="units"  label="Unidades Valorativas" :readonly="true" ></v-text-field>
+                        <v-text-field v-model="units" label="Unidades Valorativas" :readonly="true"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-select v-model="selectedDays" :items="journey" label="Días"
-                            :disabled="!units" ></v-select>
+                        <v-select v-model="selectedDays" :items="journey" label="Días" :disabled="!units"></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-autocomplete v-model="initialHour" :items="generateHourOptions()" label="Hora Inicial"
@@ -73,7 +72,7 @@
                         <v-text-field v-model="finalHour" label="Hora Final" :readonly="true"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="selectedTeacher" :items="formattedTeacherOptions" label="Elija un docente"
+                        <v-autocomplete v-model="selectedTeacher" :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)" label="Elija un docente"
                             return-object :rules="[rules.required]"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -113,8 +112,8 @@
             <v-form ref="modifyForm" v-model="isModifyValid">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <v-autocomplete v-model="modifyTeacher" :items="formattedTeacherOptions" label="Cambiar un docente"
-                            return-object ></v-autocomplete>
+                        <v-autocomplete v-model="modifyTeacher" :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)" label="Cambiar un docente"
+                            return-object></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="modifySeats" type="number" label="Aumentar cupos"></v-text-field>
@@ -127,7 +126,8 @@
                 <v-btn color="blue-darken-1" variant="text" @click="closeModal">
                     Cerrar
                 </v-btn>
-                <v-btn :disabled="!modifyTeacher && !modifySeats" color="blue-darken-1" variant="text" @click="modifySection">
+                <v-btn :disabled="!modifyTeacher && !modifySeats" color="blue-darken-1" variant="text"
+                    @click="modifySection">
                     Modificar sección
                 </v-btn>
             </v-card-actions>
@@ -138,13 +138,17 @@
 <script setup>
 import { defineProps, ref, computed, onMounted, watch } from 'vue';
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
+import ClassService from "@/services/classes/classes.service";
+import TeacherService from "@/services/teacher/teacher.service";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
+const serviceClasses = new ClassService();
+const teacherService = new TeacherService();
 
 const sections = store.sections;
 const isCreateValid = ref(false);
-const isModifyValid= ref(false);
+const isModifyValid = ref(false);
 const showModifyModal = ref(false);
 const showCreateModal = ref(false);
 const displayClassNames = ref([]);
@@ -161,71 +165,64 @@ const classRooms = ref([]);
 const selectedClassroom = ref("");
 const seats = ref("");
 const assignedSection = ref("");
+const teachers = ref([]);
+const classNames = ref([]);
 
 //Modificar
-const modifyTeacher = ref(""); 
-const modifySeats = ref(0); 
-const seatsIncrement = 1; 
+const modifyTeacher = ref("");
+const modifySeats = ref(0);
+const seatsIncrement = 1;
+
+onMounted(() => {
+    getClassesOptions();
+    getTeachersOptions();
+});
 
 
 
 
-const teachers = [
-    { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" }
-];
-
-const classNames = [
-    { code: "IS201", className: "Contabilidad I",uv: "4" },
-    { code: "IS203", className: "Sistemas Expertos",uv: "3" },
-    { code: "IS204", className: "Dibujo",uv: "2" },
-];
-
-const dayOptionsPerUnits = {
-    1: ["Lu", "Ma", "Mi", "Ju", "Vi","Sa"],
-    2: ["LuMa", "MaMi", "MiJu", "JuVi"],
-    3: ["LuMaMi", "MaMiJu"],
-    4: ["LuMaMiJu", "MaMiJuVi"],
-    5: ["LuMaMiJuVi"],
-};
 const daysOptions = [
-    "Vi","Sa","LuMa","LuMi", "MaMi","MaJu", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi","LuMaMiJuVi"
+    "Vi", "Sa", "LuMa", "LuMi", "MaMi", "MaJu", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi", "LuMaMiJuVi"
 ]
 
-const journey = computed(()=>{
-    return daysOptions.filter((dayOption)=> dayOption.length===units.value*2 || dayOption.length===2)
+const journey = computed(() => {
+    return daysOptions.filter((dayOption) => dayOption.length === units.value * 2 || dayOption.length === 2)
 });
 
 const buildings = [
-    { id: 1, name: "B1", classrooms: ["101", "102", "103","201", "202", "203"] },
-    { id: 2, name: "B2", classrooms: ["101", "102", "103","201", "202", "203"] },
+    { id: 1, name: "B1", classrooms: ["101", "102", "103", "201", "202", "203"] },
+    { id: 2, name: "B2", classrooms: ["101", "102", "103", "201", "202", "203"] },
 ];
 
 
-
-
+async function getClassesOptions() {
+    const response = await serviceClasses.getClasses();
+    classNames.value = response.classes;
+}
+async function getTeachersOptions() {
+    let response = await teacherService.getTeachers();
+    teachers.value = response;
+}
 
 
 //Al seleccionar una clase, se asignan las unidades valorativas
-watch(selectedClass, ()=>{
-   
-    if(selectedClass.value){
-        [code.value, className.value] = selectedClass.value.split(" - ");
+watch(selectedClass, () => {
+    if (selectedClass.value) {
+        [code.value] = selectedClass.value.split(" ");
 
-        units.value = classNames.find(className => className.code===code.value).uv;
-        
+        units.value = classNames.value.find(className => className.code === code.value).valueUnits;
     }
-    initialHour.value="";
-    finalHour.value="";
-    selectedDays.value=[];
-    
+    initialHour.value = "";
+    finalHour.value = "";
+    selectedDays.value = [];
+
 })
 
 // Reiniciar el valor de selectedDays cuando cambian unidades valorativas
 watch(units, () => {
     selectedDays.value = [];
-    initialHour.value="";
-    finalHour.value="";
+    initialHour.value = "";
+    finalHour.value = "";
 });
 
 
@@ -238,50 +235,40 @@ watch(selectedBuilding, () => {
 });
 
 watch([units, selectedDays, initialHour], () => {
-  if (units.value && selectedDays.value.length && initialHour.value) {
-    const initialTime = Number(initialHour.value.substring(0, 2));
-    let endHour;
+    if (units.value && selectedDays.value.length && initialHour.value) {
+        const initialTime = Number(initialHour.value.substring(0, 2));
+        let endHour;
 
-    if (selectedDays.value.length === units.value * 2) {
-      // Si la cantidad de días es el doble de las unidades, sumar 1 hora a la hora inicial
-      endHour = initialTime + 1;
+        if (selectedDays.value.length === units.value * 2) {
+            // Si la cantidad de días es el doble de las unidades, sumar 1 hora a la hora inicial
+            endHour = initialTime + 1;
+        } else {
+            // Si no, sumar las unidades a la hora inicial
+            endHour = initialTime + Number(units.value);
+        }
+
+
+        const formattedEndHour = String(endHour).padStart(2, "0") + "00";
+
+        // Validar si la hora final se pasa de las 20:00
+        if (endHour > 20) {
+            store.setToaster({
+                isActive: true,
+                text: "La hora final no puede exceder las 20:00 (8:00 PM).",
+                color: "error",
+            });
+            finalHour.value = "";
+            initialHour.value = "";
+        } else {
+            finalHour.value = formattedEndHour;
+        }
     } else {
-      // Si no, sumar las unidades a la hora inicial
-      endHour = initialTime + Number(units.value);
+        finalHour.value = "";
     }
-
-    
-    const formattedEndHour = String(endHour).padStart(2, "0") + "00";
-
-    // Validar si la hora final se pasa de las 20:00
-    if (endHour > 20) {
-      store.setToaster({
-      isActive: true,
-      text: "La hora final no puede exceder las 20:00 (8:00 PM).",
-      color: "error",
-    });
-      finalHour.value = "";
-      initialHour.value="";
-    } else {
-      finalHour.value = formattedEndHour;
-    }
-  } else {
-    finalHour.value = "";
-  }
 });
 
 
-
-//Para obtener el label de los inputs
-const formattedClassOptions = classNames.map((item) => `${item.code} - ${item.className}`);
-const formattedTeacherOptions = teachers.map((teacher) => teacher.name);
 const formattedBuildingOptions = buildings.map((building) => building.name);
-
-
-
-function generateDayOptions(units) {
-    return dayOptionsPerUnits[units] || [];
-}
 
 
 // Función para generar las opciones de horas en formato "0600" a "1900"
@@ -304,16 +291,16 @@ function getClassroomsByBuilding(buildingName) {
 function openModifyModal(section) {
     showModifyModal.value = true;
     modifyTeacher.value = section.teacher;
-    modifySeats.value = section.seats; 
+    modifySeats.value = section.seats;
 }
 
 function modifySection() {
     if (!modifyTeacher.value && !modifySeats.value) {
         store.setToaster({
-      isActive: true,
-      text: "Debe realizar al menos un cambio para actualizar.",
-      color: "error",
-    });
+            isActive: true,
+            text: "Debe realizar al menos un cambio para actualizar.",
+            color: "error",
+        });
     }
 
     showModifyModal.value = false;
@@ -321,9 +308,9 @@ function modifySection() {
 }
 
 function clearModifyForm() {
-    const modifyTeacher = ""; 
-    const modifySeats = 0; 
-    const seatsIncrement = 1; 
+    const modifyTeacher = "";
+    const modifySeats = 0;
+    const seatsIncrement = 1;
 }
 
 function closeModal() {
@@ -336,27 +323,39 @@ function createSection(modalCreate) {
     showCreateModal.value = modalCreate;
 }
 
+function getTeacher(employeeNumber){
+    return teachers.value.find(teacher => teacher.employeeNumber = employeeNumber);
+}
+
+function getClass(){
+    return classNames.value.find(className => className.code = code.value);
+}
+
 function submitSection() {
     if (!isCreateValid.value) return;
+    
+    selectedTeacher.value = selectedTeacher.value.split(" ");
+    className.value = getClass().name;
 
-  // Verificar si ya existe una sección con la misma "code" y "seccion"
-  if (sectionExists(code.value, initialHour.value)) {
-    const lastDigit = Number(initialHour.value.charAt(3));
-    const nextSectionDigit = (lastDigit + 1) % 10;
-    const nextSection = initialHour.value.substring(0, 3) + nextSectionDigit;
+    
+    // Verificar si ya existe una sección con la misma "code" y "seccion"
+    if (sectionExists(code.value, initialHour.value)) {
+        const lastDigit = Number(initialHour.value.charAt(3));
+        const nextSectionDigit = (lastDigit + 1) % 10;
+        const nextSection = initialHour.value.substring(0, 3) + nextSectionDigit;
 
-    assignedSection.value = nextSection;
-  } else {
-    assignedSection.value = initialHour.value;
-  }
-  store.setSection({
-        id:(Math.floor(Math.random() * (100 - 1 + 1)) + 1),
+        assignedSection.value = nextSection;
+    } else {
+        assignedSection.value = initialHour.value;
+    }
+    store.setSection({
+        id: (Math.floor(Math.random() * (100 - 1 + 1)) + 1),
         classCode: code.value,
         className: className.value,
         section: assignedSection.value,
         initialHour: initialHour.value,
         finalHour: finalHour.value,
-        teacher: selectedTeacher.value,
+        teacher: `${selectedTeacher.value[0]} ${selectedTeacher.value[1]}`,
         uv: units.value,
         days: selectedDays.value,
         building: selectedBuilding.value,
@@ -366,14 +365,14 @@ function submitSection() {
     });
 
 
-    
+
 
     showCreateModal.value = false;
     clear();
 }
 
 function sectionExists(code, section) {
-  return sections.some((item) => item.classCode === code && item.section === section);
+    return sections.some((item) => item.classCode === code && item.section === section);
 }
 
 function clear() {
