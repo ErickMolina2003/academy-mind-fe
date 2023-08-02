@@ -13,18 +13,18 @@ export default class StudentService {
         url: url,
         data: students,
       });
+      
       if (response.status === 201) {
         this.store.setToaster({
           isActive: true,
           text: "Estudiantes creados exitosamente.",
           color: "success",
         });
-        const student = await response.data.user.student;
-     
-        this.store.setUpdateStudent(true,student);
+        
         return response.data;
       }
     } catch (error) {
+      
       this.store.setToaster({
         isActive: true,
         text: "No se pudieron crear los estudiantes, intente nuevamente.",
