@@ -19,7 +19,13 @@
             }}
           </td>
           <td>{{ student.institutionalEmail }}</td>
-          <td>{{ student.studentCareer[0].centerCareer.career.name }}</td>
+          <td>
+            <ul class="career-list">
+              <li v-for="career in student.studentCareer" :key="career.idStudentCareer">
+                {{ career.centerCareer.career.name }}
+              </li>
+            </ul>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -70,8 +76,9 @@ onMounted(async () => {
 
 async function getStudents() {
   isLoading.value = true;
-  originalStudents.value = await studentService.getStudents();
-  students.value = [...originalStudents.value.students];
+  const response = await studentService.getStudents();
+  originalStudents.value = response.students;
+  students.value = [...originalStudents.value];
   isLoading.value = false;
 }
 
@@ -123,4 +130,9 @@ td {
 th {
   background-color: #f2f2f2;
 }
+
+.career-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;}
 </style>
