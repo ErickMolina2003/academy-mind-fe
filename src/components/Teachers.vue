@@ -8,6 +8,7 @@
           <th>Nombre</th>
           <th>Correo Institucional</th>
           <th>Cargo</th>
+          <th>Carrera</th>
         </tr>
       </thead>
       <tbody>
@@ -27,6 +28,13 @@
                 ? "Coordinador"
                 : "Docente"
             }}
+          </td>
+          <td>
+            <ul class="career-list">
+              <li v-for="career in teacher.teachingCareer" :key="career.idTeachingCareer">
+                {{ career.centerCareer.career.name }}
+              </li>
+            </ul>
           </td>
         </tr>
       </tbody>
@@ -75,7 +83,8 @@ onMounted(async () => {
 
 async function getTeachers() {
   isLoading.value = true;
-  originalTeachers.value = await teacherService.getTeachers();
+  const response = await teacherService.getTeachers();
+  originalTeachers.value = response.teachers;
   teachers.value = [...originalTeachers.value];
   isLoading.value = false;
 }
@@ -121,5 +130,15 @@ td {
 
 th {
   background-color: #f2f2f2;
+}
+
+.career-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.career-list li {
+  margin-bottom: 5px;
 }
 </style>

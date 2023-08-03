@@ -105,13 +105,6 @@ watch(updateStudents, () => {
   }
 });
 
-
-
-
-
-
-
-
 </script>
 
 <style>
