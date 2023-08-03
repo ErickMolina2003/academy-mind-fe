@@ -123,13 +123,9 @@ td {
 th {
   background-color: #f2f2f2;
 }
+
 .career-list {
   list-style-type: none;
   padding: 0;
-  margin: 0;
-}
-
-.career-list li {
-  margin-bottom: 5px;
-}
+  margin: 0;}
 </style>
