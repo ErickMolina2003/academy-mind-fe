@@ -14,14 +14,14 @@ export default class TeacherService {
         data: body,
       });
       if (response.status === 201) {
+        console.log(response.data);
         this.store.setToaster({
           isActive: true,
           text: "Docente creado exitosamente.",
           color: "success",
         });
-        const teacher = await response.data.user.teacher;
-        this.store.setUpdateTeacher(true,teacher);
-
+        // const teacher = await response.data.user.teacher;
+        // this.store.setUpdateTeacher(true,teacher);
         return response.data;
       }
     } catch (error) {

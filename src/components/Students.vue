@@ -19,7 +19,13 @@
             }}
           </td>
           <td>{{ student.institutionalEmail }}</td>
-          <td>{{ student.career }}</td>
+          <td>
+            <ul class="career-list">
+              <li v-for="career in student.studentCareer" :key="career.idStudentCareer">
+                {{ career.centerCareer.career.name }}
+              </li>
+            </ul>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -70,7 +76,8 @@ onMounted(async () => {
 
 async function getStudents() {
   isLoading.value = true;
-  originalStudents.value = await studentService.getStudents();
+  const response = await studentService.getStudents();
+  originalStudents.value = response.students;
   students.value = [...originalStudents.value];
   isLoading.value = false;
 }
@@ -98,13 +105,6 @@ watch(updateStudents, () => {
   }
 });
 
-
-
-
-
-
-
-
 </script>
 
 <style>
@@ -122,5 +122,14 @@ td {
 
 th {
   background-color: #f2f2f2;
+}
+.career-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.career-list li {
+  margin-bottom: 5px;
 }
 </style>

@@ -136,6 +136,29 @@
                   ]" density="comfortable" clearable required label="Puesto"></v-select>
                 </v-col>
                 <v-col cols="12" sm="6">
+                  <v-autocomplete
+                    label="Centro Regional"
+                    :items="centers.careers.map((center) => center.name) || []"
+                    dense
+                    clearable
+                    required
+                    variant="solo-filled"
+                    v-model="selectedCenterRegionalId"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-autocomplete
+                    label="Carreras"
+                    :items="filterCareer || []"
+                    :disabled="!selectedCenterRegionalId"
+                    dense
+                    clearable
+                    required
+                    variant="solo-filled"
+                    v-model="selectedCareerId"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="6">
                   <v-file-input chips prepend-icon="mdi-camera" accept="image/*" v-model="uploadImage"></v-file-input>
                 </v-col>
               </v-row>
@@ -181,13 +204,23 @@ const careerService = new CareerService();
 const centerService = new RegionalCenterService();
 const centers = ref([]);
 const careers = ref([]);
+const careersbyCenter = ref([]);
+const selectedCenterRegionalId = ref("");
+const selectedCareerId = ref("");
+const filterCareer = ref([]);
+
+
 onMounted(async () => {
   centers.value = await centerService.getCenters();
   careers.value = await careerService.getCareers();
 })
 
+watch (selectedCenterRegionalId, async (newvalue) => {
+  let center = getCenter(newvalue);
+  careersbyCenter.value = await careerService.getCareerByCenter(center.id);
+  filterCareer.value = careersbyCenter.value.careersCenter[`${center.id}`].careers.map((career) => career.name);
+})
 
-// Esto es de Docentes
 const firstName = ref("");
 const middleName = ref("");
 const firstLastName = ref("");
@@ -346,59 +379,59 @@ async function submitModal() {
       });
       closeModal();
     }
+  }
+  if (router.fullPath === "/docentes") {
+    if (!form.value) {
+      store.setToaster({
+        isActive: true,
+        text: "Datos incompletos.",
+        color: "error",
+      });
+      return;
+    }
+    let isBoss = false;
+    let isCoordinator = false;
+    if (role.value === "Coordinadores") {
+      isBoss = false;
+      isCoordinator = true;
+    }
+    if (role.value === "Jefe de Departamento") {
+      isBoss = true;
+      isCoordinator = false;
+    }
+    let career = getCareer(selectedCareerId.value);
+    let center = getCenter(selectedCenterRegionalId.value);
+    const imageUrl = await uploadingImage();
+    const user = {
+      dni: dni.value,
+      firstName: firstName.value,
+      secondName: middleName.value,
+      firstLastName: firstLastName.value,
+      secondLastName: secondLastName.value,
+      email: email.value,
+      address: address.value,
+      phone: phone.value,
+      isBoss: `${isBoss}`,
+      isCoordinator: `${isCoordinator}`,
+      career: career.id,
+      regionalCenter: center.id,
+      photoOne: imageUrl,
+    };
+    const teacherService = new TeacherService();
 
-    if (router.fullPath === "/docentes") {
-      if (!form.value) {
-        store.setToaster({
-          isActive: true,
-          text: "Datos incompletos.",
-          color: "error",
-        });
-        return;
-      }
-      let isBoss = false;
-      let isCoordinator = false;
-      if (role.value === "Coordinadores") {
-        isBoss = false;
-        isCoordinator = true;
-      }
-      if (role.value === "Jefe de Departamento") {
-        isBoss = true;
-        isCoordinator = false;
-      }
-
-      const imageUrl = await uploadingImage();
-
-      const user = {
-        dni: dni.value,
-        firstName: firstName.value,
-        secondName: middleName.value,
-        firstLastName: firstLastName.value,
-        secondLastName: secondLastName.value,
-        email: email.value,
-        address: address.value,
-        phone: phone.value,
-        isBoss: `${isBoss}`,
-        isCoordinator: `${isCoordinator}`,
-        photoOne: imageUrl,
-      };
-
-      const teacherService = new TeacherService();
-      const response = await teacherService.createTeacher(user);
-      if (response) {
-        closeModal();
-      }
+    const response = await teacherService.createTeacher(user);
+    if (response) {
+      closeModal();
     }
   }
 }
+
 function getCareer(nameCareer: string) {
   return careers.value.careers.find((career) => career.name === nameCareer.toUpperCase());
 }
 function getCenter(nameCenter: string) {
   return centers.value.careers.find((center) => center.name === nameCenter.toUpperCase());
 }
-
-
 async function uploadingImage() {
   if (!uploadImage.value) return;
   let imageUrl = "";
@@ -494,6 +527,7 @@ watch(invalidCsv, () => {
     setToaster(true, errorMessage.value, "error");
   }
 });
+
 
 function setToaster(isActive: boolean, text: string, color: string) {
   store.setToaster({
