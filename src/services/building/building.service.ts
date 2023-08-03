@@ -1,30 +1,11 @@
 import axios from "axios";
 import { useAppStore } from "../../store/app";
 
-export default class ClassService {
+export default class BuildingService {
     store = useAppStore();
 
-    async getClasses() {
-        const url = `http://localhost:3001/api/class/`;
-        try {
-            const response = await axios({
-                method: "GET",
-                url: url,
-            });
-            const data = await response.data;
-            return data;
-        } catch (error) {
-            this.store.setToaster({
-                isActive: true,
-                text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
-                color: "error",
-            });
-            return error;
-        }
-    }
-
-    async getClassesByCareer(careerId:string){
-        const url = `http://localhost:3001/api/career-class/${careerId}`;
+    async getBuildings() {
+        const url = `http://localhost:3001/api/building/`;
         try {
             const response = await axios({
                 method: "GET",
@@ -37,7 +18,7 @@ export default class ClassService {
                 if (data.statusCode!==200) {
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 } 
@@ -45,7 +26,7 @@ export default class ClassService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -54,15 +35,15 @@ export default class ClassService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    async getClassesById(classId:string){
-        const url = `http://localhost:3001/api/class/${classId}`;
+    async getBuildingsByCenter(centerId:string){
+        const url = `http://localhost:3001/api/building/${centerId}`;
         try {
             const response = await axios({
                 method: "GET",
@@ -75,7 +56,7 @@ export default class ClassService {
                 if (data.statusCode!==200) {
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 } 
@@ -83,7 +64,7 @@ export default class ClassService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -92,7 +73,7 @@ export default class ClassService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener las clases. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener los edificios. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;

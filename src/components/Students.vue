@@ -19,7 +19,7 @@
             }}
           </td>
           <td>{{ student.institutionalEmail }}</td>
-          <td>{{ student.career }}</td>
+          <td>{{ student.studentCareer[0].centerCareer.career.name }}</td>
         </tr>
       </tbody>
     </table>
@@ -71,7 +71,7 @@ onMounted(async () => {
 async function getStudents() {
   isLoading.value = true;
   originalStudents.value = await studentService.getStudents();
-  students.value = [...originalStudents.value];
+  students.value = [...originalStudents.value.students];
   isLoading.value = false;
 }
 

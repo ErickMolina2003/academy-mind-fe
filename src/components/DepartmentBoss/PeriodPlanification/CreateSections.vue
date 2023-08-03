@@ -1,5 +1,5 @@
 <template>
-    <v-container class="pa-1">
+    <v-container v-if="state==='Planificacion'" class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Cód.Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
 
@@ -24,20 +24,18 @@
                 </thead>
                 <tbody>
                     <tr v-for="section in sections">
-                        <td>{{ section.classCode }}</td>
-                        <td>{{ section.className }}</td>
-                        <td>{{ section.section }}</td>
-                        <td>{{ section.initialHour }}</td>
+                        <td>{{ section.idClass.code }}</td>
+                        <td>{{ section.idClass.name }}</td>
+                        <td>{{ section.codeSection }}</td>
+                        <td>{{ section.hour }}</td>
                         <td>{{ section.finalHour }}</td>
-                        <td>{{ section.teacher }}</td>
-                        <td>{{ section.uv }}</td>
+                        <td>{{ getTeacherSection(section.idTeacher.employeeNumber) }}</td>
+                        <td>{{ section.idClass.valueUnits }}</td>
                         <td>{{ section.days }}</td>
-                        <td>{{ section.building }}</td>
-                        <td>{{ section.classroom }}</td>
-                        <td>{{ section.seats }}</td>
-                        <td><v-btn @click="openModifyModal" style="font-size: .8rem;">
-                                {{ section.modify }}
-                            </v-btn></td>
+                        <td>{{ section.idClassroom.idBuilding.name }}</td>
+                        <td>{{ section.idClassroom.code }}</td>
+                        <td>{{ section.space }}</td>
+                        <td><v-btn @click="openModifyModal" style="font-size: .6rem;">Modificar</v-btn></td>
                     </tr>
                 </tbody>
             </table>
@@ -54,7 +52,8 @@
             <v-form ref="form" v-model="isCreateValid">
                 <v-row>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="selectedClass" :items="classNames.map((item) => `${item.code}  ${item.name}`)" label="Elija una asignatura"
+                        <v-autocomplete v-model="selectedClass"
+                            :items="classNames.map((item) => `${item.code}  ${item.name}`)" label="Elija una asignatura"
                             return-object :rules="[rules.required]">
                         </v-autocomplete>
                     </v-col>
@@ -72,15 +71,16 @@
                         <v-text-field v-model="finalHour" label="Hora Final" :readonly="true"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="selectedTeacher" :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)" label="Elija un docente"
-                            return-object :rules="[rules.required]"></v-autocomplete>
+                        <v-autocomplete v-model="selectedTeacher"
+                            :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)"
+                            label="Elija un docente" return-object :rules="[rules.required]"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-select v-model="selectedBuilding" :items="formattedBuildingOptions" label="Elija un edificio"
+                        <v-select v-model="selectedBuilding" :items="buildingsName" label="Elija un edificio"
                             item-text="name" item-value="id" return-object :rules="[rules.required]"></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-select v-model="selectedClassroom" :items="classRooms" label="Elija un aula"
+                        <v-select v-model="selectedClassroom" :items="classroomsNames" label="Elija un aula"
                             :disabled="!selectedBuilding" :rules="[rules.required]"></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -112,8 +112,9 @@
             <v-form ref="modifyForm" v-model="isModifyValid">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <v-autocomplete v-model="modifyTeacher" :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)" label="Cambiar un docente"
-                            return-object></v-autocomplete>
+                        <v-autocomplete v-model="modifyTeacher"
+                            :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)"
+                            label="Cambiar un docente" return-object></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-text-field v-model="modifySeats" type="number" label="Aumentar cupos"></v-text-field>
@@ -140,13 +141,22 @@ import { defineProps, ref, computed, onMounted, watch } from 'vue';
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import ClassService from "@/services/classes/classes.service";
 import TeacherService from "@/services/teacher/teacher.service";
+import BuildingService from "@/services/building/building.service";
+import ClassroomService from "@/services/classroom/classroom.service";
+import SectionService from "@/services/section/section.service";
+import PeriodService from "@/services/period/period.service";
 import { useAppStore } from "@/store/app";
+
 
 const store = useAppStore();
 const serviceClasses = new ClassService();
 const teacherService = new TeacherService();
+const buildingService = new BuildingService();
+const classroomService = new ClassroomService();
+const sectionService = new SectionService();
+const servicePeriod = new PeriodService();
 
-const sections = store.sections;
+const sections = ref([]);
 const isCreateValid = ref(false);
 const isModifyValid = ref(false);
 const showModifyModal = ref(false);
@@ -167,54 +177,207 @@ const seats = ref("");
 const assignedSection = ref("");
 const teachers = ref([]);
 const classNames = ref([]);
-
+const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
+const buildings = ref([]);
+const buildingsName = ref([]);
+const classroomsNames = ref([]);
+const periodData = ref();
+const state =ref('');
 //Modificar
 const modifyTeacher = ref("");
 const modifySeats = ref(0);
 const seatsIncrement = 1;
 
-onMounted(() => {
-    getClassesOptions();
-    getTeachersOptions();
+onMounted(async() => {
+
+    periodData.value = await getRecentPeriod();
+    state.value = periodData.value.idStatePeriod.name;
+    
+    if (state.value == 'Planificacion') {
+        getSections();
+        getClassesOptions(careerBoss.career.id);
+        getTeachersOptions();
+        getBuildingsOptions(careerBoss.regionalCenter.id);
+    } else {
+       
+        store.setToaster({
+            isActive: true,
+            text: "El perido actual no está en estado de planificación académica.",
+            color: "error",
+        });
+    }
+
 });
-
-
-
 
 const daysOptions = [
     "Vi", "Sa", "LuMa", "LuMi", "MaMi", "MaJu", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi", "LuMaMiJuVi"
 ]
 
+//Mostrar las opciones de dias de acuerdo a las unidades de la clase
 const journey = computed(() => {
     return daysOptions.filter((dayOption) => dayOption.length === units.value * 2 || dayOption.length === 2)
 });
 
-const buildings = [
-    { id: 1, name: "B1", classrooms: ["101", "102", "103", "201", "202", "203"] },
-    { id: 2, name: "B2", classrooms: ["101", "102", "103", "201", "202", "203"] },
-];
+async function getRecentPeriod() {
+    let mostRecentPeriod = null;
+
+    const response = await servicePeriod.getPeriods();
+
+    const periods = response.periods;
 
 
-async function getClassesOptions() {
-    const response = await serviceClasses.getClasses();
+    // Filtrar el periodo más reciente basado en el año y número de periodo
+    const currentYear = new Date().getFullYear();
+    const mostRecentYear = Math.max(...periods.map((period) => period.year));
+    const mostRecentPeriodNumber = Math.max(
+        ...periods
+            .filter((period) => period.year === mostRecentYear)
+            .map((period) => period.numberPeriod)
+    );
+
+    mostRecentPeriod = periods.find(
+        (period) =>
+            period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
+    );
+    
+    return mostRecentPeriod;
+    
+
+
+};
+
+
+async function getSections() {
+    const response = await sectionService.getSections();
+    sections.value = response.sections;
+}
+
+function getTeacherSection(idTeacher) {
+    if (idTeacher) {
+        let teacher = teachers.value.find(teacher => teacher.employeeNumber === idTeacher);
+        return teacher.user.firstName + " " + teacher.user.firstLastName;
+    }
+    return;
+}
+
+async function getBuildingsOptions(centerId) {
+    const response = await buildingService.getBuildingsByCenter(centerId);
+    buildings.value = response.centerBuildings;
+    buildingsName.value = buildings.value.map((building) => building.name);
+}
+
+
+async function getClassesOptions(id) {
+    const response = await serviceClasses.getClassesByCareer(id);
+
     classNames.value = response.classes;
 }
 async function getTeachersOptions() {
-    let response = await teacherService.getTeachers();
-    teachers.value = response;
+    const response = await teacherService.getTeachers();
+    teachers.value = response.teachers;
+}
+
+// Función para generar las opciones de horas en formato "0600" a "1900"
+const generateHourOptions = () => {
+    const options = [];
+    for (let hour = 6; hour <= 19; hour++) {
+        const formattedHour = hour.toString().padStart(2, '0') + '00';
+        options.push(formattedHour);
+    }
+    return options;
+};
+
+function clearModifyForm() {
+    const modifyTeacher = "";
+    const modifySeats = 0;
+    const seatsIncrement = 1;
+}
+
+function closeModal() {
+    showModifyModal.value = false;
+    showCreateModal.value = false;
+    clear();
+}
+
+function createSection(modalCreate) {
+    showCreateModal.value = modalCreate;
+}
+
+function getTeacher(employeeNumber) {
+    return teachers.value.find(teacher => teacher.employeeNumber = employeeNumber);
+}
+
+function clear() {
+    selectedClass.value = "";
+    initialHour.value = "";
+    finalHour.value = "";
+    selectedTeacher.value = "";
+    units.value = "";
+    selectedDays.value = "";
+    selectedBuilding.value = "";
+    selectedClassroom.value = "";
+    seats.value = "";
+}
+
+function submitSection() {
+    if (!isCreateValid.value) return;
+
+    let teacher = selectedTeacher.value.split(" ");
+    let classSelected = classNames.value.find(className => className.code = code.value);
+    let classroom = classRooms.value.find((classroom) => classroom.code === selectedClassroom.value);
+
+
+    sectionService.createSection(
+        {
+            "idPeriod": periodData.value.id,
+            "idClass": parseInt(classSelected.id),
+            "idTeacher": teacher[2],
+            "space": seats.value,
+            "days": selectedDays.value,
+            "idClassroom": classroom.id,
+            "hour": initialHour.value,
+            "finalHour": finalHour.value
+        }
+    );
+
+    getSections();
+    showCreateModal.value = false;
+    clear();
+}
+
+//Modal modificar
+function openModifyModal(section) {
+    showModifyModal.value = true;
+    modifyTeacher.value = section.teacher;
+    modifySeats.value = section.seats;
+}
+
+function modifySection() {
+    if (!modifyTeacher.value && !modifySeats.value) {
+        store.setToaster({
+            isActive: true,
+            text: "Debe realizar al menos un cambio para actualizar.",
+            color: "error",
+        });
+    }
+
+    showModifyModal.value = false;
+    clearModifyForm();
 }
 
 
 //Al seleccionar una clase, se asignan las unidades valorativas
-watch(selectedClass, () => {
-    if (selectedClass.value) {
+watch(selectedClass, async (newValue) => {
+    if (newValue) {
         [code.value] = selectedClass.value.split(" ");
+        // selectedClass.value = classNames.value.find(className => className.code = code.value);
+        units.value = classNames.value.find(className => className.code = code.value).valueUnits;
 
-        units.value = classNames.value.find(className => className.code === code.value).valueUnits;
+        initialHour.value = "";
+        finalHour.value = "";
+        selectedDays.value = [];
     }
-    initialHour.value = "";
-    finalHour.value = "";
-    selectedDays.value = [];
+
 
 })
 
@@ -225,13 +388,16 @@ watch(units, () => {
     finalHour.value = "";
 });
 
-
 // Watcher para actualizar la lista de aulas cuando se selecciona un edificio
-watch(selectedBuilding, () => {
-    if (selectedBuilding.value) {
-        classRooms.value = getClassroomsByBuilding(selectedBuilding.value);
+watch(selectedBuilding, async (newValue) => {
+    if (newValue) {
+        const response = await classroomService.getClassroomByCenterAndBuilding(careerBoss.regionalCenter.id, newValue);
+        classRooms.value = response.classRooms;
+
+        classroomsNames.value = classRooms.value.map((classroom) => classroom.code);
         selectedClassroom.value = "";
     }
+
 });
 
 watch([units, selectedDays, initialHour], () => {
@@ -267,125 +433,6 @@ watch([units, selectedDays, initialHour], () => {
     }
 });
 
-
-const formattedBuildingOptions = buildings.map((building) => building.name);
-
-
-// Función para generar las opciones de horas en formato "0600" a "1900"
-const generateHourOptions = () => {
-    const options = [];
-    for (let hour = 6; hour <= 19; hour++) {
-        const formattedHour = hour.toString().padStart(2, '0') + '00';
-        options.push(formattedHour);
-    }
-    return options;
-};
-
-
-// Función para obtener la lista de aulas según el edificio seleccionado
-function getClassroomsByBuilding(buildingName) {
-    const building = buildings.find((b) => b.name === buildingName);
-    return building ? building.classrooms : [];
-}
-
-function openModifyModal(section) {
-    showModifyModal.value = true;
-    modifyTeacher.value = section.teacher;
-    modifySeats.value = section.seats;
-}
-
-function modifySection() {
-    if (!modifyTeacher.value && !modifySeats.value) {
-        store.setToaster({
-            isActive: true,
-            text: "Debe realizar al menos un cambio para actualizar.",
-            color: "error",
-        });
-    }
-
-    showModifyModal.value = false;
-    clearModifyForm();
-}
-
-function clearModifyForm() {
-    const modifyTeacher = "";
-    const modifySeats = 0;
-    const seatsIncrement = 1;
-}
-
-function closeModal() {
-    showModifyModal.value = false;
-    showCreateModal.value = false;
-    clear();
-}
-
-function createSection(modalCreate) {
-    showCreateModal.value = modalCreate;
-}
-
-function getTeacher(employeeNumber){
-    return teachers.value.find(teacher => teacher.employeeNumber = employeeNumber);
-}
-
-function getClass(){
-    return classNames.value.find(className => className.code = code.value);
-}
-
-function submitSection() {
-    if (!isCreateValid.value) return;
-    
-    selectedTeacher.value = selectedTeacher.value.split(" ");
-    className.value = getClass().name;
-
-    
-    // Verificar si ya existe una sección con la misma "code" y "seccion"
-    if (sectionExists(code.value, initialHour.value)) {
-        const lastDigit = Number(initialHour.value.charAt(3));
-        const nextSectionDigit = (lastDigit + 1) % 10;
-        const nextSection = initialHour.value.substring(0, 3) + nextSectionDigit;
-
-        assignedSection.value = nextSection;
-    } else {
-        assignedSection.value = initialHour.value;
-    }
-    store.setSection({
-        id: (Math.floor(Math.random() * (100 - 1 + 1)) + 1),
-        classCode: code.value,
-        className: className.value,
-        section: assignedSection.value,
-        initialHour: initialHour.value,
-        finalHour: finalHour.value,
-        teacher: `${selectedTeacher.value[0]} ${selectedTeacher.value[1]}`,
-        uv: units.value,
-        days: selectedDays.value,
-        building: selectedBuilding.value,
-        classroom: selectedClassroom.value,
-        seats: seats.value,
-        modify: "Modificar"
-    });
-
-
-
-
-    showCreateModal.value = false;
-    clear();
-}
-
-function sectionExists(code, section) {
-    return sections.some((item) => item.classCode === code && item.section === section);
-}
-
-function clear() {
-    selectedClass.value = "";
-    initialHour.value = "";
-    finalHour.value = "";
-    selectedTeacher.value = "";
-    units.value = "";
-    selectedDays.value = "";
-    selectedBuilding.value = "";
-    selectedClassroom.value = "";
-    seats.value = "";
-}
 
 
 
