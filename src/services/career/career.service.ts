@@ -23,4 +23,25 @@ export default class CareerService {
       return error;
     }
   }
+
+  async getCareerByCenter(id: string) {
+    const url = `http://localhost:3001/api/center-career/${id}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+      const data = await response.data;
+      return data;
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener la lista de carreras. Por favor, inténtelo de nuevo o más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+
+  }
+
 }
