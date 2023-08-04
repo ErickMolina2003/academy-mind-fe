@@ -71,6 +71,45 @@ export default class TeacherService {
     }
   }
 
+
+  async getTeacherByCareer(idCareer:string){
+    const url = `http://localhost:3001/api/teacher/career/${idCareer}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
+            
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode !== 200) {
+                    console.log(data.statusCode);
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al los docentes. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al los docentes. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al los docentes. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+  }
   async updateTeacher(id: string, teacherData: TeacherUpdate) {
     const url = `http://localhost:3001/api/teacher/${id}`;
 

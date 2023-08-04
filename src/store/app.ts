@@ -9,7 +9,8 @@ export const useAppStore = defineStore("app", {
     updateTeachers: false,
     updateStudents: false,
     toaster: {},
-    sections:[]
+    sections:[],
+    units:25
   }),
   actions: {
     setUser(user: User) {
@@ -42,6 +43,12 @@ export const useAppStore = defineStore("app", {
     },
     setSection(section:any){
         this.sections.push(section);
+    },
+    addUnits(addition:number){
+      this.units += addition;
+    },
+    substractUnits(reduce:number){
+      this.units -= reduce;
     }
   },
   getters: {
