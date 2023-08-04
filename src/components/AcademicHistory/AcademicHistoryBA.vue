@@ -100,7 +100,8 @@ onMounted(async () => {
 
 async function getStudents() {
   isLoading.value = true;
-  originalStudents.value = await studentService.getStudents();
+  const response = await studentService.getStudents();
+  originalStudents.value = response.students;
   students.value = [...originalStudents.value];
   isLoading.value = false;
 }

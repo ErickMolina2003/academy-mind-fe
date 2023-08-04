@@ -1,9 +1,10 @@
 <template>
   <v-container class="mt-0 pt-0 pb-0">
-    <SearchableNavBar :title="periodo"/>
+    <SearchableNavBar :title="periodActual"/>
     <v-row v-if="!isAdmin" class="pb-0 mb-0 pt-2 mt-0 user-description">
-      <v-col v-for="(course, index) in displayedCourses" :key="index" cols="12" sm="6" md="4" lg="4">
-        <ClassCard :clase="course.name" :horario="course.schedule" :aula="course.room" :docente="!userIsTeacher ? nameTeacher : ''" :btnTitle="userIsTeacher ? seccion : ''" @studentList="stutendList" />
+      <v-col v-for=" section in sections" :key="section.id" cols="12" sm="6" md="4" lg="4">
+        <ClassCard v-if="userIsTeacher" :clase="section.idClass.name" :horario="'Día(s): '+section.days + ' | Horario:' + section.hour + '-' + section.finalHour" :aula="'Aula ' + section.idClassroom.code + ' | Edificio ' + section.idClassroom.idBuilding.name "  :btnTitle="userIsTeacher ? tittleBtn : ''" :sectionId="userIsTeacher ? section.id : ''"  @studentList="stutendList" />
+        <ClassCard v-if="!userIsTeacher" :clase="section.section.idClass.name" :horario="'Día(s): '+section.section.days + ' | Horario:' + section.section.hour + '-' + section.section.finalHour" :aula="'Aula ' + section.section.idClassroom.code + ' | Edificio ' + section.section.idClassroom.idBuilding.name " :docente=" section.section.idTeacher.user.firstName + ' ' + section.section.idTeacher.user.firstLastName " :videoTeacher="section.section.idTeacher.video" :teacherPicture="section.section.idTeacher.photoOne" @video="video"/>
       </v-col>
     </v-row>
   </v-container>
@@ -21,9 +22,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr  v-for="student in sortedStudents" :key="student.name">
-                  <td class="text-center">{{ student.name }}</td>
-                  <td class="text-center">{{ student.accountNumber }}</td>
+                <tr  v-for="student in studentsTuition" :key="student.student.accountNumber">
+                  <td class="text-center">{{getNameStudent(student.student.user)}}</td>
+                  <td class="text-center">{{ student.student.accountNumber }}</td>
                 </tr>
               </tbody>
             </v-table>
@@ -35,111 +36,171 @@
         </v-card-actions>
         </v-card>
     </v-dialog>
+    <v-dialog v-model="showVideo" persistent width="70%">
+        <v-card>
+          <v-card-title class="text-h5 text-center">
+                Video presentación de docente
+          </v-card-title>
+          <v-card-text>
+            <v-col cols="12">
+              <v-card 
+              variant="outlined"
+              class="mx-auto"
+              width="850"
+              color="grey lighten-4"
+              >
+                <v-container fluid class="video-container">
+                  <video width="800" controls v-if="profileVideo">
+                    <source :src="profileVideo" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                  </video>
+                  <h5 v-if="!profileVideo">No hay contenido para mostrar</h5>
+                </v-container>
+              </v-card>
+            </v-col>
+          </v-card-text>
+          <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue-darken-1" variant="text" @click="closeModal">Cerrar</v-btn>
+        </v-card-actions>
+        </v-card>
+    </v-dialog>
+
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAppStore } from "@/store/app";
 import ClassCard from "@/components/ClassCard/ClassCard.vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
+import PeriodService from "@/services/period/period.service";
+import SectionService from "@/services/section/section.service";
+import ClassService from "@/services/classes/classes.service";
+import TeacherService from "@/services/teacher/teacher.service";
+import BuildingService from "@/services/building/building.service";
+import ClassroomService from "@/services/classroom/classroom.service";
+import TuitionService from '../../services/tuition/tuition.service';
+import StudentService from "@/services/student/student.service";
 
+
+const profileVideo = ref();
 const store = useAppStore();
-const periodo = "Clases 2023-2";
+const periodActual = ref('');
 const isAdmin = ref(store.user.isAdmin);
-const seccion = "Lista de estudiantes";
+const tittleBtn = "Lista de estudiantes";
 const nameTeacher = "Juan Perez";
 const showStutendList = ref(false);
-function stutendList(modalStutendList) {
-    showStutendList.value = modalStutendList;
+const periodData = ref();
+const state =ref('');
+const sections = ref([]);
+const studentsTuition = ref([]);
+const studentName = ref([]);
+const name = ref('');
+const showVideo = ref(false);
+const serviceClasses = new ClassService();
+const teacherService = new TeacherService();
+const buildingService = new BuildingService();
+const classroomService = new ClassroomService();
+const sectionService = new SectionService();
+const servicePeriod = new PeriodService();
+const serviceTuition = new TuitionService();
+const serviceStudent = new StudentService();
+
+
+onMounted(async() => {
+periodData.value = await getRecentPeriod();
+state.value = periodData.value.idStatePeriod.name;
+periodActual.value = 'Periodo ' + periodData.value.year + '-' + periodData.value.numberPeriod;
+if (state.value == 'Matricula' || state.value == 'En curso' || state.value == 'Ingreso de notas') {
+    getSections();
+} else {
+    store.setToaster({
+        isActive: true,
+        text: "El perido actual no está en estado de matrícula, en curso o ingreso de notas",
+        color: "error",
+    });
 }
-const closeModal = () => {
-  showStutendList.value = false;
-};
-interface Course {
-  id: number;
-  name: string;
-  schedule: string;
-  room: string;
-}
-
-const courses = ref<Course[]>([
-  {
-    id: 1,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-  {
-    id: 2,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-  {
-    id: 3,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-  {
-    id: 4,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-  {
-    id: 5,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-  {
-    id: 6,
-    name: "Matemáticas",
-    schedule: "Lun y Mié 10:00 - 12:00",
-    room: "Aula 101",
-  },
-]);
-
-const students = ref([
-  {
-    name: "Jonas Lopez",
-    accountNumber: "12345",
-  },
-  {
-    name: "Jane Bahia",
-    accountNumber: "67890",
-  },
-  {
-    name: "Allan Doe",
-    accountNumber: "12345",
-  },
-  {
-    name: "Oscar Gutierrez",
-    accountNumber: "67890",
-  },
-  {
-    name: "Fernando Lopez",
-    accountNumber: "12345",
-  },
-  {
-    name: "Jane Smith",
-    accountNumber: "67890",
-  },
-  {
-    name: "John Doe",
-    accountNumber: "12345",
-  },
-]);
-
-const sortedStudents = computed(() => {
-  return students.value.slice().sort((a, b) => a.name.localeCompare(b.name));
 });
 
-const displayedCourses = ref<Course[]>(courses.value);
+async function getSections() {
+    if(userIsTeacher.value){
+        const response = await sectionService.getSectionsByTeacher(store.user.teacher.employeeNumber, periodData.value.id);
+        sections.value = response.section;
+    }else{
+        const response = await serviceTuition.getTuitionsByStudent(store.user.student.accountNumber, periodData.value.id)
+        sections.value = response.registrations;
+    }
+    console.log(sections.value);
+}
 
-const downloadStudentsList = (course: Course) => {
-  console.log(`Descargando lista de estudiantes para el curso: ${course.name}`);
+async function getStudentsTuition(sectionID: string) {
+    const response = await serviceTuition.getTuitionsBySection(sectionID);
+    studentsTuition.value = response.registration;
+}
+
+async function getRecentPeriod() {
+    let mostRecentPeriod = null;
+    const response = await servicePeriod.getPeriods();
+    const periods = response.periods;
+    const currentYear = new Date().getFullYear();
+    const mostRecentYear = Math.max(...periods.map((period) => period.year));
+    const mostRecentPeriodNumber = Math.max(
+        ...periods
+            .filter((period) => period.year === mostRecentYear)
+            .map((period) => period.numberPeriod)
+    );
+    mostRecentPeriod = periods.find(
+        (period) =>
+            period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
+    );
+    return mostRecentPeriod;
+};
+
+function stutendList(modalStutendList, sectionID) {
+    getStudentsTuition(sectionID);
+    showStutendList.value = modalStutendList;
+}
+
+function video(modalVideo, videoTeacher) {
+    profileVideo.value = videoTeacher;
+    showVideo.value = modalVideo;
+}
+
+function getNameStudent({firstName, secondName, firstLastName, secondLastName}:{firstName: string, secondName: string, firstLastName: string, secondLastName: string}) {
+  console.log(firstName + ' ' + secondName + ' ' + firstLastName + ' ' + secondLastName);
+  return firstName + ' ' + secondName + ' ' + firstLastName + ' ' + secondLastName;
+}
+
+const closeModal = () => {
+  showStutendList.value = false;
+  showVideo.value = false;
+};
+
+const downloadStudentsList = () => {
+  const data = studentsTuition.value;
+  const csv = data.map((item) => {
+    return {
+      Nombre: getNameStudent(item.student.user),
+      NoCuenta: item.student.accountNumber,
+    };
+  });
+  const fields = Object.keys(csv[0]);
+  const replacer = function (key, value) {
+    return value === null ? "" : value;
+  };
+  let csvData = csv.map(function (row) {
+    return fields.map(function (fieldName) {
+      return JSON.stringify(row[fieldName], replacer);
+    });
+  });
+  csvData.unshift(fields);
+  let csvArray = csvData.join("\r\n");
+  let a = document.createElement("a");
+  let blob = new Blob([csvArray], { type: "text/csv" });
+  let url = window.URL.createObjectURL(blob);
+  a.href = url;
+  a.download = "Lista de estudiantes.csv";
+  a.click();
 };
 
 const userIsTeacher = computed(() => {

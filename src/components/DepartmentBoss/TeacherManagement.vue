@@ -106,7 +106,8 @@ watch(filteredTeachers, updateDisplayedTeachers);
 
 const getTeachers = async () => {
 isLoading.value = true;
-originalTeachers.value = await teacherService.getTeachers();
+const response = await teacherService.getTeachers();
+originalTeachers.value = response.teachers; 
 teachers.value = [...originalTeachers.value];
 isLoading.value = false;
 };

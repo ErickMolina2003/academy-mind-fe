@@ -91,8 +91,8 @@ export default class SectionService {
         }
     }
 
-    async getSectionById(idSection:string){
-        const url = `http://localhost:3001/api/section/${idSection}`;
+    async getSectionsByTeacher(employeeNumber:string, periodId:number){
+        const url = `http://localhost:3001/api/section/teacher/${employeeNumber}?periodId=${periodId}`;
         try {
             const response = await axios({
                 method: "GET",
