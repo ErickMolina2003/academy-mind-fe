@@ -1,18 +1,18 @@
 import axios from "axios";
 import { useAppStore } from "../../store/app";
-import { createSection,updateSection } from "../../models/section";
+import { createTuition } from "../../models/tuition";
 
-export default class SectionService {
+export default class TuitionService {
     store = useAppStore();
 
-    async createSection(sectionData: createSection) {
+    async createTuition(tuitionData: createTuition) {
         
-        const url = `http://localhost:3001/api/section/`;
+        const url = `http://localhost:3001/api/tuition`;
         try {
             const response = await axios({
                 method: "POST",
                 url: url,
-                data: sectionData,
+                data: tuitionData,
             });
             
             
@@ -22,7 +22,7 @@ export default class SectionService {
                 if (data.statusCode === 200) {
                     this.store.setToaster({
                         isActive: true,
-                        text: "Sección creado con éxito.",
+                        text: "Clase matriculada con éxito.",
                         color: "success",
                     });
                 }else{
@@ -36,7 +36,7 @@ export default class SectionService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al crear las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al crear la clase. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -45,15 +45,15 @@ export default class SectionService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al crear las secciones. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al crear la clase. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    async getSections(){
-        const url = `http://localhost:3001/api/section`;
+    async getTuitions(){
+        const url = `http://localhost:3001/api/tuition`;
         try {
             const response = await axios({
                 method: "GET",
@@ -67,7 +67,7 @@ export default class SectionService {
                     
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener las matriculas. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 }
@@ -75,7 +75,7 @@ export default class SectionService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener las matriculas. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -84,15 +84,16 @@ export default class SectionService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener las matriculas. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    async getSectionById(idSection:string){
-        const url = `http://localhost:3001/api/section/${idSection}`;
+
+    async getTuitionsByStudent(idStudent:string, idPeriod:string){
+        const url = `http://localhost:3001/api/tuition/student/${idStudent}?periodId=${idPeriod}`;
         try {
             const response = await axios({
                 method: "GET",
@@ -106,7 +107,7 @@ export default class SectionService {
                     
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener la sección. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 }
@@ -114,7 +115,7 @@ export default class SectionService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener la sección. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -123,15 +124,16 @@ export default class SectionService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener la sección. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    async getSectionByPeriodAndClass(idPeriodo:string, idClase:string){
-        const url = `http://localhost:3001/api/section/class-period/${idClase}?period=${idPeriodo}`;
+    async getTuitionsBySection(idSection:string){
+
+        const url = `http://localhost:3001/api/tuition/section/${idSection}`;
         try {
             const response = await axios({
                 method: "GET",
@@ -142,10 +144,10 @@ export default class SectionService {
                 const data = await response.data;
                 
                 if (data.statusCode !== 200) {
-                    console.log(data.statusCode);
+                    
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 }
@@ -153,55 +155,50 @@ export default class SectionService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
-
-
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener las sección. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    async updateSections(idSection:string, updateSection:updateSection){
-        const url = `http://localhost:3001/api/section/${idSection}`;
+    async deleteTuition(idTuition:string){
+        const url = `http://localhost:3001/api/tuition/${idTuition}`;
         try {
             const response = await axios({
-                method: "PATCH",
-                url: url,
-                data: updateSection,
+                method: "DELETE",
+                url: url
             });
-            
-            
             
             if (response.status === 200) {
                 const data = await response.data;
                 
-                if (data.statusCode === 200) {
+                if (data.statusCode !== 200) {
                     
                     this.store.setToaster({
                         isActive: true,
-                        text: "Sección actualizada con éxito.",
-                        color: "success",
+                        text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
                     });
                 }else{
                     this.store.setToaster({
                         isActive: true,
-                        text: data.message,
-                        color: "error",
+                        text: "Sección cancelada con éxito.",
+                        color: "success",
                     });
                 }
                 return data;
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al actualizar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -210,10 +207,11 @@ export default class SectionService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al actualizar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
+
 }

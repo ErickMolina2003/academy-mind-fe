@@ -1,5 +1,5 @@
 <template>
-    <v-container v-if="state==='Planificacion'" class="pa-1">
+    <v-container v-if="state === 'Planificacion' || state === 'Matricula'" class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Cód.Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
 
@@ -19,7 +19,7 @@
                         <th>Edificio</th>
                         <th>Aula</th>
                         <th>Cupos</th>
-                        <th>Modificar</th>
+                        <th>Actualizar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,7 +35,7 @@
                         <td>{{ section.idClassroom.idBuilding.name }}</td>
                         <td>{{ section.idClassroom.code }}</td>
                         <td>{{ section.space }}</td>
-                        <td><v-btn @click="openModifyModal" style="font-size: .6rem;">Modificar</v-btn></td>
+                        <td><v-btn @click="openModifyModal(section)" style="font-size: .6rem;">Actualizar</v-btn></td>
                     </tr>
                 </tbody>
             </table>
@@ -107,7 +107,7 @@
     <v-dialog v-model="showModifyModal" persistent max-width="700">
         <v-card class="pa-4">
             <v-card-title class="text-h5 pa-0 pb-4">
-                Modificar una sección
+                Actualizar una sección
             </v-card-title>
             <v-form ref="modifyForm" v-model="isModifyValid">
                 <v-row>
@@ -120,6 +120,7 @@
                         <v-text-field v-model="modifySeats" type="number" label="Aumentar cupos"></v-text-field>
                     </v-col>
                 </v-row>
+
             </v-form>
 
             <v-card-actions class="fixed-footer">
@@ -182,24 +183,25 @@ const buildings = ref([]);
 const buildingsName = ref([]);
 const classroomsNames = ref([]);
 const periodData = ref();
-const state =ref('');
+const state = ref('');
 //Modificar
 const modifyTeacher = ref("");
 const modifySeats = ref(0);
 const seatsIncrement = 1;
+const sectionToModify = ref();
 
-onMounted(async() => {
+onMounted(async () => {
 
     periodData.value = await getRecentPeriod();
     state.value = periodData.value.idStatePeriod.name;
-    
-    if (state.value == 'Planificacion') {
+
+    if (state.value == 'Planificacion' || state.value === 'Matricula') {
         getSections();
         getClassesOptions(careerBoss.career.id);
         getTeachersOptions();
         getBuildingsOptions(careerBoss.regionalCenter.id);
     } else {
-       
+
         store.setToaster({
             isActive: true,
             text: "El perido actual no está en estado de planificación académica.",
@@ -239,11 +241,8 @@ async function getRecentPeriod() {
         (period) =>
             period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
     );
-    
+
     return mostRecentPeriod;
-    
-
-
 };
 
 
@@ -274,7 +273,11 @@ async function getClassesOptions(id) {
 }
 async function getTeachersOptions() {
     const response = await teacherService.getTeachers();
-    teachers.value = response.teachers;
+    const data = response.teachers;
+
+    teachers.value = data.filter((teacher) => teacher.teachingCareer[0].centerCareer.career.id === careerBoss.career.id)
+
+
 }
 
 // Función para generar las opciones de horas en formato "0600" a "1900"
@@ -319,7 +322,7 @@ function clear() {
     seats.value = "";
 }
 
-function submitSection() {
+async function submitSection() {
     if (!isCreateValid.value) return;
 
     let teacher = selectedTeacher.value.split(" ");
@@ -327,7 +330,7 @@ function submitSection() {
     let classroom = classRooms.value.find((classroom) => classroom.code === selectedClassroom.value);
 
 
-    sectionService.createSection(
+    await sectionService.createSection(
         {
             "idPeriod": periodData.value.id,
             "idClass": parseInt(classSelected.id),
@@ -346,21 +349,46 @@ function submitSection() {
 }
 
 //Modal modificar
-function openModifyModal(section) {
+async function openModifyModal(section) {
     showModifyModal.value = true;
-    modifyTeacher.value = section.teacher;
-    modifySeats.value = section.seats;
+    sectionToModify.value = section;
 }
 
-function modifySection() {
+async function modifySection() {
     if (!modifyTeacher.value && !modifySeats.value) {
         store.setToaster({
             isActive: true,
             text: "Debe realizar al menos un cambio para actualizar.",
             color: "error",
         });
+        return;
     }
 
+
+    
+    let teacher = [];
+    if (modifyTeacher.value) {
+        let teacher = modifyTeacher.value.split(" ");
+        
+        if (teacher.length > 0) {
+            await sectionService.updateSections(sectionToModify.value.id,
+                {
+                    idTeacher: teacher[2]
+                })
+            modifyTeacher.value = "";
+        }
+
+    }
+    if (modifySeats.value) {
+        let spaceNow = parseInt(sectionToModify.value.space) + parseInt(modifySeats.value);
+
+        await sectionService.updateSections(sectionToModify.value.id,
+            {
+                space: String(spaceNow)
+            })
+        modifySeats.value = 0;
+    }
+    getSections();
     showModifyModal.value = false;
     clearModifyForm();
 }
