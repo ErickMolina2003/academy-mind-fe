@@ -36,14 +36,14 @@
       </v-col>
       <!-- Agregar v-if para mostrar el botón solo si se envía el prop btnTitle -->
       <v-card-actions v-if="btnTitle" class="mt-0 pt-0 mx-auto">
-        <v-btn color="white"  @click="$emit('studentList',true)">{{ btnTitle }}</v-btn>
+        <v-btn color="white"  @click="$emit('studentList',true,sectionId)">{{ btnTitle }}</v-btn>
       </v-card-actions>
-      <v-card-actions v-if="docente" class="mb-1 mt-0 pt-0" style="background-color: #ffffff1b; width: 100%;">
+      <v-card-actions @click="$emit('video', true, videoTeacher)" v-if="docente" class="mb-1 mt-0 pt-0" style="background-color: #ffffff1b; width: 100%;">
           <v-list-item class="w-100">
             <template v-slot:prepend>
               <v-avatar
-                color="grey-darken-3"
-                image="https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light"
+                color="grey-darken-3" 
+                :image="teacherPicture ?? 'https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&accessoriesType=Prescription02&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light'"
               ></v-avatar>
             </template>
             <v-list-item-title class="text-white">{{ docente }}</v-list-item-title>
@@ -63,6 +63,10 @@ defineProps<{
   aula?: string; // Prop opcional para el aula
   btnTitle?: string; // Prop opcional para el título del botón
   docente?: string; // Prop opcional para mostrar el docente
+  sectionId?: string; // Prop opcional para el id de la sección
+  videoTeacher?: string; // Prop opcional para mostrar el video del docente
+  teacherPicture?: string; // Prop opcional para mostrar la foto del docente
+
 }>();
 </script>
 

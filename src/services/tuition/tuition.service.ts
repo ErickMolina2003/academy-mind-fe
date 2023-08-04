@@ -6,7 +6,7 @@ export default class TuitionService {
     store = useAppStore();
 
     async createTuition(tuitionData: createTuition) {
-        
+
         const url = `http://localhost:3001/api/tuition`;
         try {
             const response = await axios({
@@ -14,18 +14,18 @@ export default class TuitionService {
                 url: url,
                 data: tuitionData,
             });
-            
-            
+
+
             if (response.status === 201) {
                 const data = await response.data;
-                
+
                 if (data.statusCode === 200) {
                     this.store.setToaster({
                         isActive: true,
                         text: "Clase matriculada con éxito.",
                         color: "success",
                     });
-                }else{
+                } else {
                     this.store.setToaster({
                         isActive: true,
                         text: data.message,
@@ -52,19 +52,19 @@ export default class TuitionService {
         }
     }
 
-    async getTuitions(){
+    async getTuitions() {
         const url = `http://localhost:3001/api/tuition`;
         try {
             const response = await axios({
                 method: "GET",
                 url: url
             });
-            
+
             if (response.status === 200) {
                 const data = await response.data;
-                
+
                 if (data.statusCode !== 200) {
-                    
+
                     this.store.setToaster({
                         isActive: true,
                         text: "Error al obtener las matriculas. Por favor, inténtelo de nuevo más tarde.",
@@ -92,19 +92,19 @@ export default class TuitionService {
     }
 
 
-    async getTuitionsByStudent(idStudent:string, idPeriod:string){
+    async getTuitionsByStudent(idStudent: string, idPeriod: string) {
         const url = `http://localhost:3001/api/tuition/student/${idStudent}?periodId=${idPeriod}`;
         try {
             const response = await axios({
                 method: "GET",
                 url: url
             });
-            
+
             if (response.status === 200) {
                 const data = await response.data;
-                
+
                 if (data.statusCode !== 200) {
-                    
+
                     this.store.setToaster({
                         isActive: true,
                         text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
@@ -131,7 +131,7 @@ export default class TuitionService {
         }
     }
 
-    async getTuitionsBySection(idSection:string){
+    async getTuitionsBySection(idSection: string) {
 
         const url = `http://localhost:3001/api/tuition/section/${idSection}`;
         try {
@@ -139,12 +139,12 @@ export default class TuitionService {
                 method: "GET",
                 url: url
             });
-            
+
             if (response.status === 200) {
                 const data = await response.data;
-                
+
                 if (data.statusCode !== 200) {
-                    
+
                     this.store.setToaster({
                         isActive: true,
                         text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
@@ -169,49 +169,128 @@ export default class TuitionService {
         }
     }
 
-    async deleteTuition(idTuition:string){
+    async deleteTuition(idTuition: string) {
+
         const url = `http://localhost:3001/api/tuition/${idTuition}`;
+
+        try {
+
+            const response = await axios({
+
+                method: "DELETE",
+
+                url: url
+
+            });
+
+
+
+            if (response.status === 200) {
+
+                const data = await response.data;
+
+
+
+                if (data.statusCode !== 200) {
+
+
+
+                    this.store.setToaster({
+
+                        isActive: true,
+
+                        text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+
+                        color: "error",
+
+                    });
+
+                } else {
+
+                    this.store.setToaster({
+
+                        isActive: true,
+
+                        text: "Sección cancelada con éxito.",
+
+                        color: "success",
+
+                    });
+
+                }
+
+                return data;
+
+            } else {
+
+                this.store.setToaster({
+
+                    isActive: true,
+
+                    text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+
+                    color: "error",
+
+                });
+
+            }
+
+
+
+
+
+        } catch (error) {
+
+            this.store.setToaster({
+
+                isActive: true,
+
+                text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+
+                color: "error",
+
+            });
+
+            return error;
+
+        }
+
+    }
+    async getTuitionsStudentByPeriod(idPeriod: number) {
+
+        const url = `http://localhost:3001/api/tuition/period-students/${idPeriod}`;
         try {
             const response = await axios({
-                method: "DELETE",
+                method: "GET",
                 url: url
             });
-            
+
             if (response.status === 200) {
                 const data = await response.data;
-                
+
                 if (data.statusCode !== 200) {
-                    
+
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
-                    });
-                }else{
-                    this.store.setToaster({
-                        isActive: true,
-                        text: "Sección cancelada con éxito.",
-                        color: "success",
                     });
                 }
                 return data;
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
-
-
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al cancelar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
-
 }

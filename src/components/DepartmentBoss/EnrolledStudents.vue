@@ -8,14 +8,14 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Número de cuenta</th>
-                        <th>Carrera</th>
+                        <!-- <th>Carrera</th> -->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="student in students">
-                        <td>{{ student.firstName}} {{student.secondName}} {{student.firstLastName}} {{student.secondLastName}}</td>
-                        <td>{{ student.accountNumber }}</td>
-                        <td>{{ student.major }}</td>
+                    <tr v-for="student in originalStudents" :key="student.student.accountNumber">
+                        <td>{{ student.student.user.firstName}} {{student.student.user.secondName}} {{student.student.user.firstLastName}} {{student.student.user.secondLastName}}</td>
+                        <td>{{ student.student.accountNumber }}</td>
+                        <!-- <td>{{ student. }}</td> -->
                     </tr>
                 </tbody>
             </table>
@@ -23,28 +23,63 @@
     </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
+import SectionService from "@/services/section/section.service";
+import PeriodService from "@/services/period/period.service";
+import TuitionService from "@/services/tuition/tuition.service";
+
+const periodData = ref({});
+const state = ref("");
+
+const sectionService = new SectionService();
+const servicePeriod = new PeriodService();
+const serviceTuition = new TuitionService();
 
 const originalStudents = ref([]);
-onMounted(() => {
-   getStudents();
+const students = ref([]);
+
+onMounted(async() => {
+
+periodData.value = await getRecentPeriod();
+state.value = periodData.value.idStatePeriod.name;
+
+if (state.value == 'Matricula' || state.value == 'En curso' || state.value == 'Ingreso de notas' ) {
+    getStudentsPeriod(periodData.value.id);
+} else {
+    store.setToaster({
+        isActive: true,
+        text: "El perido actual no está en estado de planificación académica.",
+        color: "error",
+    });
+}
+
 });
 
-const students = ref([
-    {firstName:"Julia", secondName:"Marcela", firstLastName:"Martinez", secondLastName:"Mejia", accountNumber:"20191002985", major:"Ingenieria en sistemas"},
-    {firstName:"Karen", secondName:"Alessandra", firstLastName:"Ortiz", secondLastName:"Merlo", accountNumber:"20191001283", major:"Ingenieria en sistemas"},
-    {firstName:"Marcela", secondName:"Gloria", firstLastName:"Mejia", secondLastName:"Pineda", accountNumber:"20191002268", major:"Ingenieria en sistemas"},
-    {firstName:"Manuel", secondName:"Alejandro", firstLastName:"Lopez", secondLastName:"Palma", accountNumber:"20191002192", major:"Ingenieria en sistemas"},
-    {firstName:"Gabriela", secondName:"Mariel", firstLastName:"Corrales", secondLastName:"Rivera", accountNumber:"20191002127", major:"Ingenieria en sistemas"}
-]);
 
-
-function getStudents() {
-  originalStudents.value = students.value;
-  students.value = [...originalStudents.value];
+async function getStudentsPeriod(idPeriod: number) {
+  const response = await serviceTuition.getTuitionsStudentByPeriod(idPeriod);
+  originalStudents.value = response.registrations;
 }
+
+async function getRecentPeriod() {
+    let mostRecentPeriod = null;
+    const response = await servicePeriod.getPeriods();
+    const periods = response.periods;
+    const currentYear = new Date().getFullYear();
+    const mostRecentYear = Math.max(...periods.map((period) => period.year));
+    const mostRecentPeriodNumber = Math.max(
+        ...periods
+            .filter((period) => period.year === mostRecentYear)
+            .map((period) => period.numberPeriod)
+    );
+    mostRecentPeriod = periods.find(
+        (period) =>
+            period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
+    );
+    return mostRecentPeriod;
+};
 
 
 const filterStudents = (query) => {

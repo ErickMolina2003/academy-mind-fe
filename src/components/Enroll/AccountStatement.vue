@@ -8,16 +8,16 @@
       <v-table>
         <thead style="background-color: #0d47a1">
           <tr>
-            <th class="text-left text-white">Descripcion</th>
-            <th class="text-left text-white">Valor</th>
-            <th class="text-left text-white">Pagado</th>
-            <th class="text-left text-white">Banco</th>
+            <th class="text-left text-black">Descripcion</th>
+            <th class="text-left text-black">Valor</th>
+            <th class="text-left text-black">Pagado</th>
+            <th class="text-left text-black">Banco</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="text-left">
-              Matricula {{ store.user.student.periodIndex }}-PAC
+              Matricula
             </td>
             <td class="text-left">270</td>
             <td class="text-left d-flex">
@@ -41,7 +41,9 @@
 </template>
 
 <script setup>
-function TotalPay() {
+import { useAppStore } from "@/store/app";
+const store = useAppStore();
+function TotalPay() { 
   let pay = 0;
   if (!store.user.student.payment) {
     pay = 270;
