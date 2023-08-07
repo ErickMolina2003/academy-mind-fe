@@ -1,5 +1,5 @@
 <template>
-  <v-main style="padding-left: 0%">
+  <v-main style="padding-left: 0%" class="mx-3" >
     <v-card>
       <v-card-title
         class="text-center text-white"
@@ -20,20 +20,20 @@
       <v-table>
         <thead>
           <tr>
-            <th class="text-left">Sección</th>
+            <th class="text-left " style="padding: 3px;">Sección</th>
             <th class="text-center">Cód. Asignatura</th>
             <th class="text-left">Asignatura</th>
             <th class="text-center">Núm. Docente</th>
             <th class="text-left">Docente</th>
-            <th class="text-center">Matriculados</th>
-            <th class="text-center">Cupos Habilitados</th>
+            <th class="text-center" style="padding: 3px;">Matriculados</th>
+            <th class="text-center" style="padding: 3px;">Cupos Habilitados</th>
             <th class="text-center">Edificio</th>
             <th class="text-center">Aula</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in paginatedCargaPeriodo" :key="item.seccion">
-            <td class="text-left">{{ item.seccion }}</td>
+            <td class="text-left" >{{ item.seccion }}</td>
             <td class="text-center">{{ item.codAsignatura }}</td>
             <td class="text-left">{{ item.nombreAsignatura }}</td>
             <td class="text-center">{{ item.numDocente }}</td>
@@ -41,7 +41,7 @@
             <td class="text-center">{{ item.matriculados }}</td>
             <td class="text-center">{{ item.cuposHabilitados }}</td>
             <td class="text-center">{{ item.edificio }}</td>
-            <td class="text-center">{{ item.aula }}</td>
+            <td class="text-left">{{ item.aula }}</td>
           </tr>
         </tbody>
       </v-table>

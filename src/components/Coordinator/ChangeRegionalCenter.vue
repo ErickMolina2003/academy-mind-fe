@@ -21,11 +21,7 @@
                 v-text="user.name"
               ></v-list-item-title>
               <div>
-                <v-btn
-                  class="mr-12"
-                  color="blue-grey-darken-1"
-                  @click="openModal(user)"
-                >
+                <v-btn class="mr-12" color="green" @click="openModal(user)">
                   Información
                   <v-icon end icon="mdi-information" size="large"></v-icon>
                 </v-btn>
