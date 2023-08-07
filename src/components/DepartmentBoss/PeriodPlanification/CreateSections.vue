@@ -194,7 +194,7 @@ onMounted(async () => {
 
     periodData.value = await getRecentPeriod();
     state.value = periodData.value.idStatePeriod.name;
-
+    
     if (state.value == 'Planificacion' || state.value === 'Matricula') {
         getSections();
         getClassesOptions(careerBoss.career.id);
@@ -211,9 +211,8 @@ onMounted(async () => {
 
 });
 
-const daysOptions = [
-    "Vi", "Sa", "LuMa", "LuMi", "MaMi", "MaJu", "MiJu", "JuVi", "LuMaMi", "MaMiJu", "LuMaMiJu", "MaMiJuVi", "LuMaMiJuVi"
-]
+const daysOptions = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "LuMa", "LuMi", "LuJu", "LuVi", "LuSa", "MaMi", "MaJu", "MaVi", "MaSa", "MiJu", "MiVi", "MiSa", "JuVi", "JuSa", "ViSa", "LuMaMi", "LuMaJu", "LuMaVi", "LuMaSa", "LuMiJu", "LuMiVi", "LuMiSa", "LuJuVi", "LuJuSa", "LuViSa", "MaMiJu", "MaMiVi", "MaMiSa", "MaJuVi", "MaJuSa", "MaViSa", "MiJuVi", "MiJuSa", "MiViSa", "JuViSa", "LuMaMiJu", "LuMaMiVi", "LuMaMiSa", "LuMaJuVi", "LuMaJuSa", "LuMaViSa", "LuMiJuVi", "LuMiJuSa", "LuMiViSa", "LuJuViSa", "MaMiJuVi", "MaMiJuSa", "MaMiViSa", "MaJuViSa", "MiJuViSa", "LuMaMiJuVi", "LuMaMiJuSa", "LuMaMiViSa", "LuMaJuViSa", "LuMiJuViSa", "MaMiJuViSa", "LuMaMiJuViSa"];
+
 
 //Mostrar las opciones de dias de acuerdo a las unidades de la clase
 const journey = computed(() => {
@@ -254,7 +253,7 @@ async function getSections() {
 function getTeacherSection(idTeacher) {
     if (idTeacher) {
         let teacher = teachers.value.find(teacher => teacher.employeeNumber === idTeacher);
-        return teacher.user.firstName + " " + teacher.user.firstLastName;
+        return teacher?.user.firstName + " " + teacher?.user.firstLastName;
     }
     return;
 }
@@ -276,7 +275,6 @@ async function getTeachersOptions() {
     const data = response.teachers;
 
     teachers.value = data.filter((teacher) => teacher.teachingCareer[0].centerCareer.career.id === careerBoss.career.id)
-
 
 }
 
@@ -328,7 +326,7 @@ async function submitSection() {
     let teacher = selectedTeacher.value.split(" ");
     let classSelected = classNames.value.find(className => className.code = code.value);
     let classroom = classRooms.value.find((classroom) => classroom.code === selectedClassroom.value);
-
+    console.log(periodData.value.id)
 
     await sectionService.createSection(
         {
