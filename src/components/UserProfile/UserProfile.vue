@@ -9,8 +9,8 @@
         />
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
-        <img v-if="profilePicture" :src="profilePicture" alt="user-img" class="user-img rounded-lg" />
-        <img v-else src="@/assets/default-picture.jpg" alt="user-img" class="user-img rounded-lg" />
+        <img v-if="profilePicture" :src="profilePicture" alt="user-img" cover class="user-img rounded-lg" />
+        <img v-else src="@/assets/default-picture.jpg" alt="user-img" cover class="user-img rounded-lg" />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
@@ -238,6 +238,8 @@ const userProfile = computed(() => ({
   width: 128px;
   height: 128px;
   border: 7px solid #fff;
+  object-fit: cover;
+  
 }
 
 .banner-major {

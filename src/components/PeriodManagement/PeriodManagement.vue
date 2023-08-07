@@ -3,24 +3,39 @@
 <template>
   <div>
     <SearchableNavBar title="Estados del Periodo" />
-
-    <v-table class="mx-6 mt-4">
+    <h1>Año academico {{ new Date().getFullYear() }}</h1>
+    <v-table class="mx-6 mt-4"  fixed-header>
       <thead>
+
         <tr>
           <th class="text-left">Periodo</th>
           <th class="text-left">Estado</th>
-          <th class="text-left pa-0">Acciones</th>
+          <th v-if="periodToModify.idStatePeriod?.name !== 'Finalizado'" class="text-left pa-0">Acciones</th>
+          <th v-if="periodToModify.idStatePeriod?.name === 'Matricula'" class="text-left">Fechas de Matricula</th>
+          <th v-if="periodToModify.idStatePeriod?.name === 'En curso'">Cancelaciones Excepcionales</th>
+
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>{{ periodData.label }}</td>
-          <td>{{ periodData.state }}</td>
-          <td>
-            <v-row align="center">
-              <v-icon class="me-3" @click="dialog = true;">{{ 'mdi-pencil' }}</v-icon>
-
+        <tr v-for="period in periods" class="text-left">
+          <td>{{ period.numberPeriod }} PAC {{ period.year }}</td>
+          <td>{{ period.idStatePeriod.name }}</td>
+          <td v-if="periodToModify.idStatePeriod?.name !== 'Finalizado'">
+            <v-row 
+              v-if="(period.id === periodToModify.id && periodToModify.idStatePeriod.name !== 'Finalizado') || (periodToModify.idStatePeriod.name === 'En curso' && period.id === periodToModifyNext.id && periodToModifyNext.idStatePeriod.name !== 'Planificacion' && periodToModifyNext.idStatePeriod.name !== 'Finalizado')">
+              <v-icon class="me-3" @click="showState(period)">{{ 'mdi-pencil' }}</v-icon>
             </v-row>
+          </td>
+          <td v-if="periodToModify.idStatePeriod?.name === 'Matricula' || periodToModify.idStatePeriod?.name === 'En curso'">
+            <v-btn v-if="period.idStatePeriod.name === 'Matricula'" @click="dialogDates = true">Mostrar Fechas de
+              Matrícula</v-btn>
+            <v-btn v-if="period.idStatePeriod.name === 'En curso' && !cancelStartDate && !cancelEndDate"
+              @click="cancelDatesModalOpen = true">Establecer Fechas</v-btn>
+
+            <div v-if="period.idStatePeriod.name === 'En curso' && cancelStartDate && cancelEndDate">
+              <p>Fecha de inicio de cancelaciones: {{ cancelStartDate }}</p>
+              <p>Fecha final de cancelaciones: {{ cancelEndDate }}</p>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -29,8 +44,9 @@
     <v-dialog v-model="dialog" width="500px">
       <v-card>
         <v-card-text>
-          <v-form  v-model="form">
-            <v-autocomplete v-model="chosenState" class="mt-4" label="Estados" :items="filteredStates()" :rules="[rules.required]">
+          <v-form v-model="form">
+            <v-autocomplete v-model="chosenState" class="mt-4" label="Estados" :items="statesNames"
+              :rules="[rules.required]">
             </v-autocomplete>
           </v-form>
         </v-card-text>
@@ -52,115 +68,368 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Modal para establecer fechas de cancelaciones -->
+    <v-dialog v-model="dialogDates" max-width="800px">
+      <v-card class="pa-3">
+        <v-card-title>Fechas de Matrícula</v-card-title>
+        <v-card-text>
+          <v-table fixed-header dense>
+
+            <tr>
+              <th class="font-weight-bold px-0">FECHA</th>
+              <th class="font-weight-bold px-0">HORA</th>
+              <th class="font-weight-bold px-0">ESTUDIANTES</th>
+            </tr>
+
+            <tbody>
+              <v-spacer></v-spacer>
+              <tr v-for="(fecha, index) in fechas" :key="index">
+                <td class="px-0">{{ fecha.fecha }}</td>
+                <td class="px-0">{{ fecha.hora }}</td>
+                <td class="px-0">
+                  <v-list>
+                    <v-list-item v-for="(estudiante, estIndex) in fecha.estudiantes" :key="estIndex">
+                      {{ estudiante }}
+                    </v-list-item>
+                  </v-list>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+
+        </v-card-text>
+        <div class="d-flex justify-center">
+          <v-btn @click="generatePDF" color="primary me-3">Descargar PDF</v-btn>
+          <v-btn @click="closeDialog()" color="primary">Cerrar</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+
+    <!-- Modal para establecer fechas de cancelaciones -->
+    <v-dialog v-model="cancelDatesModalOpen" max-width="800px">
+      <v-card class="pa-3">
+        <v-card-title>Establecer Fechas de Cancelaciones</v-card-title>
+
+        <v-form ref="form" v-model="isFormValid">
+          <v-row>
+            <v-col cols="6">
+              <v-text-field v-model="cancelStartDate" label="Fecha de inicio de cancelaciones" type="date"
+                :rules="[required, validateStartDate]"></v-text-field>
+            </v-col>
+            <v-col cols="6">
+              <v-text-field v-model="cancelEndDate" :disabled="!cancelStartDate" label="Fecha final de cancelaciones"
+                type="date" :rules="[required, validateEndDate]"></v-text-field>
+            </v-col>
+          </v-row>
+
+        </v-form>
+        <v-card-actions class="fixed-footer">
+
+          <v-btn class="me-3"
+            @click="cancelDatesModalOpen = false; cancelStartDate = null; cancelEndDate = null;">Cancelar</v-btn>
+          <v-btn @click="setCancelDates" :disabled="!isFormValid">Aceptar</v-btn>
+
+        </v-card-actions>
+
+
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch,onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import SearchableNavBar from '../NavBars/SearchableNavBar.vue';
 import StatePeriodService from "@/services/state-period/statePeriod.service";
 import PeriodService from "@/services/period/period.service";
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const dialog = ref(false);
 const form = ref(false);
 const dialogConfirmation = ref(false);
 const showAutocomplete = ref(false);
 const chosenState = ref("");
-
+const dialogDates = ref(false);
 const states = ref([]);
 const serviceStatePeriod = new StatePeriodService();
 const servicePeriod = new PeriodService();
-const periodData = ref({
-  id:0,
-  label: '',
-  state: ''
-});
+const modalOpen = ref(false);
+const cancelDatesModalOpen = ref(false);
+const cancelStartDate = ref(null);
+const cancelEndDate = ref(null);
+const isFormValid = ref(false);
+const periods = ref([]);
+const periodToModify = ref({});
+const periodToModifyNext = ref({});
+const statesNames = ref([]);
+const periodRightNow = ref({});
+const fechas = ref([
+  {
+    fecha: "",
+    hora: "9:00am a 11:59pm",
+    estudiantes: [
+      "Índice global de excelencia académica (84-100)",
+      "Primer ingreso",
+    ],
+  },
+  {
+    fecha: "",
+    hora: "9:00am a 11:59pm",
+    estudiantes: [
+      "Índice global de excelencia académica (80-83)"
+    ],
+  },
+  {
+    fecha: "",
+    hora: "9:00am a 11:59pm",
+    estudiantes: [
+      "Índice global (73-79)"
+    ],
+  },
+  {
+    fecha: "",
+    hora: "9:00am a 11:59pm",
+    estudiantes: [
+      "Índice global (65-72)"
+    ],
+  },
+  {
+    fecha: "",
+    hora: "9:00am a 11:59pm",
+    estudiantes: [
+      "Índice global (0-64)"
+    ],
+  },
+]);
 
 
-onMounted(()=>{
+onMounted(async () => {
+  cancelStartDate.value = null;
+  cancelEndDate.value = null;
   getStates();
-  getRecentPeriod();
+  getPeriods();
+  getRegistrationDates();
+  // getCancelationsDates();
 })
 
-async function getRecentPeriod(){
-    let mostRecentPeriod = null;
-
-    const response = await servicePeriod.getPeriods();
-    
-    const periods = response.periods;
-    
-
-    // Filtrar el periodo más reciente basado en el año y número de periodo
-    const currentYear = new Date().getFullYear();
-    const mostRecentYear = Math.max(...periods.map((period) => period.year));
-    const mostRecentPeriodNumber = Math.max(
-      ...periods
-        .filter((period) => period.year === mostRecentYear)
-        .map((period) => period.numberPeriod)
-    );
-
-    mostRecentPeriod = periods.find(
-      (period) =>
-        period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
-    );
-    periodData.value.label = `${mostRecentPeriod.numberPeriod} PAC ${mostRecentPeriod.year}`;
-    periodData.value.state = mostRecentPeriod.idStatePeriod.name;
-    periodData.value.id = mostRecentPeriod.id;
-    
+async function getPeriods() {
+  const response = await servicePeriod.getPeriodsByYear(new Date().getFullYear());
+  periods.value = response.periods;
+  periodToModify.value = periods.value[0];
+  periodRightNow.value = periodToModify.value;
+  if (periodToModify.value.idStatePeriod?.name === 'En curso') {
+    periodToModifyNext.value = periods.value[1];
+    cancelStartDate.value = null;
+  cancelEndDate.value = null;
+    getCancelationsDates();
+  }
   
+
+}
+
+async function getCancelationsDates() {
+  const response = await servicePeriod.getPeriodOngoing();
+
+  if (response.periods[0]?.exceptionalCancelationStarts) {
+    cancelStartDate.value = formatDate(response.periods[0].exceptionalCancelationStarts);
+    cancelEndDate.value = formatDate(response.periods[0].exceptionalCancelationEnds);
+  }
+
+
+
+}
+
+async function getRegistrationDates() {
+  const response = await servicePeriod.getPeriodRegistrationPlanification();
+
+  if (response.periods[0]?.dayOne) {
+    fechas.value[0].fecha = formatDate(response.periods[0].dayOne);
+    fechas.value[1].fecha = formatDate(response.periods[0].dayTwo);
+    fechas.value[2].fecha = formatDate(response.periods[0].dayThree);
+    fechas.value[3].fecha = formatDate(response.periods[0].dayFour);
+    fechas.value[4].fecha = formatDate(response.periods[0].dayFive);
+  }
+}
+
+
+function formatDate(inputDate) {
+  const dateObj = new Date(inputDate);
+
+  const localDateObj = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
+
+  const day = localDateObj.getDate();
+  const month = localDateObj.getMonth();
+
+  const monthNames = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ];
+
+  const monthName = monthNames[month];
+
+  const formattedDate = `${day} ${monthName}`;
+
+  return formattedDate;
+}
+
+const showModal = () => {
+  modalOpen.value = true;
 };
 
-async function getStates(){
-  states.value = await serviceStatePeriod.getStatePeriods();
-  
-}
+const showCancelDatesModal = () => {
+  cancelDatesModalOpen.value = true;
+};
 
 
+async function setCancelDates() {
+  if (!isFormValid.value) return;
 
-
-
-function filteredStates() {
-  let statesNames = [];
-  states.value.statePeriods.forEach((state) => {
-    if(state.name !== periodData.value.state){
-      statesNames.push(state.name);
-    }
+  const response = await servicePeriod.modifyCancelationsDates(periodRightNow.value.id, {
+    exceptionalCancelationStarts: cancelStartDate.value,
+    exceptionalCancelationEnds: cancelEndDate.value
   });
-  return statesNames;
+  
+  if (response.statusCode===200) {
+    cancelStartDate.value = formatDate(cancelStartDate.value);
+    cancelEndDate.value = formatDate(cancelEndDate.value);
+  }
+  
+  cancelDatesModalOpen.value = false;
+};
+
+
+
+
+
+const generatePDF = () => {
+  const pdfContent = {
+    content: [
+      {
+        layout: 'lightHorizontalLines',
+        table: {
+          headerRows: 1,
+          widths: ['*', '*', '*'],
+          body: [
+            [
+              { text: 'FECHA', bold: true, alignment: 'center' },
+              { text: 'HORA', bold: true, alignment: 'center' },
+              { text: 'ESTUDIANTES', bold: true, alignment: 'center' },
+            ],
+            ...fechas.value.map((fecha) => [
+              { text: fecha.fecha, alignment: 'center' },
+              { text: fecha.hora, alignment: 'center' },
+              { text: fecha.estudiantes.join('\n') },
+            ]),
+          ],
+        },
+      },
+    ],
+  };
+
+  pdfMake.createPdf(pdfContent).download('fechas_de_matricula.pdf');
+};
+
+async function getStates() {
+  states.value = await serviceStatePeriod.getStatePeriods();
 }
+
+function showState(actualState) {
+  const stateOrder = [
+    "Por definir",
+    "Planificacion",
+    "Matricula",
+    "En curso",
+    "Ingreso de notas",
+    "Finalizado"
+  ];
+  statesNames.value = [];
+
+  let currentStateIndex = stateOrder.indexOf(actualState.idStatePeriod.name);
+  let nextStateIndex = currentStateIndex + 1;
+
+
+  if (nextStateIndex >= stateOrder.length) {
+    nextStateIndex = currentStateIndex;
+  }
+
+  let nextState = stateOrder[nextStateIndex];
+  statesNames.value = [nextState];
+  periodRightNow.value = actualState;
+
+  dialog.value = true;
+}
+
+
 
 function openConfirmationDialog() {
-  if (!form.value)  return;
-  
+  if (!form.value) return;
+
   dialogConfirmation.value = true;
-  
+
 }
 
 function closeDialog() {
   dialogConfirmation.value = false;
   dialog.value = false;
+  cancelDatesModalOpen.value = false;
+  dialogDates.value = false;
   chosenState.value = '';
   showAutocomplete.value = false;
 }
 
 async function confirmAndChange() {
-  
-  const newState = states.value.statePeriods.find((state) => state.name===chosenState.value);
-  
-  await servicePeriod.updatePeriod(periodData.value.id, {
+
+  const newState = states.value.statePeriods.find((state) => state.name === chosenState.value);
+
+  await servicePeriod.updatePeriod(periodRightNow.value.id, {
     idStatePeriod: newState.id,
   });
-  periodData.value.state = chosenState.value;
+
+  getRegistrationDates();
+  getPeriods();
   closeDialog();
 }
+
+
+const validateStartDate = (value) => {
+  if (!value) return true;
+  const startDate = new Date(value);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Establecer la hora a medianoche para que solo comparemos las fechas
+
+  if (startDate >= today) return true;
+  return 'La fecha debe ser hoy o posterior';
+};
+
+const validateEndDate = (value) => {
+  if (!value) return true;
+  const startDate = new Date(cancelStartDate.value);
+  const endDate = new Date(value);
+
+  if (endDate >= startDate) return true;
+  return 'La fecha de cierre debe ser posterior a la fecha de inicio';
+};
 
 const rules = {
   required: (value) => !!value || "Campo obligatorio.",
 };
+
+
+const required = (value) => !!value || 'Este campo es requerido';
+
 </script>
 
+
+<style scoped>
+
+td{
+  text-align: left;
+}
+</style>
 
 
   

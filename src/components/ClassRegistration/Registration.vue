@@ -1,5 +1,5 @@
 <template>
-  <v-main style="padding-left: 0%;">
+  <v-main v-if="state === 'Matricula'" style="padding-left: 0%;">
     <v-container fluid>
       <h1 style="color: #CC6600;">Matricula</h1>
       <v-divider :thickness="5" class="pb-6 mt-2"></v-divider>
@@ -24,7 +24,7 @@
                                   ${studentLogged.secondLastName}` }}</td>
                 <td>{{ studentLogged.student.studentCareer[0].centerCareer.career.name }}</td>
                 <td>2023</td>
-                <td>{{ period }}</td>
+                <td>{{ period.numberPeriod}}</td>
                 <td>{{ store.units }}</td>
               </tr>
             </tbody>
@@ -196,15 +196,24 @@ const studentLogged = store.user;
 const studentCareer = studentLogged.student.studentCareer[0].centerCareer;
 const normalTuitions = ref([]);
 const waitingList = ref([]);
-
+const state = ref('');
 onMounted(async () => {
-  const response = await getRecentPeriod();
-  period.value = response.numberPeriod;
-
-  getTuitionsByStudent();
+  period.value = await getRecentPeriod();
+  state.value = period.value.idStatePeriod.name;
+    
+    if (state.value === 'Matricula') {
+      getTuitionsByStudent();
   getSections();
   getTeachersOptions();
   getClassesOptions(studentCareer.career.id);
+    } else {
+
+        store.setToaster({
+            isActive: true,
+            text: "El perido actual no está en estado de matricula.",
+            color: "error",
+        });
+    }
 
 })
 
@@ -226,7 +235,7 @@ async function getTeachersOptions() {
   teachers.value = response.teachers;
 }
 async function getTuitionsByStudent() {
-  const response = await tuitionService.getTuitionsByStudent(studentLogged.student.accountNumber,period.value);
+  const response = await tuitionService.getTuitionsByStudent(studentLogged.student.accountNumber,period.value.id);
   tuitions.value = response.registrations;
   
   normalTuitions.value = tuitions.value.filter((tuition)=>tuition.waitingList=="false");
@@ -277,7 +286,7 @@ async function seleccionarAsignatura(asignatura) {
   } else {
     let selectedClass = classNames.value.find(className => className.name === asignatura);
 
-    let sectionsClass = await sectionService.getSectionByPeriodAndClass(period.value, selectedClass.id);
+    let sectionsClass = await sectionService.getSectionByPeriodAndClass(period.value.id, selectedClass.id);
 
     seccionesFiltradas.value = sectionsClass.sections;
   }
