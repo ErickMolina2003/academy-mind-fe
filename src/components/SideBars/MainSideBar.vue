@@ -57,59 +57,49 @@ const adminOptions = ref([
 
 const teacherOptions = ref([
   {
-    name: "perfil",
+    name: "Perfil",
     to: "/perfil",
     icon: "mdi-account-box-outline",
   },
   {
-    name: "clases",
+    name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
-  },
-  {
-    name: "matricula",
-    to: "/matricula",
-    icon: "mdi-account-school",
-  },
+  }
 ]);
 
 const studentOptions = ref([
   {
-    name: "perfil",
+    name: "Perfil",
     to: "/perfil",
     icon: "mdi-account-box-outline",
   },
   {
-    name: "clases",
+    name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
   },
   {
-    name: "chat",
+    name: "Chat",
     to: "/chat",
     icon: "mdi-chat",
   },
   {
-    name: "matricula",
+    name: "Matricula",
     to: "/matricula",
     icon: "mdi-account-school",
   },
 ]);
 const bossAcademicOptions = ref([
   {
-    name: "perfil",
+    name: "Perfil",
     to: "/perfil",
     icon: "mdi-account-box-outline",
   },
   {
-    name: "clases",
+    name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
-  },
-  {
-    name: "matricula",
-    to: "/matricula",
-    icon: "mdi-account-school",
   },
   {
     name: "Historial Estudiantil",
@@ -132,7 +122,7 @@ onMounted(() => {
   isCoordinator.value = store.user.teacher?.isCoordinator ?? false;
   isBossAcademic.value = store.user.teacher?.isBoss ?? false;
   isAdmin.value = store.user.isAdmin;
-  isTeacher.value = store.user.isTeacher ?? false;
+  isTeacher.value = store.user.teacher ?? false;
   isStudent.value = store.user.student ?? false;
 });
 
@@ -142,6 +132,7 @@ function logout() {
 }
 
 const userOptions = computed(() => {
+ 
   if (
     isTeacher.value &&
     !isAdmin.value &&

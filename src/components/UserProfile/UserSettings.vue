@@ -3,8 +3,8 @@
     <div class="text-center">
       <v-row>
         <v-col cols="12" md="12" lg="12">
-          <img v-if="profilePicture" :src="profilePicture" alt="user-img" class="user-img rounded-lg" />
-          <img v-else src="@/assets/default-picture.jpg" alt="user-img" class="user-img rounded-lg" />
+          <img v-if="profilePicture" :src="profilePicture" alt="user-img" class="user-img rounded-lg " />
+          <img v-else src="@/assets/default-picture.jpg" alt="user-img" class="user-img rounded-lg " />
         </v-col>
         <v-col cols="12" md="12" lg="12">
           <h2>{{ store.user.firstName }} {{ store.user.firstLastName }}</h2>
@@ -293,48 +293,56 @@ async function uploadingImage() {
   if (store.user.isAdmin) {
     bucket = "admin";
   }
-
+  uploadedImage.value = [];
   for (const image of uploadImage.value) {
     const imageRef = firebaseRed(storage, `images/${bucket}/${image.name + v4()}`);
     try {
       const response = await uploadBytes(imageRef, image);
       const url = await getDownloadURL(response.ref);
-
       uploadedImage.value.push(url);
       imageToUpload.value = uploadedImage.value[0];
-
     } catch (error) {
       store.setToaster({
         isActive: true,
         text: "Error al subir imagen.",
         color: "error",
       });
-      
     }
   }
-  if (uploadedImage.value.length > 0) {
 
+  if (uploadedImage.value.length > 0) {
     try {
       if (!store.user.student.photoOne) {
+        
         await studentService.updateStudent(dni, {
           photoOne: imageToUpload.value,
         });
+        
+        imageToUpload.value = "";
 
       } else if (!store.user.student.photoTwo) {
+        
         await studentService.updateStudent(dni, {
           photoTwo: imageToUpload.value,
         });
-      } else {
+        
+        imageToUpload.value = "";
+      } else if (!store.user.student.photoThree) {
+        
         await studentService.updateStudent(dni, {
           photoThree: imageToUpload.value,
         });
+        
+        imageToUpload.value = "";
       }
+
       store.setToaster({
         isActive: true,
         text: "Imágenes subidas con éxito.",
         color: "success",
       });
       profilePicture.value = store.user.student.photoOne;
+      
     } catch (error) {
       store.setToaster({
         isActive: true,
@@ -518,5 +526,6 @@ async function submitChangePassword() {
   width: 128px;
   height: 128px;
   border: 7px solid #fff;
+  object-fit: cover;
 }
 </style>
