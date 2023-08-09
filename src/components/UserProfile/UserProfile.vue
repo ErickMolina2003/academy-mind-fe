@@ -9,8 +9,20 @@
         />
       </v-col>
       <v-col cols="auto" class="mt-n16 ml-3">
-        <img v-if="profilePicture" :src="profilePicture" alt="user-img" cover class="user-img rounded-lg" />
-        <img v-else src="@/assets/default-picture.jpg" alt="user-img" cover class="user-img rounded-lg" />
+        <img
+          v-if="profilePicture"
+          :src="profilePicture"
+          alt="user-img"
+          cover
+          class="user-img rounded-lg"
+        />
+        <img
+          v-else
+          src="@/assets/default-picture.jpg"
+          alt="user-img"
+          cover
+          class="user-img rounded-lg"
+        />
       </v-col>
       <v-col class="ml-1 mt-n2">
         <p class="text-h5 font-weight-medium mt-1">{{ name }}</p>
@@ -20,7 +32,7 @@
               ? "Administrador"
               : isCoordinator || isBoss || userIsTeacher
               ? "Docente"
-              : "Ingenieria en sistemas"
+              : `${career}`
           }}
         </p>
       </v-col>
@@ -62,9 +74,9 @@
           </v-col>
         </v-row>
         <v-row class="d-flex" v-if="!userIsTeacher">
-          <!-- <v-col v-if="!isAdmin" cols="6">
+          <v-col v-if="!isAdmin" cols="6">
             <h3 class="font-weight-bold banner-major">Carrera: {{ career }}</h3>
-          </v-col> -->
+          </v-col>
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
               Correo electrónico personal: {{ personalEmail }}
@@ -74,7 +86,7 @@
         <v-row class="d-flex">
           <v-col cols="6">
             <h3 class="font-weight-bold banner-major">
-              Centro: Ciudad Universitaria
+              Centro: {{ userIsTeacher ? centerTeacher : centerStudent }}
             </h3>
           </v-col>
           <v-col v-if="!isAdmin" cols="6">
@@ -85,15 +97,15 @@
         </v-row>
         <v-row v-if="profileVideo">
           <v-col cols="12">
-            <v-card 
-            variant="outlined"
-            class="mx-auto"
-            width="850"
-            color="grey lighten-4"
+            <v-card
+              variant="outlined"
+              class="mx-auto"
+              width="850"
+              color="grey lighten-4"
             >
               <v-container fluid class="video-container">
                 <video v-if="profileVideo" width="800" controls>
-                  <source :src="profileVideo" type="video/mp4">
+                  <source :src="profileVideo" type="video/mp4" />
                   Tu navegador no soporta el elemento de video.
                 </video>
               </v-container>
@@ -110,18 +122,29 @@
         <p>{{ description }}</p>
       </v-col>
       <v-col v-if="!isAdmin" class="user-description rounded-lg ml-4 px-7 py-3">
-        <h4 class="font-weight-regular mt-2">Clases del periodo actual</h4>
-        <v-row class="pt-2">
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Ingenieria de Software" periodo="2" anio="2023" />
-          </v-col>
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Contabilidad" periodo="2" anio="2023" />
-          </v-col>
-          <v-col cols="6" md="6" lg="4" xl="3">
-            <ClassCard clase="Sistemas Expertos" periodo="2" anio="2023" />
-          </v-col>
-        </v-row>
+        <h4 class="font-weight-regular mt-1">Clases del periodo actual</h4>
+        <v-sheet class="mx-auto" max-width="900">
+          <v-slide-group class="pa-1" center-active show-arrows>
+            <v-slide-group-item v-for="section in sections" :key="section.id">
+              <ClassCard
+                max-width="352"
+                class="mr-1"
+                v-if="userIsTeacher"
+                :clase="section.idClass.name"
+                :periodo="section.idPeriod.numberPeriod"
+                :anio="section.idPeriod.year"
+              />
+              <ClassCard
+                max-width="352"
+                class="mr-1"
+                v-if="!userIsTeacher"
+                :clase="section.section.idClass.name"
+                periodo="2"
+                anio="2023"
+              />
+            </v-slide-group-item>
+          </v-slide-group>
+        </v-sheet>
       </v-col>
       <v-col
         v-if="isAdmin"
@@ -137,13 +160,56 @@
 
 <script setup lang="ts">
 import ClassCard from "@/components/ClassCard/ClassCard.vue";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import MyDialog from "./UserSettings.vue";
 import { useAppStore } from "@/store/app";
+import PeriodService from "@/services/period/period.service";
+import TuitionService from "@/services/tuition/tuition.service";
+import SectionService from "@/services/section/section.service";
 
+const sectionService = new SectionService();
+const servicePeriod = new PeriodService();
 const profilePicture = ref();
 const profileVideo = ref();
 const store = useAppStore();
+const serviceTuition = new TuitionService();
+const periods = ref([]);
+const periodToModify = ref({});
+const sections = ref([]);
+
+onMounted(async () => {
+  getPeriods();
+});
+
+async function getPeriods() {
+  const response = await servicePeriod.getPeriodsByYear(
+    new Date().getFullYear()
+  );
+  periods.value = response.periods;
+  periodToModify.value = periods.value[0];
+  if (
+    periodToModify.value.idStatePeriod?.name !== "Finalizado" &&
+    periodToModify.value.idStatePeriod?.name !== "Por definir"
+  ) {
+    getSections(periodToModify.value.id);
+  }
+}
+async function getSections(idPeriod) {
+  if (userIsTeacher.value) {
+    const response = await sectionService.getSectionsByTeacher(
+      store.user.teacher.employeeNumber,
+      idPeriod
+    );
+    sections.value = response.section;
+  } else {
+    const response = await serviceTuition.getTuitionsByStudent(
+      store.user.student.accountNumber,
+      idPeriod
+    );
+    sections.value = response.registrations;
+  }
+}
+
 const userLogged = computed(() => {
   if (store.user.teacher) {
     profilePicture.value = store.user.teacher.photoOne;
@@ -157,7 +223,7 @@ const userLogged = computed(() => {
   }
 
   profilePicture.value = store.user.photoOne;
-  
+
   return store.user;
 });
 const description = ref(userLogged.value.description);
@@ -176,8 +242,28 @@ const fullName = ref(
 const accountNumber = computed(() => {
   return userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
 });
+
 const dialogOpen = ref(false);
-// const career = ref(userLogged.career);
+
+const career = ref("");
+
+if (userLogged.value.studentCareer && userLogged.value.studentCareer[0]) {
+  career.value = userLogged.value.studentCareer[0].centerCareer.career.name;
+}
+
+const centerStudent = ref("");
+const centerTeacher = ref("");
+
+if (userLogged.value.studentCareer && userLogged.value.studentCareer[0]) {
+  centerStudent.value =
+    userLogged.value.studentCareer[0].centerCareer.regionalCenter.name;
+}
+
+if (userLogged.value.teachingCareer && userLogged.value.teachingCareer[0]) {
+  centerTeacher.value =
+    userLogged.value.teachingCareer[0].centerCareer.regionalCenter.name;
+}
+
 const institutionalEmail = ref(userLogged.value.institutionalEmail);
 const isAdmin = ref(store.user.isAdmin);
 const isBoss = ref(userLogged.value.isBoss);
@@ -214,7 +300,7 @@ function closeDialog(close: boolean) {
 const userProfile = computed(() => ({
   description: description.value,
   personalEmail: personalEmail.value,
-  profileVideo : profileVideo.value,
+  profileVideo: profileVideo.value,
   // Agregar más propiedades según sea necesario
 }));
 </script>
@@ -239,7 +325,6 @@ const userProfile = computed(() => ({
   height: 128px;
   border: 7px solid #fff;
   object-fit: cover;
-  
 }
 
 .banner-major {
@@ -255,5 +340,4 @@ const userProfile = computed(() => ({
   display: flex;
   justify-content: center;
 }
-
 </style>
