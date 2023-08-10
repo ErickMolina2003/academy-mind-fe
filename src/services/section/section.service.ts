@@ -91,6 +91,47 @@ export default class SectionService {
         }
     }
 
+    // Obtener todas las secciones de un departamento
+    async getSectionsByDepartment(idDepartment:string){
+        const url = `http://localhost:3001/api/section/department/${idDepartment}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
+            
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode !== 200) {
+                    
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+    }
+
+
     async getSectionsByTeacher(employeeNumber:string, periodId:number){
         const url = `http://localhost:3001/api/section/teacher/${employeeNumber}?periodId=${periodId}`;
         try {
@@ -142,7 +183,7 @@ export default class SectionService {
                 const data = await response.data;
                 
                 if (data.statusCode !== 200) {
-                    console.log(data.statusCode);
+                    
                     this.store.setToaster({
                         isActive: true,
                         text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
@@ -178,8 +219,6 @@ export default class SectionService {
                 data: updateSection,
             });
             
-            
-            
             if (response.status === 200) {
                 const data = await response.data;
                 
@@ -211,6 +250,90 @@ export default class SectionService {
             this.store.setToaster({
                 isActive: true,
                 text: "Error al actualizar las secciones. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+    }
+
+    async getWaitingList(idDepartment:string){
+        const url = `http://localhost:3001/api/section/waiting-list-sections/${idDepartment}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
+            
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode !== 200) {
+                    
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al obtener las secciones en listas de espera. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener las secciones en listas de espera. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener las secciones en listas de espera. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+    }
+    
+    async deleteSections(idSection:string){
+        const url = `http://localhost:3001/api/section/${idSection}`;
+        try {
+            const response = await axios({
+                method: "DELETE",
+                url: url
+            });
+            
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode === 200) {
+                    
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Sección eliminada con éxito.",
+                        color: "success",
+                    });
+                }else{
+                    this.store.setToaster({
+                        isActive: true,
+                        text: data.message,
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al eliminar las secciones en listas de espera. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al eliminar las secciones. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="currentPeriod">
         <SearchableNavBar :title="myTitle" :label="myLabel" />
         <table>
         <thead>
@@ -299,8 +299,38 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref,onMounted,computed } from "vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
+import PeriodService from "@/services/period/period.service";
+import { useAppStore } from "@/store/app";
+
+const store = useAppStore();
+const servicePeriod = new PeriodService();
+const periods = ref([]);
+const currentPeriod = ref({});
+
+
+onMounted(() => {
+    getPeriods();
+});
+
+async function getPeriods() {
+    const response = await servicePeriod.getPeriodGrades();
+    periods.value = response.periods;
+    currentPeriod.value = periods.value[0];
+
+    if (!currentPeriod.value) {
+       
+        store.setToaster({
+            isActive: true,
+            text: "El periodo actual no está en ingreso de notas.",
+            color: "error",
+        });
+    }
+
+}
+
+
 const observations = ref([
 "El docente muestra interés en la asignatura.",
 "La relación con los estudiantes es positiva.",

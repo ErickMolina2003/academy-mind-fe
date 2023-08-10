@@ -1,6 +1,6 @@
 <template>
-  <v-main v-if="state === 'Matricula'" style="padding-left: 0%;">
-    <v-container fluid>
+  <v-main v-if="state && validateDate.statusCode === 200" style="padding-left: 0%;">
+    <v-container fluid style="height:500px; overflow-y:scroll;">
       <h1 style="color: #CC6600;">Matricula</h1>
       <v-divider :thickness="5" class="pb-6 mt-2"></v-divider>
       <v-card>
@@ -24,8 +24,8 @@
                                   ${studentLogged.secondLastName}` }}</td>
                 <td>{{ studentLogged.student.studentCareer[0].centerCareer.career.name }}</td>
                 <td>2023</td>
-                <td>{{ period.numberPeriod}}</td>
-                <td>{{ store.units }}</td>
+                <td>{{ periodToModify.numberPeriod }}</td>
+                <td>{{ uv }}</td>
               </tr>
             </tbody>
           </v-table>
@@ -41,6 +41,8 @@
           </v-card>
         </div>
       </v-card>
+
+
       <v-dialog v-model="showModal">
         <div class="modal">
           <div style="text-align: right;">
@@ -74,8 +76,13 @@
                   <template #default="{ item }">
                     <v-list-item :key="item.id" @click="seleccionarSeccion(item)"
                       :class="{ 'list-item-selected': item === seccionSeleccionada }">
-                      <v-list-item-title>{{ item.codeSection }} HI:{{ item.hour }} HF:{{ item.finalHour }} {{
-                        getTeacherSection(item.idTeacher.employeeNumber) }} {{isWaitingList(item.waitingList)}}</v-list-item-title>
+                      <v-list-item-title style="font-size: .8rem;">
+                        {{ item.codeSection }}
+                        HI:{{ item.hour }}
+                        HF:{{ item.finalHour }}
+                        {{ getTeacherSection(item.idTeacher.employeeNumber) }}
+                        {{ isWaitingList(item.waitingList, item.availableSpaces, item.waitingAvailableSpaces) }}
+                      </v-list-item-title>
                     </v-list-item>
                   </template>
                 </v-virtual-scroll>
@@ -91,32 +98,32 @@
         <v-card-title class="text-center" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
           <span class="headline text-white">Asignaturas Matriculadas</span>
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="pa-0">
           <v-table>
             <thead>
               <tr>
-                <th class="text-left text-black">Cod.</th>
-                <th class="text-left text-black">Asignatura</th>
-                <th class="text-left text-black">Seccion</th>
-                <th class="text-left text-black">HI</th>
-                <th class="text-left text-black">HF</th>
-                <th class="text-left text-black">Dias</th>
-                <th class="text-left text-black">Edificio</th>
-                <th class="text-left text-black">Aula</th>
-                <th class="text-left text-black">UV</th>
+                <th class="text-black pa-0 px-3">Cód.</th>
+                <th class="text-black pa-0 px-3">Asignatura</th>
+                <th class="text-black pa-0 px-3">Sección</th>
+                <th class="text-black pa-0 px-3">HI</th>
+                <th class="text-black pa-0 px-3">HF</th>
+                <th class="text-black pa-0 px-3">Días</th>
+                <th class="text-black pa-0 px-3">Edificio</th>
+                <th class="text-black pa-0 px-3">Aula</th>
+                <th class="text-black pa-0 px-3">UV</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="normalTuitions" v-for="item in normalTuitions" :key="item.id">
-                <td>{{ item.section.idClass.code }}</td>
-                <td>{{ item.section.idClass.name }}</td>
-                <td>{{ item.section.codeSection }}</td>
-                <td>{{ item.section.hour }}</td>
-                <td>{{ item.section.finalHour }}</td>
-                <td>{{ item.section.days }}</td>
-                <td>{{ item.section.idClassroom.idBuilding.name }}</td>
-                <td>{{ item.section.idClassroom.code }}</td>
-                <td>{{ item.section.idClass.valueUnits }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.code }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.name }}</td>
+                <td class="pa-0 px-3">{{ item.section.codeSection }}</td>
+                <td class="pa-0 px-3">{{ item.section.hour }}</td>
+                <td class="pa-0 px-3">{{ item.section.finalHour }}</td>
+                <td class="pa-0 px-3">{{ item.section.days }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClassroom.idBuilding.name }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClassroom.code }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.valueUnits }}</td>
               </tr>
             </tbody>
           </v-table>
@@ -126,32 +133,32 @@
         <v-card-title class="text-center" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
           <span class="headline text-white">Asignaturas En Lista de Espera</span>
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="pa-0">
           <v-table>
             <thead>
               <tr>
-                <th class="text-left text-black">Cod.</th>
-                <th class="text-left text-black">Asignatura</th>
-                <th class="text-left text-black">Seccion</th>
-                <th class="text-left text-black">HI</th>
-                <th class="text-left text-black">HF</th>
-                <th class="text-left text-black">Dias</th>
-                <th class="text-left text-black">Edificio</th>
-                <th class="text-left text-black">Aula</th>
-                <th class="text-left text-black">UV</th>
+                <th class="text-black pa-0 px-3">Cód.</th>
+                <th class="text-black pa-0 px-3">Asignatura</th>
+                <th class="text-black pa-0 px-3">Sección</th>
+                <th class="text-black pa-0 px-3">HI</th>
+                <th class="text-black pa-0 px-3">HF</th>
+                <th class="text-black pa-0 px-3">Días</th>
+                <th class="text-black pa-0 px-3">Edificio</th>
+                <th class="text-black pa-0 px-3">Aula</th>
+                <th class="text-black pa-0 px-3">UV</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="waitingList" v-for="item in waitingList" :key="item.id">
-                <td>{{ item.section.idClass.code }}</td>
-                <td>{{ item.section.idClass.name }}</td>
-                <td>{{ item.section.codeSection }}</td>
-                <td>{{ item.section.hour }}</td>
-                <td>{{ item.section.finalHour }}</td>
-                <td>{{ item.section.days }}</td>
-                <td>{{ item.section.idClassroom.idBuilding.name }}</td>
-                <td>{{ item.section.idClassroom.code }}</td>
-                <td>{{ item.section.idClass.valueUnits }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.code }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.name }}</td>
+                <td class="pa-0 px-3">{{ item.section.codeSection }}</td>
+                <td class="pa-0 px-3">{{ item.section.hour }}</td>
+                <td class="pa-0 px-3">{{ item.section.finalHour }}</td>
+                <td class="pa-0 px-3">{{ item.section.days }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClassroom.idBuilding.name }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClassroom.code }}</td>
+                <td class="pa-0 px-3">{{ item.section.idClass.valueUnits }}</td>
               </tr>
             </tbody>
           </v-table>
@@ -196,26 +203,55 @@ const studentLogged = store.user;
 const studentCareer = studentLogged.student.studentCareer[0].centerCareer;
 const normalTuitions = ref([]);
 const waitingList = ref([]);
-const state = ref('');
+const periods = ref([]);
+const periodToModify = ref({});
+const state = ref(false);
+const uv = ref(25);
+const validateDate = ref(false);
 onMounted(async () => {
-  period.value = await getRecentPeriod();
-  state.value = period.value.idStatePeriod.name;
-    
-    if (state.value === 'Matricula') {
-      getTuitionsByStudent();
-  getSections();
-  getTeachersOptions();
-  getClassesOptions(studentCareer.career.id);
-    } else {
-
-        store.setToaster({
-            isActive: true,
-            text: "El perido actual no está en estado de matricula.",
-            color: "error",
-        });
-    }
+  getPeriods();
 
 })
+
+async function getUV() {
+  const response = await tuitionService.getTuitionsAndUV(studentLogged.student.accountNumber);
+  uv.value = response.valueUnits;
+}
+
+
+async function getPeriods() {
+  const response = await servicePeriod.getPeriodRegistrationPlanification();
+  periods.value = response.periods;
+  periodToModify.value = periods.value[0];
+
+  state.value = periodToModify.value.idStatePeriod?.name === 'Matricula'
+  validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
+  
+  if (state.value) {
+
+    if (validateDate.value.statusCode === 200) {
+      getTuitionsByStudent();
+      getSections();
+      getTeachersOptions();
+      getClassesOptions(studentCareer.career.id);
+      getUV();
+    } else {
+      store.setToaster({
+        isActive: true,
+        text: validateDate.value.message,
+        color: "error",
+      });
+    }
+
+  } else {
+    store.setToaster({
+      isActive: true,
+      text: "El periodo actual no está en estado de matricula.",
+      color: "error",
+    });
+  }
+
+}
 
 
 async function getClassesOptions(id) {
@@ -235,13 +271,16 @@ async function getTeachersOptions() {
   teachers.value = response.teachers;
 }
 async function getTuitionsByStudent() {
-  const response = await tuitionService.getTuitionsByStudent(studentLogged.student.accountNumber,period.value.id);
+  const response = await tuitionService.getTuitionsByStudent(studentLogged.student.accountNumber, periodToModify.value.id);
   tuitions.value = response.registrations;
-  
-  normalTuitions.value = tuitions.value.filter((tuition)=>tuition.waitingList=="false");
-  
-  waitingList.value = tuitions.value.filter((tuition)=>tuition.waitingList=="true");
-  
+  if (tuitions.value) {
+    normalTuitions.value = tuitions.value.filter((tuition) => tuition.waitingList == "false");
+
+    waitingList.value = tuitions.value.filter((tuition) => tuition.waitingList == "true");
+  }
+
+
+
 }
 
 async function getSections() {
@@ -250,53 +289,31 @@ async function getSections() {
 
 }
 
-async function getRecentPeriod() {
-  let mostRecentPeriod = null;
-
-  const response = await servicePeriod.getPeriods();
-
-  const periods = response.periods;
-
-
-  // Filtrar el periodo más reciente basado en el año y número de periodo
-  const currentYear = new Date().getFullYear();
-  const mostRecentYear = Math.max(...periods.map((period) => period.year));
-  const mostRecentPeriodNumber = Math.max(
-    ...periods
-      .filter((period) => period.year === mostRecentYear)
-      .map((period) => period.numberPeriod)
-  );
-
-  mostRecentPeriod = periods.find(
-    (period) =>
-      period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
-  );
-
-  return mostRecentPeriod;
-};
-
 
 async function seleccionarAsignatura(asignatura) {
   if (tuitions.value.find(tuition => tuition.section.idClass.name === asignatura)) {
     store.setToaster({
-        isActive: true,
-        text: "Clase ya matriculada.",
-        color: "error",
-      });
+      isActive: true,
+      text: "Clase ya matriculada.",
+      color: "error",
+    });
+
+    seccionesFiltradas.value = [];
   } else {
     let selectedClass = classNames.value.find(className => className.name === asignatura);
 
-    let sectionsClass = await sectionService.getSectionByPeriodAndClass(period.value.id, selectedClass.id);
+    let sectionsClass = await sectionService.getSectionByPeriodAndClass(periodToModify.value.id, selectedClass.id);
 
     seccionesFiltradas.value = sectionsClass.sections;
   }
+
 };
 
-function isWaitingList(isWaiting){
-  if (isWaiting=="true"){
-    return "Sección en espera"
-  }else{
-    return ""
+function isWaitingList(isWaiting, availableSpaces, waitingAvailableSpaces) {
+  if (isWaiting == "true") {
+    return `Sección en espera Cupos: ${waitingAvailableSpaces}`
+  } else {
+    return `Cupos: ${availableSpaces}`
   }
 }
 
@@ -310,28 +327,29 @@ const openModal = () => {
 
 const closeModal = () => {
   showModal.value = false;
+  seccionSeleccionada.value = null;
+  seccionesFiltradas.value = [];
 };
 
 async function matricularAsignatura() {
   if (seccionSeleccionada.value) {
-    if (store.units - seccionSeleccionada.value.idClass.valueUnits > 0) {
-      const response = await tuitionService.createTuition({
-        idSection: seccionSeleccionada.value.id,
-        idStudent: studentLogged.student.accountNumber
-      });
-      store.substractUnits(seccionSeleccionada.value.idClass.valueUnits);
-      getTuitionsByStudent(studentLogged.student.accountNumber);
-      seccionSeleccionada.value = null;
-      seccionesFiltradas.value = [];
-    } else {
+
+    const response = await tuitionService.createTuition({
+      idSection: seccionSeleccionada.value.id,
+      idStudent: studentLogged.student.accountNumber
+    });
+
+    if (seccionSeleccionada.value.waitingList == "true") {
       store.setToaster({
         isActive: true,
-        text: "No hay suficientes unidades valorativas.",
-        color: "error",
+        text: "Clase en espera matriculada con éxito.",
+        color: "success",
       });
     }
 
-
+    getTuitionsByStudent(studentLogged.student.accountNumber);
+    seccionSeleccionada.value = null;
+    seccionesFiltradas.value = [];
   }
 
   closeModal();
@@ -345,13 +363,14 @@ async function matricularAsignatura() {
   margin-bottom: 10px;
 }
 
+
 .main-container {
   display: none;
 }
 
 .modal {
   position: fixed;
-  width: 80%;
+  width: 95%;
   height: auto;
   top: 50%;
   left: 50%;
@@ -361,6 +380,8 @@ async function matricularAsignatura() {
   border-radius: 15px;
   box-shadow: 3px 3px rgba(0, 0, 0, 0.4);
 }
+
+
 
 .virtual-scroll-list {
   height: 300px;
