@@ -39,7 +39,8 @@ const routes = [
           {
             path: "/estados-periodo",
             name: "estados-periodo",
-            component: () => import("@/components/PeriodManagement/PeriodManagement.vue"),
+            component: () =>
+              import("@/components/PeriodManagement/PeriodManagement.vue"),
           },
         ],
       },
@@ -117,7 +118,7 @@ const routes = [
             path: "/calificaciones",
             name: "calificaciones",
             component: () => import("@/components/Grades/ViewGrades.vue"),
-          }
+          },
         ],
       },
       {
@@ -184,6 +185,36 @@ const routes = [
             name: "notas-ingresadas",
             component: () =>
               import("@/components/DepartmentBoss/ViewGrades.vue"),
+          },
+        ],
+      },
+      {
+        path: "/carga-periodo",
+        name: "carga-periodo",
+        component: () => import("@/components/Coordinator/PeriodCharge.vue"),
+      },
+      {
+        path: "/solicitudes-estudiantes",
+        name: "solicitudes-estudiantes",
+        component: () => import("@/layouts/RequestLayout.vue"),
+        children: [
+          {
+            path: "/cambio-de-carrera",
+            name: "cambio-de-carrera",
+            component: () =>
+              import("@/components/Coordinator/ChangeCareer.vue"),
+          },
+          {
+            path: "/cancelacion-excepcional",
+            name: "cancelacion-excepcional",
+            component: () =>
+              import("@/components/Coordinator/ExceptionalCancellations.vue"),
+          },
+          {
+            path: "/cambio-de-centro",
+            name: "cambio-de-centro",
+            component: () =>
+              import("@/components/Coordinator/ChangeRegionalCenter.vue"),
           },
         ],
       },

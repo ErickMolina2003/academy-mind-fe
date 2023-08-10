@@ -117,7 +117,29 @@ const bossAcademicOptions = ref([
     icon: "mdi-calendar-month-outline",
   }
 ]);
-  
+const coordinatorOptions = ref([
+  {
+    name: "perfil",
+    to: "/perfil",
+    icon: "mdi-account-box-outline",
+  },
+  {
+    name: "clases",
+    to: "/clases",
+    icon: "mdi-book-variant",
+  },
+  {
+    name: "Carga del Periodo",
+    to: "/carga-periodo",
+    icon: "mdi-calendar-month",
+  },
+  {
+    name: "Solicitudes",
+    to: "/solicitudes-estudiantes",
+    icon: "mdi-badge-account",
+  },
+]);
+
 onMounted(() => {
   isCoordinator.value = store.user.teacher?.isCoordinator ?? false;
   isBossAcademic.value = store.user.teacher?.isBoss ?? false;
@@ -143,7 +165,7 @@ const userOptions = computed(() => {
   }
 
   if (isCoordinator.value) {
-    return teacherOptions.value;
+    return coordinatorOptions.value;
   }
 
   if (isBossAcademic.value) {
