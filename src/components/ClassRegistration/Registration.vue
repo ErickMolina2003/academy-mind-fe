@@ -226,7 +226,7 @@ async function getPeriods() {
 
   state.value = periodToModify.value.idStatePeriod?.name === 'Matricula'
   validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
-  
+
   if (state.value) {
 
     if (validateDate.value.statusCode === 200) {
@@ -333,23 +333,35 @@ const closeModal = () => {
 
 async function matricularAsignatura() {
   if (seccionSeleccionada.value) {
+    getUV();
+    
+    if (parseInt(uv.value) - parseInt(seccionSeleccionada.value.idClass.valueUnits)>=0) {
+      const response = await tuitionService.createTuition({
+        idSection: seccionSeleccionada.value.id,
+        idStudent: studentLogged.student.accountNumber
+      });
 
-    const response = await tuitionService.createTuition({
-      idSection: seccionSeleccionada.value.id,
-      idStudent: studentLogged.student.accountNumber
-    });
+      if (seccionSeleccionada.value.waitingList == "true") {
+        store.setToaster({
+          isActive: true,
+          text: "Clase en espera matriculada con éxito.",
+          color: "success",
+        });
+      }
 
-    if (seccionSeleccionada.value.waitingList == "true") {
+      getTuitionsByStudent(studentLogged.student.accountNumber);
+      seccionSeleccionada.value = null;
+      seccionesFiltradas.value = [];
+      getUV();
+    } else {
       store.setToaster({
         isActive: true,
-        text: "Clase en espera matriculada con éxito.",
-        color: "success",
+        text: "No tiene unidades valorativas suficientes.",
+        color: "error",
       });
     }
 
-    getTuitionsByStudent(studentLogged.student.accountNumber);
-    seccionSeleccionada.value = null;
-    seccionesFiltradas.value = [];
+
   }
 
   closeModal();

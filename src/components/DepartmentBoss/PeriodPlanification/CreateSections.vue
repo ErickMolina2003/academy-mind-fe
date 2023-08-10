@@ -92,11 +92,11 @@
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-text-field v-model="seats" type="number" label="Cupos" :rules="seatsRules"
-                            min="1"></v-text-field>
+                            min="5"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-text-field v-model="waitingSpace" type="number" label="Cupos en espera" :rules="seatsRules"
-                            min="1"></v-text-field>
+                            min="5"></v-text-field>
                     </v-col>
                 </v-row>
             </v-form>
@@ -477,7 +477,7 @@ const rules = {
 
 const seatsRules = [
     (value) => !!value || "Campo obligatorio.",
-    (value) => !isNaN(value) && value >= 1 || "Debe ingresar un número mayor o igual a 1."
+    (value) => !isNaN(value) && value >= 5 || "Debe ingresar un número mayor o igual a 5."
 ];
 
 const initialHourRules = [
