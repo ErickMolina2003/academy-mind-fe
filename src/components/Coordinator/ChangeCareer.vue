@@ -7,10 +7,20 @@
       >
         <span>Solicitudes de Cambio de Carrera</span>
       </v-card-title>
+      <div class="d-flex align-center mx-4 my-2">
+        <div>
+          <v-select
+            v-model="itemsPerPage"
+            :items="perPageOptions"
+            variant="outlined"
+          ></v-select>
+        </div>
+        <span class="ml-3">Registros por página</span>
+      </div>
       <v-card-text class="mt-1" style="padding: 0">
         <v-list class="overflow-auto">
           <v-list-item
-            v-for="(user, index) in students"
+            v-for="(user, index) in paginatedStudents"
             :key="index"
             class="mb-2"
           >
@@ -31,6 +41,13 @@
           </v-list-item>
         </v-list>
       </v-card-text>
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        :total-visible="5"
+        @input="changePage"
+        rounded="circle"
+      ></v-pagination>
     </v-card>
   </v-main>
 
@@ -92,9 +109,13 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 const showModal = ref(false);
 const userData = ref(null);
+
+const perPageOptions = [5, 10, 25, 50];
+const itemsPerPage = ref(5);
+const currentPage = ref(1);
 
 const openModal = (user) => {
   showModal.value = true;
@@ -142,17 +163,43 @@ const students = ref([
     pdf: "SC_Juan Alvarez",
     account: "20209876111",
   },
+  {
+    name: "Jorge Eriberto",
+    motive:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
+    newCareer: "Licenciatura en Administración de empresas",
+    pdf: "fileSolicitud.pdf",
+    account: "20231234124",
+  },
+  {
+    name: "John Wick",
+    motive:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
+    newCareer: "Licenciatura en Derecho",
+    pdf: "SolicitudCancelacion_SalahCruz",
+    account: "20179876111",
+  },
+  {
+    name: "Roberto Zepeda",
+    motive:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
+    newCareer: "Ingeniería Civil",
+    pdf: "SC_Juan Alvarez",
+    account: "20209876111",
+  },
 ]);
+
+const totalPages = computed(() =>
+  Math.ceil(students.value.length / itemsPerPage.value)
+);
+
+const paginatedStudents = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+  const endIndex = startIndex + itemsPerPage.value;
+  return students.value.slice(startIndex, endIndex);
+});
+
+const changePage = (page) => {
+  currentPage.value = page;
+};
 </script>
-
-<style>
-.icon-attention {
-  font-size: 24px;
-  color: red;
-  margin-right: 8px;
-}
-
-.selected-row {
-  background-color: rgb(250, 250, 186);
-}
-</style>
