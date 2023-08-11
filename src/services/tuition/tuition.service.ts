@@ -384,4 +384,43 @@ export default class TuitionService {
       return error;
     }
   }
+
+  async getTuitionsStudentByPeriodAndDepartment(
+    idPeriod: number,
+    idDepartment: string
+  ) {
+    const url = `http://localhost:3001/api/tuition/period-students/${idPeriod}?department=${idDepartment}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        if (data.statusCode !== 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
+        }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 }

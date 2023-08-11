@@ -47,11 +47,12 @@
   </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, computed, watch } from "vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import PeriodService from "@/services/period/period.service";
 import TuitionService from "@/services/tuition/tuition.service";
+import SectionService from "@/services/section/section.service";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
@@ -62,7 +63,6 @@ const periods = ref([]);
 const currentPeriod = ref({});
 const originalStudents = ref([]);
 const students = ref([]);
-const periods = ref([]);
 const periodToModify = ref({});
 
 onMounted(async () => {
@@ -79,14 +79,22 @@ async function getPeriods() {
     periodToModify.value.idStatePeriod?.name !== "Finalizado" &&
     periodToModify.value.idStatePeriod?.name !== "Por definir"
   ) {
-    console.log(periodToModify.value.id);
     getStudentsPeriod(periodToModify.value.id);
   }
 }
 
-async function getStudentsPeriod(idPeriod) {
-  const response = await serviceTuition.getTuitionsStudentByPeriod(idPeriod);
+async function getStudentsPeriod(idPeriod: number) {
+  console.log(idPeriod);
+  const description = ref(
+    store.user.teacher.teachingCareer[0].centerCareer.career.id
+  );
+  const response = await serviceTuition.getTuitionsStudentByPeriodAndDepartment(
+    idPeriod,
+    description.value
+  );
+  console.log(response);
   originalStudents.value = response.registrations;
+  console.log(originalStudents.value);
   students.value = [...originalStudents.value]; // Actualizar la lista students
 }
 
