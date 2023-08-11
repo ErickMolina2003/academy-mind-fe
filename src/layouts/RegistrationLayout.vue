@@ -97,8 +97,8 @@ const registrationOptions = ref([
         to: "/lista-espera",
       },
       {
-        name: "Cacelar Asignatura en Lista de Espera",
-        to: "/cancelar-lista",
+        name: "Cancelar Asignatura en Lista de Espera",
+        to: "/cancelar-asignatura-lista-espera",
       },
       {
         name: "Estado de Cuenta",
