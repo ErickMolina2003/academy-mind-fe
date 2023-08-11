@@ -1,222 +1,217 @@
 <template>
-  <div>
-    <SearchableNavBar :title="myTitle" :label="myLabel" />
-    <table class="table-scroll">
-      <thead>
-        <tr>
-          <th class="text-center">cod.</th>
-          <th class="text-center">Asignatura</th>
-          <th class="text-center">Sección</th>
-          <th class="text-center">En espera</th>
-          <th class="text-center">Seleccione</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in filteredSubject" :key="item.cod">
-          <td>{{ item.cod }}</td>
-          <td>{{ item.class }}</td>
-          <td>{{ item.section }}</td>
-          <td>{{ item.students.length }}</td>
-          <td style="width: 120px; height: 45px;">
-            <v-btn color="primary" text @click="openModal(item)">Ver</v-btn>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <v-dialog v-model="modalOpen" max-width="500">
-    <v-card>
-      <v-card-title>Detalles Asignatura</v-card-title>
-      <v-card-text>
-        <p><strong>Código:</strong> {{ selectedSubject.cod }} <strong> | Asignatura:</strong> {{ selectedSubject.class }} </p>
-        <p><strong>Sección:</strong> {{ selectedSubject.section }} <strong> | En espera:</strong> {{ selectedSubject.students.length }}</p>
-      </v-card-text>
-      <v-card-actions style="display: flex; justify-content: flex-end;">
-        <v-text-field
-          v-model="slotsToOpen"
-          label="Cupos a abrir"
-          type="number"
-          min="0"
-          :max="15"
-        ></v-text-field>
-        <v-btn style="display: flex; justify-content: flex-end;" @click="openSlots">Aperturar cupos</v-btn>
-      </v-card-actions>
-        <v-card>
-          <v-card-title class="text-center text-white" style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
-            <span class="headline ">Estudiantes en espera</span>
-          </v-card-title>
-          <v-card-text class="table-scroll">
-            <v-table>
-              <thead>
-                <tr>
-                  <th class="text-left text-black">Nombre</th>
-                  <th class="text-left text-black">Carrera</th>
-                  <th class="text-left text-black">Indice Global</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="student in selectedSubject.students" :key="student.name">
-                  <td>{{ student.name }}</td>
-                  <td>{{ student.career }}</td>
-                  <td>{{ student.index }}</td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-card-text>
-        </v-card>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="closeModal">Cerrar</v-btn>
-        </v-card-actions>
-    </v-card>
-  </v-dialog>
-  </div>
+    <div v-if="state">
+        <SearchableNavBar :title="myTitle" :label="myLabel" />
+        <div style="max-height: 350px; overflow-y: scroll;">
+
+
+            <table class="table-scroll">
+                <thead>
+                    <tr>
+                        <th class="text-center">Cód.</th>
+                        <th class="text-center">Asignatura</th>
+                        <th class="text-center">Sección</th>
+                        <th class="text-center">Seleccione</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in filteredSections" :key="item.idClass.code">
+                        <td>{{ item.idClass.code }}</td>
+                        <td>{{ item.idClass.name }}</td>
+                        <td>{{ item.codeSection }}</td>
+                        <td>
+                            <v-icon @click="openModal(item)">{{ 'mdi-pencil' }}</v-icon>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <v-dialog v-model="modalOpen" max-width="500">
+            <v-card>
+                <v-card-title>Detalles Asignatura</v-card-title>
+                <v-card-text>
+                    <v-row>
+                        <v-col class="pa-0 pb-1" cols="4">
+                            <strong>Código:</strong> {{ selectedSection.idClass.code }}
+                        </v-col>
+                        <v-col class="pa-0 pb-1">
+                            <strong>Asignatura:</strong> {{ selectedSection.idClass.name }}
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col class="pa-0 pb-1" cols="4">
+                            <strong>Sección:</strong> {{ selectedSection.codeSection }}
+                        </v-col>
+                        <v-col class="pa-0 pb-1">
+                            <strong>En espera:</strong>{{ studentsWaiting.length }}
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-card-actions style="display: flex; justify-content: flex-end;">
+                    <v-text-field v-model="slotsToOpen" label="Cupos a abrir" type="number" min="0"
+                        :max="15"></v-text-field>
+                    <v-btn style="display: flex; justify-content: flex-end;" @click="openSlots">Aperturar cupos</v-btn>
+                </v-card-actions>
+                <v-card>
+                    <v-card-title class="text-center text-white"
+                        style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
+                        <span class="headline ">Estudiantes en espera</span>
+                    </v-card-title>
+                    <v-card-text class="table-scroll">
+                        <v-table>
+                            <thead>
+                                <tr>
+                                    <th class="text-left text-black">Nombre</th>
+                                    <th class="text-left text-black">Número de Cuenta</th>
+                                    <th class="text-left text-black">Indice Global</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="student in studentsWaiting" :key="student.student.accountNumber">
+                                    <td class=" text-left">{{ student.student.user.firstName }} {{
+                                        student.student.user.firstLastName }}</td>
+                                    <td class=" text-left">{{ student.student.accountNumber }}</td>
+                                    <td class=" text-left">{{ student.student.periodIndex }}</td>
+                                </tr>
+                            </tbody>
+                        </v-table>
+                    </v-card-text>
+                </v-card>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue-darken-1" variant="text" @click="closeModal">Cerrar</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
-const myTitle = "Lista de espera";
-const myLabel = "Asignatura";
-const subject = ref([
-  {
-    cod: 'IS1',
-    class: 'Asignatura 1',
-    section: '0900',
-    waiting: 5,
-    selected: false,
-    students: [
-      {
-        name: 'Estudiante 1',
-        career: 'Carrera 1',
-        index: 80
-      },
-      {
-        name: 'Estudiante 2',
-        career: 'Carrera 2',
-        index: 90
-      },
-      {
-        name: 'Estudiante 3',
-        career: 'Carrera 3',
-        index: 85
-      }
-      
-    ]
-  },
-  {
-    cod: 'IS2',
-    class: 'Asignatura 2',
-    section: '1100',
-    waiting: 3,
-    selected: false,
-    students: [
-      {
-        name: 'Estudiante 4',
-        career: 'Carrera 4',
-        index: 75
-      },
-      {
-        name: 'Estudiante 5',
-        career: 'Carrera 5',
-        index: 92
-      },
-      {
-        name: 'Estudiante 6',
-        career: 'Carrera 6',
-        index: 88
-      }
-    ]
-  },
-  {
-    cod: 'IS2',
-    class: 'Asignatura 3',
-    section: '1000',
-    waiting: 3,
-    selected: false,
-    students: [
-      {
-        name: 'Estudiante 4',
-        career: 'Carrera 4',
-        index: 75
-      },
-      {
-        name: 'Estudiante 5',
-        career: 'Carrera 5',
-        index: 92
-      },
-      {
-        name: 'Estudiante 6',
-        career: 'Carrera 6',
-        index: 88
-      }
-    ]
-  },
-]);
+import { useAppStore } from "@/store/app";
+import SectionService from "@/services/section/section.service";
+import PeriodService from "@/services/period/period.service";
+import TuitionService from "@/services/tuition/tuition.service";
 
+
+const currentPeriod = ref({});
+
+const store = useAppStore();
+const sectionService = new SectionService();
+const servicePeriod = new PeriodService();
+const serviceTuition = new TuitionService();
+const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
+const myTitle = "Listas de espera";
+const myLabel = "Asignatura";
+const studentsWaiting = ref([]);
+const waitingList = ref([]);
 const modalOpen = ref(false);
-const selectedSubject = ref(null);
+const selectedSection = ref(null);
 const slotsToOpen = ref(0);
 const searchQuery = ref("");
+const state = ref(false);
 onMounted(() => {
 
-  document.addEventListener("filter", (event) => {
-    searchQuery.value = event.detail;
-  });
+    getPeriods();
+    document.addEventListener("filter", (event) => {
+        searchQuery.value = event.detail;
+    });
 
-  document.addEventListener("resetFilter", () => {
-    searchQuery.value = "";
-  });
+    document.addEventListener("resetFilter", () => {
+        searchQuery.value = "";
+    });
 });
 
+async function getPeriods() {
+    const response = await servicePeriod.getPeriodRegistrationPlanification();
+    currentPeriod.value = response.periods[0];
+    state.value = currentPeriod.value.idStatePeriod?.name === 'Matricula' || currentPeriod.value.idStatePeriod?.name === 'Planificacion'
+
+    if (state.value) {
+        getWaitingList();
+    } else {
+        store.setToaster({
+            isActive: true,
+            text: "El periodo actual no está en estado de planificación académica o en matricula.",
+            color: "error",
+        });
+    }
+
+}
+
+async function getWaitingList() {
+    const response = await sectionService.getWaitingList(careerBoss.career.id);
+    waitingList.value = response.waitingListSections;
+}
+
+async function getWaitingStudents(section) {
+    const response = await serviceTuition.getStudentsInWaitingList(section);
+    studentsWaiting.value = response.registration;
+}
+
 const openModal = (item) => {
-  selectedSubject.value = item;
-  slotsToOpen.value = 0;
-  modalOpen.value = true;
+    selectedSection.value = item;
+    slotsToOpen.value = 0;
+    getWaitingStudents(item.id);
+    modalOpen.value = true;
 };
 
 const closeModal = () => {
-  modalOpen.value = false;
+    modalOpen.value = false;
 };
 
-const openSlots = () => {
-  if (selectedSubject.value && slotsToOpen.value > 0) {
-    const studentsToRemove = selectedSubject.value.students.splice(0, slotsToOpen.value);
-    // Lógica para asignar a la asignatura
-  }
-  closeModal();
+async function openSlots() {
+    if (selectedSection.value && slotsToOpen.value > 0) {
+        
+        let spaceNow = parseInt(selectedSection.value.space) + parseInt(slotsToOpen.value)
+        await sectionService.updateSections(selectedSection.value.id,
+            {
+                space: String(spaceNow)
+            });
+        store.setToaster({
+            isActive: true,
+            text: "Estudiantes en espera han sido matriculados en la sección.",
+            color: "success",
+        });
+        getWaitingStudents(selectedSection.value.id);
+    }
+    slotsToOpen.value = 0;
+
 };
 
-const filteredSubject = computed(() => {
-  const searchQueryValue = searchQuery.value.toLowerCase().trim();
-  if (!searchQueryValue) {
-    return subject.value;
-  } else {
-    return subject.value.filter((item) =>
-      item.class.toLowerCase().includes(searchQueryValue)
-    );
-  }
+const filteredSections = computed(() => {
+    const searchQueryValue = searchQuery.value.toLowerCase().trim();
+    if (!searchQueryValue) {
+        return waitingList.value;
+    } else {
+        return waitingList.value.filter((item) =>
+            item.idClass.name.toLowerCase().includes(searchQueryValue)
+        );
+    }
 });
 </script>
 
 <style>
 .table-scroll {
-  max-height: 400px;
-  overflow-y: auto;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 th,
 td {
-  padding: 8px;
-  border-bottom: 2px solid #ddd;
-  text-align: center;
+    padding: 8px;
+    border-bottom: 2px solid #ddd;
+    text-align: center;
 }
 
 th {
-  background-color: #f2f2f2;
+    background-color: #f2f2f2;
 }
 </style>

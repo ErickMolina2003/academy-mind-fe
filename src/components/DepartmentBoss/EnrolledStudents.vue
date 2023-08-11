@@ -52,9 +52,14 @@ import { onMounted, ref, computed, watch } from "vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import PeriodService from "@/services/period/period.service";
 import TuitionService from "@/services/tuition/tuition.service";
+import { useAppStore } from "@/store/app";
 
+const store = useAppStore();
+const sectionService = new SectionService();
 const servicePeriod = new PeriodService();
 const serviceTuition = new TuitionService();
+const periods = ref([]);
+const currentPeriod = ref({});
 const originalStudents = ref([]);
 const students = ref([]);
 const periods = ref([]);

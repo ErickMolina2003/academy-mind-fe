@@ -1,10 +1,10 @@
 <template>
-    <v-container v-if="state === 'Planificacion' || state === 'Matricula'" class="pa-1">
-        <SearchableNavBar title="Crear secciones" label="Cód.Asignatura" btnTitle="Crear sección"
+    <v-container v-if="state" class="pa-1">
+        <SearchableNavBar title="Crear secciones" label="Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
-
-        <div>
             <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
+        <div style="max-height: 350px; overflow-y: scroll;">
+            
             <table>
                 <thead>
                     <tr>
@@ -19,11 +19,13 @@
                         <th>Edificio</th>
                         <th>Aula</th>
                         <th>Cupos</th>
+                        <th>Cupos en espera</th>
                         <th>Actualizar</th>
+                        <th>En espera</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="section in sections">
+                    <tr v-for="section in filteredSections">
                         <td>{{ section.idClass.code }}</td>
                         <td>{{ section.idClass.name }}</td>
                         <td>{{ section.codeSection }}</td>
@@ -35,7 +37,12 @@
                         <td>{{ section.idClassroom.idBuilding.name }}</td>
                         <td>{{ section.idClassroom.code }}</td>
                         <td>{{ section.space }}</td>
-                        <td><v-btn @click="openModifyModal(section)" style="font-size: .6rem;">Actualizar</v-btn></td>
+                        <td>{{ section.waitingSpace }}</td>
+                        <td><v-icon @click="openModifyModal(section)">{{ 'mdi-pencil' }}</v-icon></td>
+                        <td>
+                            <input type="checkbox" v-if="section.waitingList == 'true'" checked disabled>
+                            <input type="checkbox" v-else disabled>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -72,7 +79,7 @@
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-autocomplete v-model="selectedTeacher"
-                            :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)"
+                            :items="teachers.map((item) => `${item.teacher.user.firstName} ${item.teacher.user.firstLastName} ${item.teacher.employeeNumber}`)"
                             label="Elija un docente" return-object :rules="[rules.required]"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -85,7 +92,11 @@
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-text-field v-model="seats" type="number" label="Cupos" :rules="seatsRules"
-                            min="15"></v-text-field>
+                            min="5"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                        <v-text-field v-model="waitingSpace" type="number" label="Cupos en espera" :rules="seatsRules"
+                            min="5"></v-text-field>
                     </v-col>
                 </v-row>
             </v-form>
@@ -113,7 +124,7 @@
                 <v-row>
                     <v-col cols="12" sm="6">
                         <v-autocomplete v-model="modifyTeacher"
-                            :items="teachers.map((teacher) => `${teacher.user.firstName} ${teacher.user.firstLastName} ${teacher.employeeNumber}`)"
+                            :items="teachers.map((item) => `${item.teacher.user.firstName} ${item.teacher.user.firstLastName} ${item.teacher.employeeNumber}`)"
                             label="Cambiar un docente" return-object></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -138,7 +149,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import ClassService from "@/services/classes/classes.service";
 import TeacherService from "@/services/teacher/teacher.service";
@@ -175,41 +186,58 @@ const selectedBuilding = ref("");
 const classRooms = ref([]);
 const selectedClassroom = ref("");
 const seats = ref("");
+const waitingSpace = ref("");
 const assignedSection = ref("");
 const teachers = ref([]);
 const classNames = ref([]);
 const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
 const buildings = ref([]);
 const buildingsName = ref([]);
+const searchQuery = ref("");
 const classroomsNames = ref([]);
-const periodData = ref();
-const state = ref('');
+const periods = ref([]);
+const periodToModify = ref({});
+const state = ref(false);
 //Modificar
 const modifyTeacher = ref("");
 const modifySeats = ref(0);
-const seatsIncrement = 1;
 const sectionToModify = ref();
 
-onMounted(async () => {
+onMounted(() => {
+    getPeriods();
+    document.addEventListener("filter", (event) => {
+        searchQuery.value = event.detail;
+    });
 
-    periodData.value = await getRecentPeriod();
-    state.value = periodData.value.idStatePeriod.name;
-    
-    if (state.value == 'Planificacion' || state.value === 'Matricula') {
+    document.addEventListener("resetFilter", () => {
+        searchQuery.value = "";
+    });
+
+});
+
+async function getPeriods() {
+    const response = await servicePeriod.getPeriodRegistrationPlanification();
+    periods.value = response.periods;
+    periodToModify.value = periods.value[0];
+
+    state.value = periodToModify.value.idStatePeriod?.name === 'Matricula' || periodToModify.value.idStatePeriod?.name === 'Planificacion'
+
+    if (state.value) {
+
         getSections();
         getClassesOptions(careerBoss.career.id);
         getTeachersOptions();
+
         getBuildingsOptions(careerBoss.regionalCenter.id);
     } else {
-
         store.setToaster({
             isActive: true,
-            text: "El perido actual no está en estado de planificación académica.",
+            text: "El periodo actual no está en estado de planificación académica o en matricula.",
             color: "error",
         });
     }
 
-});
+}
 
 const daysOptions = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "LuMa", "LuMi", "LuJu", "LuVi", "LuSa", "MaMi", "MaJu", "MaVi", "MaSa", "MiJu", "MiVi", "MiSa", "JuVi", "JuSa", "ViSa", "LuMaMi", "LuMaJu", "LuMaVi", "LuMaSa", "LuMiJu", "LuMiVi", "LuMiSa", "LuJuVi", "LuJuSa", "LuViSa", "MaMiJu", "MaMiVi", "MaMiSa", "MaJuVi", "MaJuSa", "MaViSa", "MiJuVi", "MiJuSa", "MiViSa", "JuViSa", "LuMaMiJu", "LuMaMiVi", "LuMaMiSa", "LuMaJuVi", "LuMaJuSa", "LuMaViSa", "LuMiJuVi", "LuMiJuSa", "LuMiViSa", "LuJuViSa", "MaMiJuVi", "MaMiJuSa", "MaMiViSa", "MaJuViSa", "MiJuViSa", "LuMaMiJuVi", "LuMaMiJuSa", "LuMaMiViSa", "LuMaJuViSa", "LuMiJuViSa", "MaMiJuViSa", "LuMaMiJuViSa"];
 
@@ -219,41 +247,17 @@ const journey = computed(() => {
     return daysOptions.filter((dayOption) => dayOption.length === units.value * 2 || dayOption.length === 2)
 });
 
-async function getRecentPeriod() {
-    let mostRecentPeriod = null;
-
-    const response = await servicePeriod.getPeriods();
-
-    const periods = response.periods;
-
-
-    // Filtrar el periodo más reciente basado en el año y número de periodo
-    const currentYear = new Date().getFullYear();
-    const mostRecentYear = Math.max(...periods.map((period) => period.year));
-    const mostRecentPeriodNumber = Math.max(
-        ...periods
-            .filter((period) => period.year === mostRecentYear)
-            .map((period) => period.numberPeriod)
-    );
-
-    mostRecentPeriod = periods.find(
-        (period) =>
-            period.year === mostRecentYear && period.numberPeriod === mostRecentPeriodNumber
-    );
-
-    return mostRecentPeriod;
-};
-
 
 async function getSections() {
-    const response = await sectionService.getSections();
+    const response = await sectionService.getSectionsByDepartment(careerBoss.career.id);
     sections.value = response.sections;
 }
 
 function getTeacherSection(idTeacher) {
     if (idTeacher) {
-        let teacher = teachers.value.find(teacher => teacher.employeeNumber === idTeacher);
-        return teacher?.user.firstName + " " + teacher?.user.firstLastName;
+        let teacher = teachers.value.find(item => item.teacher.employeeNumber === idTeacher);
+
+        return teacher?.teacher.user.firstName + " " + teacher?.teacher.user.firstLastName;
     }
     return;
 }
@@ -266,16 +270,15 @@ async function getBuildingsOptions(centerId) {
 
 
 async function getClassesOptions(id) {
-    const response = await serviceClasses.getClassesByCareer(id);
-
-    classNames.value = response.classes;
+    const response = await serviceClasses.getClassesByDepartment(careerBoss.career.id);
+    classNames.value = response.departmentClasses;
 }
 async function getTeachersOptions() {
-    const response = await teacherService.getTeachers();
-    const data = response.teachers;
-
-    teachers.value = data.filter((teacher) => teacher.teachingCareer[0].centerCareer.career.id === careerBoss.career.id)
-
+    const response = await teacherService.getTeacherByCareerAndCenter(
+        careerBoss.career.id,
+        careerBoss.regionalCenter.id
+    )
+    teachers.value = response.teachers;
 }
 
 // Función para generar las opciones de horas en formato "0600" a "1900"
@@ -291,7 +294,6 @@ const generateHourOptions = () => {
 function clearModifyForm() {
     const modifyTeacher = "";
     const modifySeats = 0;
-    const seatsIncrement = 1;
 }
 
 function closeModal() {
@@ -318,22 +320,24 @@ function clear() {
     selectedBuilding.value = "";
     selectedClassroom.value = "";
     seats.value = "";
+    waitingSpace.value = "";
+
 }
 
 async function submitSection() {
     if (!isCreateValid.value) return;
 
-    let teacher = selectedTeacher.value.split(" ");
-    let classSelected = classNames.value.find(className => className.code = code.value);
+    let [...teacher] = selectedTeacher.value.split(" ");
+    let classSelected = classNames.value.find(className => className.code === code.value);
     let classroom = classRooms.value.find((classroom) => classroom.code === selectedClassroom.value);
-    console.log(periodData.value.id)
 
     await sectionService.createSection(
         {
-            "idPeriod": periodData.value.id,
+            "idPeriod": periodToModify.value.id,
             "idClass": parseInt(classSelected.id),
-            "idTeacher": teacher[2],
+            "idTeacher": teacher[teacher.length - 1],
             "space": seats.value,
+            "waitingSpace": waitingSpace.value,
             "days": selectedDays.value,
             "idClassroom": classroom.id,
             "hour": initialHour.value,
@@ -345,6 +349,17 @@ async function submitSection() {
     showCreateModal.value = false;
     clear();
 }
+
+const filteredSections = computed(() => {
+    const searchQueryValue = searchQuery.value.toLowerCase().trim();
+    if (!searchQueryValue) {
+        return sections.value;
+    } else {
+        return sections.value.filter((item) =>
+            item.idClass.name.toLowerCase().includes(searchQueryValue)
+        );
+    }
+});
 
 //Modal modificar
 async function openModifyModal(section) {
@@ -362,16 +377,14 @@ async function modifySection() {
         return;
     }
 
-
-    
     let teacher = [];
     if (modifyTeacher.value) {
-        let teacher = modifyTeacher.value.split(" ");
-        
+        let [...teacher] = modifyTeacher.value.split(" ");
+
         if (teacher.length > 0) {
             await sectionService.updateSections(sectionToModify.value.id,
                 {
-                    idTeacher: teacher[2]
+                    idTeacher: teacher[teacher.length - 1]
                 })
             modifyTeacher.value = "";
         }
@@ -393,18 +406,14 @@ async function modifySection() {
 
 
 //Al seleccionar una clase, se asignan las unidades valorativas
-watch(selectedClass, async (newValue) => {
+watch(selectedClass, (newValue) => {
     if (newValue) {
         [code.value] = selectedClass.value.split(" ");
-        // selectedClass.value = classNames.value.find(className => className.code = code.value);
-        units.value = classNames.value.find(className => className.code = code.value).valueUnits;
-
+        units.value = classNames.value.find(className => className.code === code.value).valueUnits;
         initialHour.value = "";
         finalHour.value = "";
         selectedDays.value = [];
     }
-
-
 })
 
 // Reiniciar el valor de selectedDays cuando cambian unidades valorativas
@@ -468,7 +477,7 @@ const rules = {
 
 const seatsRules = [
     (value) => !!value || "Campo obligatorio.",
-    (value) => !isNaN(value) && value >= 15 || "Debe ingresar un número mayor o igual a 15."
+    (value) => !isNaN(value) && value >= 5 || "Debe ingresar un número mayor o igual a 5."
 ];
 
 const initialHourRules = [
@@ -484,6 +493,11 @@ const unitsRules = [
 </script>
 
 <style scoped>
+td,
+th {
+    padding: 0;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -492,7 +506,7 @@ table {
 
 th,
 td {
-    padding: 8px;
+    padding: 8px 5px;
     border-bottom: 2px solid #ddd;
     text-align: center;
 }
