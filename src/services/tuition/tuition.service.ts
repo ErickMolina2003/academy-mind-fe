@@ -120,6 +120,72 @@ export default class TuitionService {
     }
   }
 
+  // Obtener clases matriculadas de un estudiante y unidades valorativas
+  async getTuitionsAndUV(idStudent: string) {
+    const url = `http://localhost:3001/api/tuition/registration/${idStudent}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        if (data.statusCode !== 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
+        }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  async validateRegistrationDate(idStudent: string) {
+    const url = `http://localhost:3001/api/tuition/tuition-validation/${idStudent}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
   async getTuitionsBySection(idSection: string) {
     const url = `http://localhost:3001/api/tuition/section/${idSection}`;
     try {
@@ -209,6 +275,7 @@ export default class TuitionService {
       return error;
     }
   }
+
   async getTuitionsStudentByPeriod(idPeriod: number) {
     const url = `http://localhost:3001/api/tuition/period-students/${idPeriod}`;
     try {
@@ -239,6 +306,43 @@ export default class TuitionService {
       this.store.setToaster({
         isActive: true,
         text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  // Obtener los estudiantes en una seccion en espera
+  async getStudentsInWaitingList(idSection: number) {
+    const url = `http://localhost:3001/api/tuition/waiting-section/${idSection}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        if (data.statusCode !== 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
+        }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
         color: "error",
       });
       return error;
