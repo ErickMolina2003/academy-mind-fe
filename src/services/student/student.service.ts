@@ -16,16 +16,25 @@ export default class StudentService {
 
       if (response.status === 201) {
         const data = await response.data;
-        if (data.statusCode === 200) {
+        const failedStudents = data.filter((student: any) => !student.success);
+        if (failedStudents.length <= 0) {
           this.store.setToaster({
             isActive: true,
             text: "Estudiantes creados con éxito.",
             color: "success",
           });
         } else {
+          let numberFile = failedStudents.length;
+          let successFile = students.length - numberFile;
+          let text = ``;
+          if (successFile == 0) {
+            text = `No se crearon estudiantes. Por favor, inténtelo de nuevo más tarde.`;
+          } else {
+            text = `Se crearon ${successFile} estudiantes y ${numberFile} no se pudieron crear. Por favor, inténtelo de nuevo más tarde.`;
+          }
           this.store.setToaster({
             isActive: true,
-            text: "Error al crear todos estudiantes. Por favor, inténtelo de nuevo más tarde",
+            text: `${text}`,
             color: "error",
           });
         }

@@ -473,13 +473,13 @@ async function submitModal() {
             phone: student.Telefono,
             regionalCenter: center.id,
           });
-          const studentService = new StudentService();
-          const response = await studentService.createStudents(newStudents);
-          if (response) {
-            closeModal();
-          }
         }
       });
+      const studentService = new StudentService();
+      const response = await studentService.createStudents(newStudents);
+      if (response) {
+        closeModal();
+      }
     }
   }
   if (router.fullPath === "/docentes") {
