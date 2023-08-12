@@ -65,6 +65,11 @@ const teacherOptions = ref([
     name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
+  },
+  {
+    name: "Ingresar Notas",
+    to: "/ingresar-notas",
+    icon: "mdi-lead-pencil",
   }
 ]);
 
@@ -100,6 +105,11 @@ const bossAcademicOptions = ref([
     name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
+  },
+  {
+    name: "Ingresar Notas",
+    to: "/ingresar-notas",
+    icon: "mdi-lead-pencil",
   },
   {
     name: "Historial Estudiantil",
