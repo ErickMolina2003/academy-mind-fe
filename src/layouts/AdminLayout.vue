@@ -1,7 +1,11 @@
 <template>
   <v-container>
-    <NavBar v-if="router.fullPath !== '/estados-periodo'" :title="getNavBarTitles.title"
-      :btnTitle="getNavBarTitles.btnTitle" @createUser="toggleModal" />
+    <NavBar
+      v-if="router.fullPath !== '/estados-periodo'"
+      :title="getNavBarTitles.title"
+      :btnTitle="getNavBarTitles.btnTitle"
+      @createUser="toggleModal"
+    />
     <router-view></router-view>
     <v-dialog v-model="showModal" persistent width="1440">
       <v-card>
@@ -12,11 +16,27 @@
           <v-container>
             <v-row v-if="getNavBarTitles.title === 'Estudiantes'">
               <v-col cols="12" md="11" lg="11">
-                <v-file-input v-model="files" :disabled="files.length > 0" color="secondary-lighthen-1"
-                  label="Subir archivo" prepend-icon="mdi-paperclip" variant="outlined" :show-size="1000">
+                <v-file-input
+                  v-model="files"
+                  :disabled="files.length > 0"
+                  color="secondary-lighthen-1"
+                  label="Subir archivo"
+                  prepend-icon="mdi-paperclip"
+                  variant="outlined"
+                  :show-size="1000"
+                >
                   <template v-slot:selection="{ fileNames }">
-                    <template v-for="(fileName, index) in fileNames" :key="fileName">
-                      <v-chip v-if="index < 2" color="secondary-lighthen-1" label size="small" class="me-2">
+                    <template
+                      v-for="(fileName, index) in fileNames"
+                      :key="fileName"
+                    >
+                      <v-chip
+                        v-if="index < 2"
+                        color="secondary-lighthen-1"
+                        label
+                        size="small"
+                        class="me-2"
+                      >
                         {{ fileName }}
                       </v-chip>
                     </template>
@@ -24,9 +44,18 @@
                 </v-file-input>
               </v-col>
               <v-col cols="1" md="1" lg="1" class="mt-5">
-                <v-icon :color="files.length === 1 ? 'error' : ''" @click="files = []">mdi-close-circle-outline</v-icon>
+                <v-icon
+                  :color="files.length === 1 ? 'error' : ''"
+                  @click="files = []"
+                  >mdi-close-circle-outline</v-icon
+                >
               </v-col>
-              <v-col cols="12" md="12" lg="12" v-if="files.length > 0 && !invalidCsv">
+              <v-col
+                cols="12"
+                md="12"
+                lg="12"
+                v-if="files.length > 0 && !invalidCsv"
+              >
                 <h5 class="text-success">
                   Se encontraron {{ csvData?.length }} nuevos estudiantes por
                   agregar.
@@ -36,12 +65,22 @@
                   con datos incorrectos.
                 </h5>
               </v-col>
-              <v-col v-if="(files.length > 0 && !invalidCsv) || csvDataFailed?.length > 0
-                " cols="12" md="12" lg="12">
+              <v-col
+                v-if="
+                  (files.length > 0 && !invalidCsv) || csvDataFailed?.length > 0
+                "
+                cols="12"
+                md="12"
+                lg="12"
+              >
                 <v-table fixed-header height="600px">
                   <thead>
                     <tr>
-                      <th class="text-left" v-for="head in csvHeaders" :key="head">
+                      <th
+                        class="text-left"
+                        v-for="head in csvHeaders"
+                        :key="head"
+                      >
                         {{ head }}
                       </th>
                     </tr>
@@ -55,9 +94,12 @@
                       <td>{{ data.Centro_regional.toUpperCase() }}</td>
                       <td>{{ data.dni }}</td>
                       <td>{{ data.Telefono }}</td>
-                      <td>{{ data.Nota }}</td>
                     </tr>
-                    <tr v-for="data in csvDataFailed" :key="data.nombre" class="error-row">
+                    <tr
+                      v-for="data in csvDataFailed"
+                      :key="data.nombre"
+                      class="error-row"
+                    >
                       <td>{{ data.Nombre }}</td>
                       <td>{{ data.Carrera.toUpperCase() }}</td>
                       <td>{{ data.Direccion }}</td>
@@ -65,14 +107,17 @@
                       <td>{{ data.Centro_regional.toUpperCase() }}</td>
                       <td>{{ data.dni }}</td>
                       <td>{{ data.Telefono }}</td>
-                      <td>{{ data.Nota }}</td>
                     </tr>
                   </tbody>
                 </v-table>
               </v-col>
-              <v-row v-if="getNavBarTitles.title === 'Estudiantes' &&
-                csvDataFailed?.length > 0
-                " justify="center">
+              <v-row
+                v-if="
+                  getNavBarTitles.title === 'Estudiantes' &&
+                  csvDataFailed?.length > 0
+                "
+                justify="center"
+              >
                 <v-col cols="auto" md="auto" lg="auto">
                   <h5 class="text-error">
                     Al guardar, no se crearán los estudiantes con datos
@@ -82,58 +127,111 @@
               </v-row>
             </v-row>
 
-            <v-form v-if="getNavBarTitles.title === 'Docentes'" v-model="form" @submit.prevent="submitModal">
+            <v-form
+              v-if="getNavBarTitles.title === 'Docentes'"
+              v-model="form"
+              @submit.prevent="submitModal"
+            >
               <v-row>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="firstName" type="text" :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]" label="Primer Nombre" required></v-text-field>
+                  <v-text-field
+                    v-model="firstName"
+                    type="text"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Primer Nombre"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="middleName" :rules="[nameRules.numbers, nameRules.validate]"
-                    label="Segundo Nombre" required></v-text-field>
+                  <v-text-field
+                    v-model="middleName"
+                    :rules="[nameRules.numbers, nameRules.validate]"
+                    label="Segundo Nombre"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="firstLastName" :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]" label="Primer Apellido" required></v-text-field>
+                  <v-text-field
+                    v-model="firstLastName"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Primer Apellido"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="secondLastName" :rules="[
-                    nameRules.required,
-                    nameRules.numbers,
-                    nameRules.validate,
-                  ]" label="Segundo Apellido" required></v-text-field>
+                  <v-text-field
+                    v-model="secondLastName"
+                    :rules="[
+                      nameRules.required,
+                      nameRules.numbers,
+                      nameRules.validate,
+                    ]"
+                    label="Segundo Apellido"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="dni" :rules="[
-                    nameRules.required,
-                    dniRules.numbersOnly,
-                    dniRules.size,
-                  ]" label="DNI" :counter="13" required></v-text-field>
+                  <v-text-field
+                    v-model="dni"
+                    :rules="[
+                      nameRules.required,
+                      dniRules.numbersOnly,
+                      dniRules.size,
+                    ]"
+                    label="DNI"
+                    :counter="13"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="email" :rules="[nameRules.required, emailRules.validate]" type="email"
-                    label="Correo" hint="Ejemplo: usuario123@gmail.com" persistent-hint required></v-text-field>
+                  <v-text-field
+                    v-model="email"
+                    :rules="[nameRules.required, emailRules.validate]"
+                    type="email"
+                    label="Correo"
+                    hint="Ejemplo: usuario123@gmail.com"
+                    persistent-hint
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="phone" :rules="[nameRules.required, phoneRules.validate]" label="Teléfono"
-                    required></v-text-field>
+                  <v-text-field
+                    v-model="phone"
+                    :rules="[nameRules.required, phoneRules.validate]"
+                    label="Teléfono"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="address" :rules="[nameRules.required, addressRules.validate]" label="Ubicación"
-                    required></v-text-field>
+                  <v-text-field
+                    v-model="address"
+                    :rules="[nameRules.required, addressRules.validate]"
+                    label="Ubicación"
+                    required
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-select v-model="role" :rules="[nameRules.required]" :items="[
-                    'Docente',
-                    'Coordinadores',
-                    'Jefe de Departamento',
-                  ]" density="comfortable" clearable required label="Puesto"></v-select>
+                  <v-select
+                    v-model="role"
+                    :rules="[nameRules.required]"
+                    :items="[
+                      'Docente',
+                      'Coordinadores',
+                      'Jefe de Departamento',
+                    ]"
+                    density="comfortable"
+                    clearable
+                    required
+                    label="Puesto"
+                  ></v-select>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-autocomplete
@@ -159,7 +257,12 @@
                   ></v-autocomplete>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-file-input chips prepend-icon="mdi-camera" accept="image/*" v-model="uploadImage"></v-file-input>
+                  <v-file-input
+                    chips
+                    prepend-icon="mdi-camera"
+                    accept="image/*"
+                    v-model="uploadImage"
+                  ></v-file-input>
                 </v-col>
               </v-row>
             </v-form>
@@ -209,17 +312,18 @@ const selectedCenterRegionalId = ref("");
 const selectedCareerId = ref("");
 const filterCareer = ref([]);
 
-
 onMounted(async () => {
   centers.value = await centerService.getCenters();
   careers.value = await careerService.getCareers();
-})
+});
 
-watch (selectedCenterRegionalId, async (newvalue) => {
+watch(selectedCenterRegionalId, async (newvalue) => {
   let center = getCenter(newvalue);
   careersbyCenter.value = await careerService.getCareerByCenter(center.id);
-  filterCareer.value = careersbyCenter.value.careersCenter[`${center.id}`].careers.map((career) => career.name);
-})
+  filterCareer.value = careersbyCenter.value.careersCenter[
+    `${center.id}`
+  ].careers.map((career) => career.name);
+});
 
 const firstName = ref("");
 const middleName = ref("");
@@ -284,7 +388,6 @@ const csvHeaders = [
   "Centro regional",
   "dni",
   "Telefono",
-  "Nota",
 ];
 const invalidCsv = ref(false);
 const errorMessage = ref("");
@@ -343,9 +446,8 @@ async function submitModal() {
     if (invalidCsv.value) return;
 
     if (csvData.value && csvData.value?.length > 0) {
-
       const newStudents = [];
-      csvData.value.forEach((student) => {
+      csvData.value.forEach(async (student) => {
         let career = getCareer(student.Carrera);
         let center = getCenter(student.Centro_regional);
         if (!career || !center) {
@@ -369,15 +471,15 @@ async function submitModal() {
             address: student.Direccion,
             career: career.id,
             phone: student.Telefono,
-            incomeNote: student.Nota,
             regionalCenter: center.id,
           });
-          const studentService = new StudentService();
-
-          studentService.createStudents(newStudents);
         }
       });
-      closeModal();
+      const studentService = new StudentService();
+      const response = await studentService.createStudents(newStudents);
+      if (response) {
+        closeModal();
+      }
     }
   }
   if (router.fullPath === "/docentes") {
@@ -427,10 +529,14 @@ async function submitModal() {
 }
 
 function getCareer(nameCareer: string) {
-  return careers.value.careers.find((career) => career.name === nameCareer.toUpperCase());
+  return careers.value.careers.find(
+    (career) => career.name === nameCareer.toUpperCase()
+  );
 }
 function getCenter(nameCenter: string) {
-  return centers.value.careers.find((center) => center.name === nameCenter.toUpperCase());
+  return centers.value.careers.find(
+    (center) => center.name === nameCenter.toUpperCase()
+  );
 }
 async function uploadingImage() {
   if (!uploadImage.value) return;
@@ -527,7 +633,6 @@ watch(invalidCsv, () => {
     setToaster(true, errorMessage.value, "error");
   }
 });
-
 
 function setToaster(isActive: boolean, text: string, color: string) {
   store.setToaster({
