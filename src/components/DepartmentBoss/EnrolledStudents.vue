@@ -84,7 +84,6 @@ async function getPeriods() {
 }
 
 async function getStudentsPeriod(idPeriod: number) {
-  console.log(idPeriod);
   const description = ref(
     store.user.teacher.teachingCareer[0].centerCareer.career.id
   );
@@ -92,9 +91,7 @@ async function getStudentsPeriod(idPeriod: number) {
     idPeriod,
     description.value
   );
-  console.log(response);
   originalStudents.value = response.registrations;
-  console.log(originalStudents.value);
   students.value = [...originalStudents.value]; // Actualizar la lista students
 }
 
