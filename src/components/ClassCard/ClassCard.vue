@@ -41,10 +41,21 @@
         }}</v-btn>
       </v-card-actions>
       <v-card-actions
-        @click="$emit('video', true, videoTeacher)"
+        @click="
+          $emit(
+            'perfil',
+            true,
+            videoTeacher,
+            teacherPicture,
+            teacherName,
+            teacherEmail,
+            teacherInstEmail,
+            teacherDescription
+          )
+        "
         v-if="docente"
         class="mb-1 mt-0 pt-0"
-        style="background-color: #ffffff1b; width: 100%"
+        style="background-color: #ffffff1b; width: 100%; cursor: pointer"
       >
         <v-list-item class="w-100">
           <template v-slot:prepend>
@@ -80,6 +91,10 @@ defineProps<{
   sectionId?: string; // Prop opcional para el id de la sección
   videoTeacher?: string; // Prop opcional para mostrar el video del docente
   teacherPicture?: string; // Prop opcional para mostrar la foto del docente
+  teacherName?: string; // Prop opcional para mostrar el nombre del docente
+  teacherEmail?: string; // Prop opcional para mostrar el correo del docente
+  teacherInstEmail?: string; // Prop opcional para mostrar el correo institucional del docente
+  teacherDescription?: string; // Prop opcional para mostrar la descripción del docente
 }>();
 </script>
 
