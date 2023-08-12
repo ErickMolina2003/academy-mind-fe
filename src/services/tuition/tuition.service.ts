@@ -132,39 +132,41 @@ export default class TuitionService {
       if (response.status === 200) {
         const data = await response.data;
 
-        if (data.statusCode !== 200) {
-          this.store.setToaster({
-            isActive: true,
-            text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-            color: "error",
-          });
-        }
-        return data;
-      } else {
-        this.store.setToaster({
-          isActive: true,
-          text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-          color: "error",
-        });
-      }
-    } catch (error) {
-      this.store.setToaster({
-        isActive: true,
-        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-        color: "error",
-      });
-      return error;
-    }
-  }
+                if (data.statusCode !== 200) {
 
-  //Validar el dia de matricula del estudiante
-  async validateRegistrationDate(idStudent: string) {
-    const url = `http://localhost:3001/api/tuition/tuition-validation/${idStudent}`;
-    try {
-      const response = await axios({
-        method: "GET",
-        url: url,
-      });
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+    }
+
+    //Validar el dia de matricula del estudiante
+    async validateRegistrationDate(idStudent: string) {
+
+        const url = `http://localhost:3001/api/tuition/tuition-validation/${idStudent}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
 
       if (response.status === 200) {
         const data = await response.data;
@@ -192,7 +194,7 @@ export default class TuitionService {
     try {
       const response = await axios({
         method: "GET",
-        url: url,
+        url: url
       });
 
       if (response.status === 200) {
@@ -386,159 +388,128 @@ export default class TuitionService {
     }
   }
 
-  //Obtener todas las notas de un estudiante en el periodo de ingreso de notas
-  async getGradesOfStudent(idStudent: string) {
-    const url = `http://localhost:3001/api/tuition/student-grades/${idStudent}`;
-    try {
-      const response = await axios({
-        method: "GET",
-        url: url,
-      });
+    //Obtener todas las notas de un estudiante en el periodo de ingreso de notas
+    async getGradesOfStudent(idStudent: string) {
 
-      if (response.status === 200) {
-        const data = await response.data;
+        const url = `http://localhost:3001/api/tuition/student-grades/${idStudent}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
 
-        if (data.statusCode !== 200) {
-          this.store.setToaster({
-            isActive: true,
-            text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
-            color: "error",
-          });
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode !== 200) {
+
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
         }
-        return data;
-      } else {
-        this.store.setToaster({
-          isActive: true,
-          text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
-          color: "error",
-        });
-      }
-    } catch (error) {
-      this.store.setToaster({
-        isActive: true,
-        text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
-        color: "error",
-      });
-      return error;
     }
-  }
 
-  // Obtener estudiantes matriculados en una seccion
-  async getStudentInSection(idSection: string) {
-    const url = `http://localhost:3001/api/tuition/section/${idSection}`;
-    try {
-      const response = await axios({
-        method: "GET",
-        url: url,
-      });
+    // Obtener estudiantes matriculados en una seccion
+    async getStudentInSection(idSection:string){
+        const url = `http://localhost:3001/api/tuition/section/${idSection}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
+            
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode !== 200) {
+                    
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
 
-      if (response.status === 200) {
-        const data = await response.data;
 
-        if (data.statusCode !== 200) {
-          this.store.setToaster({
-            isActive: true,
-            text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
-            color: "error",
-          });
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
         }
-        return data;
-      } else {
-        this.store.setToaster({
-          isActive: true,
-          text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
-          color: "error",
-        });
-      }
-    } catch (error) {
-      this.store.setToaster({
-        isActive: true,
-        text: "Error al obtener los estudiantes. Por favor, inténtelo de nuevo más tarde.",
-        color: "error",
-      });
-      return error;
     }
-  }
 
-  // Ingresar la nota de una matricula (estudiante)
-  async addGradeStudent(idRegistration: string, givenNote: string) {
-    const url = `http://localhost:3001/api/tuition/${idRegistration}`;
-    try {
-      const response = await axios({
-        method: "PATCH",
-        url: url,
-        data: { note: givenNote },
-      });
+    // Ingresar la nota de una matricula (estudiante)
+    async addGradeStudent(idRegistration: string, givenNote: string) {
 
-      if (response.status === 200) {
-        const data = await response.data;
+        const url = `http://localhost:3001/api/tuition/${idRegistration}`;
+        try {
+            const response = await axios({
+                method: "PATCH",
+                url: url,
+                data: {note: givenNote}
+            });
 
-        if (data.statusCode === 200) {
-          this.store.setToaster({
-            isActive: true,
-            text: "Nota de estudiante ingresada con éxito.",
-            color: "success",
-          });
-        } else {
-          this.store.setToaster({
-            isActive: true,
-            text: data.message,
-            color: "error",
-          });
+            if (response.status === 200) {
+                const data = await response.data;
+                
+                if (data.statusCode === 200) {
+                    
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Nota de estudiante ingresada con éxito.",
+                        color: "success",
+                    });
+                }else{
+                    this.store.setToaster({
+                        isActive: true,
+                        text: data.message,
+                        color: "error",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
         }
-        return data;
-      } else {
-        this.store.setToaster({
-          isActive: true,
-          text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
-          color: "error",
-        });
-      }
-    } catch (error) {
-      this.store.setToaster({
-        isActive: true,
-        text: "Error al obtener las notas del estudiante. Por favor, inténtelo de nuevo más tarde.",
-        color: "error",
-      });
-      return error;
     }
-  }
-  async getTuitionsStudentByPeriodAndDepartment(
-    idPeriod: number,
-    idDepartment: string
-  ) {
-    const url = `http://localhost:3001/api/tuition/period-students/${idPeriod}?department=${idDepartment}`;
-    try {
-      const response = await axios({
-        method: "GET",
-        url: url,
-      });
-
-      if (response.status === 200) {
-        const data = await response.data;
-
-        if (data.statusCode !== 200) {
-          this.store.setToaster({
-            isActive: true,
-            text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-            color: "error",
-          });
-        }
-        return data;
-      } else {
-        this.store.setToaster({
-          isActive: true,
-          text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-          color: "error",
-        });
-      }
-    } catch (error) {
-      this.store.setToaster({
-        isActive: true,
-        text: "Error al obtener las clases matriculadas. Por favor, inténtelo de nuevo más tarde.",
-        color: "error",
-      });
-      return error;
-    }
-  }
 }
