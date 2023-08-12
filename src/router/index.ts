@@ -55,6 +55,11 @@ const routes = [
         component: () => import("@/components/Classes/Classes.vue"),
       },
       {
+        path:"/ingresar-notas",
+        name: "ingresar-notas",
+        component: () => import("@/components/EntryGrades/EntryGrades.vue"),
+      },
+      {
         path: "/matricula",
         name: "matricula",
         redirect: { name: "historial-academico" },
