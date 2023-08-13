@@ -55,7 +55,7 @@ const routes = [
         component: () => import("@/components/Classes/Classes.vue"),
       },
       {
-        path:"/ingresar-notas",
+        path: "/ingresar-notas",
         name: "ingresar-notas",
         component: () => import("@/components/EntryGrades/EntryGrades.vue"),
       },
@@ -226,10 +226,11 @@ const routes = [
     ],
   },
   {
-    path: "/reinicio-clave",
+    path: "/reinicio-clave/:token/:id",
     name: "reinicio-clave",
     component: () =>
       import("@/components/DepartmentBoss/ResetTeacherPassword.vue"),
+    props: true,
   },
   {
     path: "/inicio",
