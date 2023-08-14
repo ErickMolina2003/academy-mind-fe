@@ -1,5 +1,5 @@
 <template>
-  <v-card class="w-100 fill-height">
+  <v-card>
     <v-card-title class="pa-0">
       <v-list class="bg-blue-darken-4 mx-auto" rounded>
         <v-list-item
@@ -56,11 +56,15 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import chat from "../../mock/chat.json";
 const newMessage = ref("");
-
+const props = defineProps();
+const emit = defineEmits();
+const closeChat = () => {
+  emit("closeChat");
+};
 //Funcion de prueba no actualiza JSON;
 function sendMessage() {
   if (this.newMessage.trim() !== "") {

@@ -47,7 +47,7 @@ const routes = [
       {
         path: "/chat",
         name: "chat",
-        component: () => import("@/components/Chat/ContactList.vue"),
+        component: () => import("@/layouts/ChatLayout.vue"),
       },
       {
         path: "/clases",
@@ -55,7 +55,7 @@ const routes = [
         component: () => import("@/components/Classes/Classes.vue"),
       },
       {
-        path:"/ingresar-notas",
+        path: "/ingresar-notas",
         name: "ingresar-notas",
         component: () => import("@/components/EntryGrades/EntryGrades.vue"),
       },
