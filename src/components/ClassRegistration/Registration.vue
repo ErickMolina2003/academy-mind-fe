@@ -224,24 +224,31 @@ async function getPeriods() {
   periods.value = response.periods;
   periodToModify.value = periods.value[0];
 
-  state.value = periodToModify.value.idStatePeriod?.name === 'Matricula'
-  validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
-
-  if (state.value) {
-
-    if (validateDate.value.statusCode === 200) {
-      getTuitionsByStudent();
-      getSections();
-      getTeachersOptions();
-      getClassesOptions(studentCareer.career.id);
-      getUV();
+  if (periodToModify.value && periodToModify.value.idStatePeriod) {
+    state.value = periodToModify.value.idStatePeriod?.name === 'Matricula';
+    if (state.value) {
+      validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
+      if (validateDate.value.statusCode === 200) {
+        getTuitionsByStudent();
+        getSections();
+        getTeachersOptions();
+        getClassesOptions(studentCareer.career.id);
+        getUV();
+      } else {
+        store.setToaster({
+          isActive: true,
+          text: validateDate.value.message,
+          color: "error",
+        });
+      }
     } else {
       store.setToaster({
         isActive: true,
-        text: validateDate.value.message,
+        text: "El periodo actual no está en estado de matricula.",
         color: "error",
       });
     }
+
 
   } else {
     store.setToaster({
@@ -254,9 +261,9 @@ async function getPeriods() {
 }
 
 
-async function getClassesOptions(id) {
-  const response = await serviceClasses.getClassesByCareer(id);
-  classNames.value = response.classes;
+async function getClassesOptions(idCareer) {
+  const response = await serviceClasses.getClassesToGo(idCareer,studentLogged.student.accountNumber);
+  classNames.value = response.classesToGo;
 }
 
 function getTeacherSection(idTeacher) {
@@ -334,14 +341,13 @@ const closeModal = () => {
 async function matricularAsignatura() {
   if (seccionSeleccionada.value) {
     getUV();
-    
-    if (parseInt(uv.value) - parseInt(seccionSeleccionada.value.idClass.valueUnits)>=0) {
+
+    if (parseInt(uv.value) - parseInt(seccionSeleccionada.value.idClass.valueUnits) >= 0) {
       const response = await tuitionService.createTuition({
         idSection: seccionSeleccionada.value.id,
         idStudent: studentLogged.student.accountNumber
       });
-
-      if (seccionSeleccionada.value.waitingList == "true") {
+      if (seccionSeleccionada.value.waitingList == "true" && response.statusCode===200) {
         store.setToaster({
           isActive: true,
           text: "Clase en espera matriculada con éxito.",

@@ -127,14 +127,23 @@ onMounted(() => {
 async function getPeriods() {
     const response = await servicePeriod.getPeriodRegistrationPlanification();
     currentPeriod.value = response.periods[0];
-    state.value = currentPeriod.value.idStatePeriod?.name === 'Matricula' || currentPeriod.value.idStatePeriod?.name === 'Planificacion'
 
-    if (state.value) {
-        getWaitingList();
+    if (currentPeriod.value && currentPeriod.value.idStatePeriod) {
+        state.value = currentPeriod.value.idStatePeriod?.name === 'Matricula';
+        if(state.value){
+            getWaitingList();
+        }else {
+        store.setToaster({
+            isActive: true,
+            text: "El periodo actual no está en estado de matricula.",
+            color: "error",
+        });
+    }
+        
     } else {
         store.setToaster({
             isActive: true,
-            text: "El periodo actual no está en estado de planificación académica o en matricula.",
+            text: "El periodo actual no está en estado de matricula.",
             color: "error",
         });
     }

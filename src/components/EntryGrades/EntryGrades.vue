@@ -30,21 +30,23 @@
             </tbody>
         </v-table>
 
-        <v-dialog v-model="modalStudents" persistent max-width="700">
+        <v-dialog v-model="modalStudents" persistent max-width="950">
             <v-card class="pa-4">
                 <v-card-title class="text-h5 pa-0 pb-4">
                     Estudiantes de la seccion
                 </v-card-title>
-                <h3>{{ sectionToModify.codeSection }} - {{ sectionToModify.idClass.name }}</h3>
+                <h3>{{ currentSection.codeSection }} - {{ currentSection.idClass.name }}</h3>
 
-                <v-table class="table-grades mb-4" fixed-header density="comfortable">
+                <v-table class="table-grades mb-4" fixed-header density="comfortable" max-height="450"
+                    style="overflow-y: scroll;">
                     <thead>
                         <tr>
                             <th class="text-black pa-0 px-3">Nombre</th>
                             <th class="text-black pa-0 px-3">Número de cuenta</th>
                             <th class="text-black pa-0 px-3">Nota</th>
-                            <th class="text-black pa-0 px-3" v-if="!edit">Obs</th>
-                            <th class="text-black pa-0 px-3" v-if="edit">Editar</th>
+                            <th class="text-black pa-0 px-3">Obs</th>
+                            <th class="text-black pa-0 px-3" v-if="edit">Cambiar obs</th>
+                            <th class="text-black pa-0 px-3" v-if="edit">Confirmar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,16 +62,22 @@
                                 {{ student.note }}
                             </td>
                             <td v-if="edit" class="text-left pa-0 px-3">
-                                <v-text-field type="number" v-model="student.note" variant="underlined"></v-text-field>
+                                <v-text-field type="number" v-model="student.note" variant="underlined" ></v-text-field>
                             </td>
-                            <td v-if="student.stateClass === 'En progreso' && !edit" class="text-left pa-0 px-3">
+                            <td v-if="student.stateClass === 'En progreso'" class="text-left pa-0 px-3">
                                 N/D
                             </td>
-                            <td v-if="student.stateClass !== 'En progreso' && !edit" class="text-left pa-0 px-3">
+                            <td v-if="student.stateClass !== 'En progreso'" class="text-left pa-0 px-3">
                                 {{ student.stateClass }}
                             </td>
-                            <td class="text-left pa-0 px-3" v-if="edit">
-                                <v-icon @click="entryNote(student.id, student.note)">{{ 'mdi-check-bold' }}</v-icon>
+                            <td v-if="edit" class="text-left pa-0 px-3">
+                                <v-combobox v-model="student.newStateClass" :disabled="student.stateClass === 'En progreso'" :items="showState(student.stateClass)"
+                                    variant="underlined">
+                                </v-combobox>
+                            </td>
+                            <td class="text-center pa-0 px-3" v-if="edit">
+                                <v-icon @click="entryNote(student.id, student.note, student.newStateClass)">{{
+                                    'mdi-check-bold' }}</v-icon>
 
                             </td>
                         </tr>
@@ -81,12 +89,13 @@
                 <div class="text-center pa-0 px-3" v-if="!edit">
                     <v-icon @click="edit = true">{{ 'mdi-pencil' }}</v-icon>
                 </div>
-                <v-card-actions class="fixed-footer">
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="modalStudents = false; edit = false;">
+
+                <div class="fixed-footer d-flex justify-lg-space-between">
+                    <v-btn @click="sendEmails">Enviar notas</v-btn>
+                    <v-btn color="blue-darken-1" @click="modalStudents = false; edit = false;">
                         Cerrar
                     </v-btn>
-                </v-card-actions>
+                </div>
             </v-card>
         </v-dialog>
 
@@ -107,7 +116,10 @@ import SectionService from "@/services/section/section.service";
 const sectionService = new SectionService();
 const servicePeriod = new PeriodService();
 const tuitionService = new TuitionService();
-
+const classStates = ref([
+    "NSP",
+    "ABN"
+]);
 const store = useAppStore();
 const periods = ref([]);
 const currentPeriod = ref({});
@@ -115,7 +127,7 @@ const sections = ref([]);
 const students = ref([]);
 const teacher = store.user.teacher;
 const modalStudents = ref(false);
-const sectionToModify = ref();
+const currentSection = ref();
 const newNote = ref();
 const edit = ref(false);
 onMounted(() => {
@@ -147,27 +159,35 @@ async function getSections() {
     sections.value = await response.section;
 }
 
-async function entryNote(idRegistration, note) {
-    if (note) {
-        const response = await tuitionService.addGradeStudent(idRegistration, note);
-        getNotes();
-    }
+async function entryNote(idRegistration, note, classState) {
+    let gradeData = {};
+    if(note){gradeData.note = note}
+    if (classState) {gradeData.statusClass = classState}
+    if(gradeData!=={}){await tuitionService.addGradeStudent(idRegistration, gradeData)};
+    getNotes();
+}
 
-    // edit.value = false;
-
+function showState(actualState) {
+    return (actualState !== 'NSP' && actualState !== 'ABN') ? ['NSP', 'ABN'] : (actualState === 'NSP') ? ['ABN'] : ['NSP'];
 }
 
 async function getNotes() {
-    const response = await tuitionService.getStudentInSection(sectionToModify.value.id);
+    const response = await tuitionService.getStudentInSection(currentSection.value.id);
     students.value = response.registration;
+}
+
+function sendEmails() {
+    modalStudents.value = false;
 }
 
 //Modal para ver estudiantes
 async function openModal(section) {
     modalStudents.value = true;
-    sectionToModify.value = section;
+    currentSection.value = section;
     getNotes();
 }
+
+
 
 </script>
 

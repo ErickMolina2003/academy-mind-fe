@@ -1,32 +1,28 @@
 <template>
     <v-container v-if="currentPeriod">
-        <SearchableNavBar title="Notas Ingresadas" label="No.Empleado"/>
+        <SearchableNavBar title="Notas Ingresadas" label="No.Empleado" />
 
         <div>
-            <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
+            <h2 style="padding-bottom: 15px">Lista de Docentes</h2>
             <table>
                 <thead>
                     <tr>
+                        <th>Nombre</th>
                         <th>Número de empleado</th>
-                        <th>Docente</th>
-                        <th>Asignatura</th>
-                        <th>Sección</th>
-                        <th>Notas</th>
+                        <th>Ver notas ingresadas</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="section in sections">
-                        <td>{{ section.employeeNumber }}</td>
-                        <td>{{ section.teacher }}</td>
-                        <td>{{ section.class }}</td>
-                        <td>{{ section.section }}</td>
-                        <td><v-btn @click="toggleModal(section.section, section.class, section.teacher, section.notes)">
-                                {{ section.viewNotes }}
-                            </v-btn></td>
+                    <tr v-for="teacher in displayedTeachers">
+                        <td>{{ teacher.user.firstName }} {{ teacher.user.firstLastName }}</td>
+                        <td>{{ teacher.employeeNumber }}</td>
+                        <td><v-icon @click="toggleModal( teacher )">{{'mdi-eye-outline'}}</v-icon></td>
                     </tr>
                 </tbody>
             </table>
+            <v-pagination v-model="currentTeachersPage" :total-visible="5" :length="totalTeachersPages" @input="updateDisplayedTeachers" />
         </div>
+        
     </v-container>
 
 
@@ -40,19 +36,29 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Nombre</th>
                             <th>Número de cuenta</th>
                             <th>Nota</th>
                             <th>Observación</th>
+                            <th>Sección</th>
+                            <th>Asignatura</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="noteStudent in notesToDisplay">
-                            <td>{{ noteStudent.accountNumber }}</td>
-                            <td>{{ noteStudent.note }}</td>
-                            <td>{{ noteStudent.observation }}</td>
+                        <tr v-for="noteStudent in displayedNotes">
+                            <td>{{ noteStudent.student.user.firstName }} {{ noteStudent.student.user.firstLastName }}</td>
+                            <td>{{ noteStudent.student.accountNumber }}</td>
+                            <td v-if="!noteStudent.note">N/D</td>
+                            <td v-else>{{ noteStudent.note }}</td>
+                            <td v-if="noteStudent.stateClass=='En progreso'">N/D</td>
+                            <td v-else>{{ noteStudent.stateClass }}</td>
+                            <td>{{ noteStudent.section.codeSection }}</td>
+                            <td>{{ noteStudent.section.idClass.name }}</td>
                         </tr>
                     </tbody>
                 </table>
+                <v-pagination v-model="currentNotesPage" :total-visible="5" :length="totalNotesPages" @input="updateDisplayedNotes" />
+                
             </v-card-text>
             <v-card-actions class="fixed-footer">
                 <v-spacer></v-spacer>
@@ -66,19 +72,26 @@
 
 
 <script setup>
-import { ref,onMounted } from "vue";
+import { ref, onMounted,computed, watch } from "vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import PeriodService from "@/services/period/period.service";
+import TuitionService from "@/services/tuition/tuition.service";
+import TeacherService from "@/services/teacher/teacher.service";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
+const tuitionService = new TuitionService();
+const teacherService = new TeacherService();
 const servicePeriod = new PeriodService();
 const showModal = ref(false);
 const titleModal = ref("");
 const periods = ref([]);
 const currentPeriod = ref({});
 const notesToDisplay = ref([]);
-const originalSections = ref([]);
+const originalTeachers = ref([]);
+const teachers = ref([]);
+const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
+const grades = ref();
 onMounted(() => {
     getPeriods();
 });
@@ -89,7 +102,7 @@ async function getPeriods() {
     currentPeriod.value = periods.value[0];
 
     if (currentPeriod.value) {
-        getSections();
+        getTeachers();
     } else {
         store.setToaster({
             isActive: true,
@@ -101,83 +114,9 @@ async function getPeriods() {
 }
 
 
-const notes1 = [
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-    { accountNumber: "20081001293", note: "0", observation: "NSP" },
-]
-
-const notes2 = [
-    { accountNumber: "20151009837", note: "93", observation: "APR" },
-    { accountNumber: "20141000129", note: "91", observation: "APR" },
-    { accountNumber: "20121001283", note: "80", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-]
-
-const notes3 = [
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-    { accountNumber: "20081001293", note: "0", observation: "NSP" },
-]
-
-const notes4 = [
-    { accountNumber: "20151009837", note: "93", observation: "APR" },
-    { accountNumber: "20141000129", note: "91", observation: "APR" },
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20121001283", note: "80", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-    { accountNumber: "20151009837", note: "93", observation: "APR" },
-    { accountNumber: "20141000129", note: "91", observation: "APR" },
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20121001283", note: "80", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-    { accountNumber: "20151009837", note: "93", observation: "APR" },
-    { accountNumber: "20141000129", note: "91", observation: "APR" },
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20121001283", note: "80", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" },
-    { accountNumber: "20151009837", note: "93", observation: "APR" },
-    { accountNumber: "20141000129", note: "91", observation: "APR" },
-    { accountNumber: "20191002985", note: "90", observation: "APR" },
-    { accountNumber: "20191002189", note: "88", observation: "APR" },
-    { accountNumber: "20171002477", note: "78", observation: "APR" },
-    { accountNumber: "20121001283", note: "80", observation: "APR" },
-    { accountNumber: "20161003849", note: "55", observation: "RPB" }
-]
-
-const sections = ref([
-    {
-        employeeNumber: "00012", teacher: "Irma Lagos", class: "Contabilidad I", section: "1000", viewNotes: "Ver notas",
-        notes: notes1
-    },
-    {
-        employeeNumber: "00012", teacher: "Irma Lagos", class: "Contabilidad I", section: "1100", viewNotes: "Ver notas",
-        notes: notes2
-    },
-    {
-        employeeNumber: "00013", teacher: "Erick Vladimir", class: "Sistemas Expertos", section: "1600", viewNotes: "Ver notas",
-        notes: notes3
-    },
-    {
-        employeeNumber: "00013", teacher: "Erick Vladimir", class: "Sistemas Expertos", section: "1700", viewNotes: "Ver notas",
-        notes: notes4
-    }
-]);
-
-
-function toggleModal(section, className, teacher, notes) {
-    notesToDisplay.value = notes;
-    titleModal.value = className + " - " + section + " - " + teacher;
+function toggleModal(teacher) {
+    getGradesByTeacher(teacher.employeeNumber);
+    titleModal.value =`Notas ingresadas ${teacher.user.firstName} ${teacher.user.firstLastName}`;
     showModal.value = true;
 }
 
@@ -186,29 +125,65 @@ function closeModal() {
 }
 
 
-function getSections() {
-  originalSections.value = sections.value;
-  sections.value = [...originalSections.value];
+async function getTeachers() {
+    const response = await tuitionService.getTeachersGrades(careerBoss.career.id);
+    
+    teachers.value = response.teachers;
+    originalTeachers.value = teachers.value;
+}
+
+async function getGradesByTeacher(idTeacher) {
+    const response = await tuitionService.getGradesByTeacher(idTeacher,careerBoss.career.id);
+    notesToDisplay.value = response.notes;
+    
 }
 
 
-const filterSections = (query) => {
-  const lowerCaseQuery = query.toLowerCase().trim();
-  if (lowerCaseQuery === "") {
-    sections.value = [...originalSections.value];
-  } else {
-    sections.value = originalSections.value.filter((student) =>
-      student.employeeNumber.toLowerCase().includes(lowerCaseQuery)
-    );
-  }
+// paginacion
+
+const filteredNotes = computed(() => notesToDisplay.value);
+const filteredTeachers = computed(() => teachers.value);
+const itemsPerPage = 7;
+const currentNotesPage = ref(1);
+const currentTeachersPage = ref(1);
+const displayedNotes = ref([]);
+const displayedTeachers = ref([]);
+
+const totalNotesPages = computed(() => Math.ceil(filteredNotes.value.length / itemsPerPage));
+const totalTeachersPages = computed(() => Math.ceil(filteredTeachers.value.length / itemsPerPage));
+const updateDisplayedNotes = () => {
+    const startIndex = (currentNotesPage.value - 1) * itemsPerPage;
+    displayedNotes.value = filteredNotes.value.slice(startIndex, startIndex + itemsPerPage);
+};
+const updateDisplayedTeachers = () => {
+    const startIndex = (currentTeachersPage.value - 1) * itemsPerPage;
+    displayedTeachers.value = filteredTeachers.value.slice(startIndex, startIndex + itemsPerPage);
 };
 
+
+watch(currentNotesPage, updateDisplayedNotes);
+watch(currentTeachersPage, updateDisplayedTeachers);
+watch(filteredNotes, updateDisplayedNotes);
+watch(filteredTeachers, updateDisplayedTeachers);
+
+const filterTeachers = (query) => {
+    const lowerCaseQuery = query.toLowerCase().trim();
+    if (lowerCaseQuery === "") {
+        teachers.value = [...originalTeachers.value];
+    } else {
+        teachers.value = originalTeachers.value.filter((teacher) =>
+            teacher.employeeNumber.toLowerCase().includes(lowerCaseQuery)
+        );
+    }
+};
+
+
 document.addEventListener("filter", (event) => {
-  filterSections(event.detail);
+    filterTeachers(event.detail);
 });
 
 document.addEventListener("resetFilter", () => {
-  sections.value = [...originalSections.value];
+    teachers.value = [...originalTeachers.value];
 });
 
 
@@ -232,5 +207,4 @@ td {
 th {
     background-color: #f2f2f2;
 }
-
 </style>

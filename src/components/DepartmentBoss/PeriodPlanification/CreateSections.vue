@@ -1,5 +1,5 @@
 <template>
-    <v-container v-if="state" class="pa-1">
+    <v-container v-if="periodToModify" class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
             <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
@@ -219,15 +219,11 @@ async function getPeriods() {
     const response = await servicePeriod.getPeriodRegistrationPlanification();
     periods.value = response.periods;
     periodToModify.value = periods.value[0];
-
-    state.value = periodToModify.value.idStatePeriod?.name === 'Matricula' || periodToModify.value.idStatePeriod?.name === 'Planificacion'
-
-    if (state.value) {
-
+    
+    if (periodToModify.value) {
         getSections();
         getClassesOptions(careerBoss.career.id);
         getTeachersOptions();
-
         getBuildingsOptions(careerBoss.regionalCenter.id);
     } else {
         store.setToaster({

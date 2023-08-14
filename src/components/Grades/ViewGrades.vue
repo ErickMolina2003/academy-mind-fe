@@ -1,55 +1,60 @@
 <template>
-    <h1 style="color: #CC6600;">Calificaciones del periodo</h1>
-    <v-divider :thickness="5" class="pb-5 mt-2"></v-divider>
-    <v-table class="table-grades" fixed-header density="comfortable">
-        <thead>
-            <tr>
-                <th class="text-black pa-0 px-3">Cód.</th>
-                <th class="text-black pa-0 px-3">Asignatura</th>
-                <th class="text-black pa-0 px-3">Sección</th>
-                <th class="text-black pa-0 px-3">HI</th>
-                <th class="text-black pa-0 px-3">HF</th>
-                <th class="text-black pa-0 px-3">Días</th>
-                <th class="text-black pa-0 px-3">Docente</th>
-                <th class="text-black pa-0 px-3">Calificación</th>
-                <th v-if="needsEvalutions" class="text-black pa-0 px-3">Obs</th>
-            </tr>
-        </thead>
-        <tbody>
-            
-            <tr v-if="sections" v-for="item in sections" :key="item.id">
-                <td class="text-left pa-0 px-3">{{ item.section.idClass.code }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.idClass.name }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.codeSection }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.hour }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.finalHour }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.days }}</td>
-                <td class="text-left pa-0 px-3">{{ item.section.idTeacher.user.firstName }} {{ item.section.idTeacher.user.firstLastName }}</td>
-                <td v-if="needsEvalutions && item.note" class="text-left pa-0 px-3">
-                    {{ item.note }}
-                </td>
-                <td v-if="needsEvalutions && !item.note" class="text-left pa-0 px-3">
-                    N/D
-                </td>
-                <td v-if="!needsEvalutions && !item.teacherEvaluationDone">
-                    <v-icon class="icon icon-evaluation" @click="openEvaluation(item)">{{ ' mdi-chat-question' }}</v-icon>
-                </td>
-                <td v-if="!needsEvalutions && item.teacherEvaluationDone">
-                    <v-icon class="icon">{{ ' mdi-check-bold' }}</v-icon>
-                </td>
-                <td class="text-left pa-0 px-3" v-if="item.stateClass === 'En progreso' && needsEvalutions">
-                    N/D
-                </td>
-                <td v-if="item.stateClass !== 'En progreso' && needsEvalutions" class="text-left pa-0 px-3">
-                    {{ item.stateClass }}
-                </td>
-            </tr>
-        </tbody>
-    </v-table>
-    <v-dialog v-model="dialog" width="auto">
-        <TeacherEvaluation :chosenForEvaluation="chosenForEvaluation" @submitForm="closeEvaluation" />
+    <v-main class="ma-0 pa-0" v-if="currentPeriod">
+        <h1 style="color: #CC6600;">Calificaciones del periodo</h1>
+        <v-divider :thickness="5" class="pb-5 mt-2"></v-divider>
+        <v-table class="table-grades" fixed-header density="comfortable">
+            <thead>
+                <tr>
+                    <th class="text-black pa-0 px-3">Cód.</th>
+                    <th class="text-black pa-0 px-3">Asignatura</th>
+                    <th class="text-black pa-0 px-3">Sección</th>
+                    <th class="text-black pa-0 px-3">HI</th>
+                    <th class="text-black pa-0 px-3">HF</th>
+                    <th class="text-black pa-0 px-3">Días</th>
+                    <th class="text-black pa-0 px-3">Docente</th>
+                    <th class="text-black pa-0 px-3">Calificación</th>
+                    <th v-if="needsEvalutions" class="text-black pa-0 px-3">Obs</th>
+                </tr>
+            </thead>
+            <tbody>
 
-    </v-dialog>
+                <tr v-if="sections" v-for="item in sections" :key="item.id">
+                    <td class="text-left pa-0 px-3">{{ item.section.idClass.code }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.idClass.name }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.codeSection }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.hour }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.finalHour }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.days }}</td>
+                    <td class="text-left pa-0 px-3">{{ item.section.idTeacher.user.firstName }} {{
+                        item.section.idTeacher.user.firstLastName }}</td>
+                    <td v-if="needsEvalutions && item.note" class="text-left pa-0 px-3">
+                        {{ item.note }}
+                    </td>
+                    <td v-if="needsEvalutions && !item.note" class="text-left pa-0 px-3">
+                        N/D
+                    </td>
+                    <td v-if="!needsEvalutions && item.teacherEvaluationDone==='false'">
+                        <v-icon class="icon icon-evaluation" @click="openEvaluation(item)">{{ ' mdi-chat-question'
+                        }}</v-icon>
+                    </td>
+                    <td v-if="!needsEvalutions && item.teacherEvaluationDone!=='false'">
+                        <v-icon class="icon">{{ ' mdi-check-bold' }}</v-icon>
+                    </td>
+                    <td class="text-left pa-0 px-3" v-if="item.stateClass === 'En progreso' && needsEvalutions">
+                        N/D
+                    </td>
+                    <td v-if="item.stateClass !== 'En progreso' && needsEvalutions" class="text-left pa-0 px-3">
+                        {{ item.stateClass }}
+                    </td>
+                </tr>
+            </tbody>
+        </v-table>
+    </v-main>
+        <v-dialog v-model="dialog" width="auto">
+            <TeacherEvaluation :chosenForEvaluation="chosenForEvaluation" @submitForm="closeEvaluation" />
+
+        </v-dialog>
+    
 </template>
   
 <script setup>
@@ -100,15 +105,16 @@ async function getGrades() {
     const response = await tuitionService.getGradesOfStudent(studentLogged.student.accountNumber);
     sections.value = response.registrations.filter((section) => section.waitingList == "false");
     
+    
     if (showPendingEvaluations().length === 0) {
         needsEvalutions.value = true;
     }
-    
-    
+
+
 }
 
 function showPendingEvaluations() {
-    return sections.value.filter(section => section.teacherEvaluationDone === null);
+    return sections.value.filter(section => section.teacherEvaluationDone==='false');
 }
 
 function openEvaluation(item) {
