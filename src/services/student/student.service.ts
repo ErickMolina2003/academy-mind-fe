@@ -97,7 +97,7 @@ export default class StudentService {
 
   async updateStudent(id: string, studentData: StudentUpdate) {
     const url = `http://localhost:3001/api/student/${id}`;
-
+    
     try {
       const response = await axios({
         method: "patch",
@@ -115,6 +115,7 @@ export default class StudentService {
           text: "¡Información actualizada correctamente!",
           color: "success",
         });
+        return student;
       }
     } catch (error) {
       this.store.setToaster({

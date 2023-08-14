@@ -1,5 +1,5 @@
 <template>
-    <div v-if="state">
+    <div v-if="periodToModify">
         <SearchableNavBar title="Cancelar secciones" label="Asignatura" btnTitle="Cancelar sección"
             @createSection="cancelSection" />
         <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
@@ -135,9 +135,8 @@ async function getPeriods() {
     periods.value = response.periods;
     periodToModify.value = periods.value[0];
 
-    state.value = periodToModify.value.idStatePeriod?.name === 'Matricula';
 
-    if (state.value) {
+    if (periodToModify.value) {
         getTeachersOptions()
         getSections();
 

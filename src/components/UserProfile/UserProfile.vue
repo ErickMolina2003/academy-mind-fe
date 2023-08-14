@@ -218,7 +218,7 @@ const userLogged = computed(() => {
   }
 
   if (store.user.student) {
-    profilePicture.value = store.user.student.photoOne;
+    getProfilePicture(store.user.student.currentPhoto);
     return store.user.student;
   }
 
@@ -288,6 +288,20 @@ const updateProfile = (data) => {
     profileVideo.value = data.profileVideo;
   }
 };
+
+function getProfilePicture(index:number) {
+    
+    if (index == 1) {
+        profilePicture.value = store.user.student.photoOne;
+    } else if (index == 2) {
+        profilePicture.value = store.user.student.photoTwo;
+    } else if (index == 3) {
+        profilePicture.value = store.user.student.photoThree;
+    } else {
+        profilePicture.value = null;
+    }
+
+}
 
 const openDialog = () => {
   dialogOpen.value = true;

@@ -81,19 +81,28 @@ async function getPeriods() {
     periods.value = response.periods;
     period.value = periods.value[0];
 
-    state.value = period.value.idStatePeriod?.name === 'Matricula';
-    validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
-    if (state.value) {
+    if (period.value && period.value.idStatePeriod) {
+        state.value = period.value.idStatePeriod?.name === 'Matricula';
+        if (state.value) {
+            validateDate.value = await tuitionService.validateRegistrationDate(studentLogged.student.accountNumber);
 
-        if (validateDate.value.statusCode === 200) {
-            getTuitionsByStudent();
+            if (validateDate.value.statusCode === 200) {
+                getTuitionsByStudent();
+            } else {
+                store.setToaster({
+                    isActive: true,
+                    text: validateDate.value.message,
+                    color: "error",
+                });
+            }
         } else {
             store.setToaster({
                 isActive: true,
-                text: validateDate.value.message,
+                text: "El periodo actual no está en estado de matricula.",
                 color: "error",
             });
         }
+
     } else {
         store.setToaster({
             isActive: true,

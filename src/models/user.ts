@@ -64,6 +64,7 @@ export interface StudentUpdate {
   photoOne?: string;
   photoTwo?: string;
   photoThree?: string;
+  currentPhoto?: number;
 }
 
 export interface Sections{

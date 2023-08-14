@@ -18,24 +18,12 @@
                 </h3>
                 <div v-for="(item, index) in everything.slice(1, 4)" :key="index">
                     <p>
-                        <!-- 1. ¿El docente muestra interés para que los estudiantes aprendan? -->
                         {{ item.question?.question }}
                     </p>
                     <v-select label="Seleccione:" :rules="[rules.required]" v-model="item.answer"
                         :items="calification" density="comfortable">
                     </v-select>
                 </div>
-                <!-- <p>
-                    2. ¿El docente tiene una buena relación con los estudiantes en el aula de clase? 
-                    2. {{ everything[9].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[9].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p>
-                    3. {{ everything[8].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[8].answer" :items="calification"
-                    density="comfortable"></v-select> -->
                 <v-divider></v-divider>
             </div>
             <div class="ma-6">
@@ -44,41 +32,12 @@
                 </h3>
                 <div v-for="(item, index) in everything.slice(4, 7)" :key="index">
                     <p>
-                        <!-- 1. ¿El docente muestra interés para que los estudiantes aprendan? -->
                         {{ item.question?.question }}
                     </p>
                     <v-select label="Seleccione:" :rules="[rules.required]" v-model="item.answer"
                         :items="calification" density="comfortable">
                     </v-select>
                 </div>
-                <!-- <p> -->
-                <!-- 1. ¿El profesor relaciona los saberes enseñados con el programa de
-        estudio? -->
-                <!-- 1. {{ everything[7].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[7].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p> -->
-                <!-- 2. ¿El profesor indaga los conocimientos previos de los estudiantes
-        frente al tema que enseña? -->
-                <!-- 2. {{ everything[6].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[6].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p> -->
-                <!-- 3. ¿El docente ofrece a sus estudiantes una bibliografía de los temas de
-        la asignatura? -->
-                <!-- 3. {{ everything[5].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[5].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p> -->
-                <!-- 4 ¿El docente tiene una secuencia en los temas de los contenidos de la
-        asignatura? -->
-                <!-- 4. {{ everything[4].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[4].answer" :items="calification"
-                    density="comfortable"></v-select> -->
                 <v-divider></v-divider>
             </div>
             <div class="ma-6">
@@ -88,33 +47,12 @@
                 <div v-for="(item, index) in everything.slice(7, 10)" :key="index">
                     
                     <p>
-                        <!-- 1. ¿El docente muestra interés para que los estudiantes aprendan? -->
                         {{ item.question?.question }}
                     </p>
                     <v-select label="Seleccione:" :rules="[rules.required]" v-model="item.answer"
                         :items="calification" density="comfortable">
                     </v-select>
                 </div>
-                <!-- <p> -->
-                <!-- 1. ¿El docente demuestra dominio en su área o disciplina?  -->
-                <!-- 1. {{ everything[3].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[3].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p> -->
-                <!-- 2. ¿El docente promueve y facilita el aprendizaje de los contenidos de
-        los estudiantes? -->
-                <!-- 2. {{ everything[2].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[2].answer" :items="calification"
-                    density="comfortable"></v-select>
-                <p> -->
-                <!-- 3. ¿El docente demuestra en el aula su capacidad de enseñar los saberes
-        de su asignatura? -->
-                <!-- 3. {{ everything[1].question?.question }}
-                </p>
-                <v-select label="Seleccione:" :rules="[rules.required]" v-model="everything[1].answer" :items="calification"
-                    density="comfortable"></v-select> -->
                 <v-divider></v-divider>
             </div>
             <div class="ma-6">
