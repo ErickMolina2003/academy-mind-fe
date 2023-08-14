@@ -1,14 +1,20 @@
 <template>
-  <v-card class="mx-auto w-auto fill-height">
+  <v-card class="mx-start fill-height">
     <v-toolbar color="d-flex bg-blue-darken-4">
-      <v-toolbar-title>Lista de Contactos</v-toolbar-title>
+      <v-toolbar-title style="font-size: 20px">Contactos</v-toolbar-title>
       <div class="text-center ml-3 ma-1">
         <v-btn
           color="primary"
           icon="mdi-plus"
           size="large"
           @click="dialogAddContact = true"
-          class="ma-2"
+        >
+        </v-btn>
+        <v-btn
+          color="primary"
+          icon="mdi-email"
+          size="large"
+          @click="dialogInbox = true"
         >
         </v-btn>
 
@@ -48,13 +54,6 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-btn
-          color="primary"
-          icon="mdi-email"
-          size="large"
-          @click="dialogInbox = true"
-        >
-        </v-btn>
 
         <v-dialog v-model="dialogInbox" class="w-auto" max-width="600px">
           <v-card>
@@ -119,11 +118,9 @@
           <v-list-item-title v-text="item.name"></v-list-item-title>
           <v-list-item-icon v-if="item.isOnline">
             <v-icon color="green" icon="mdi-circle" size="x-small"></v-icon>
-
             <span
               class="text-caption text-medium-emphasis ms-1 font-weight-light"
             >
-              En línea
             </span>
           </v-list-item-icon>
         </div>
@@ -135,16 +132,19 @@
   </v-card>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 
 const dialogInbox = ref(false);
 const dialogAddContact = ref(false);
 const accountNum = ref("");
 
-function onContactClick(index) {
+const props = defineProps();
+const emit = defineEmits();
+const onContactClick = (index) => {
   console.log("Contacto clickeado:", index);
-}
+  emit("contactClick");
+};
 //Añadir contacto
 const closeAddContact = () => {
   dialogAddContact.value = false;
@@ -210,7 +210,7 @@ const items = [
     avatar: "https://picsum.photos/250/300?image=783",
     name: "Juan Perez",
     lastmessage: "Viste lo que paso el otro dia??",
-    isOnline: false,
+    isOnline: true,
   },
   {
     avatar: "https://picsum.photos/250/300?image=783",

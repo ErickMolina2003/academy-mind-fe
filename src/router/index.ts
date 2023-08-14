@@ -47,7 +47,7 @@ const routes = [
       {
         path: "/chat",
         name: "chat",
-        component: () => import("@/components/Chat/ContactList.vue"),
+        component: () => import("@/layouts/ChatLayout.vue"),
       },
       {
         path: "/clases",
