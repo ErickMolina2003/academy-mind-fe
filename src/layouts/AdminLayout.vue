@@ -491,19 +491,21 @@ async function submitModal() {
       });
       return;
     }
+
     let isBoss = false;
     let isCoordinator = false;
+
     if (role.value === "Coordinadores") {
-      isBoss = false;
       isCoordinator = true;
-    }
-    if (role.value === "Jefe de Departamento") {
+    } else if (role.value === "Jefe de Departamento") {
       isBoss = true;
-      isCoordinator = false;
     }
+
     let career = getCareer(selectedCareerId.value);
     let center = getCenter(selectedCenterRegionalId.value);
+
     const imageUrl = await uploadingImage();
+
     const user = {
       dni: dni.value,
       firstName: firstName.value,
@@ -513,12 +515,13 @@ async function submitModal() {
       email: email.value,
       address: address.value,
       phone: phone.value,
-      isBoss: `${isBoss}`,
-      isCoordinator: `${isCoordinator}`,
+      ...(isBoss && { isBoss: "true" }), // Agregar "isBoss" solo si es true
+      ...(isCoordinator && { isCoordinator: "true" }), // Agregar "isCoordinator" solo si es true
       career: career.id,
       regionalCenter: center.id,
       photoOne: imageUrl,
     };
+
     const teacherService = new TeacherService();
 
     const response = await teacherService.createTeacher(user);

@@ -13,13 +13,33 @@ export default class TeacherService {
         data: body,
       });
       if (response.status === 201) {
+        const data = await response.data;
+        if (data.statusCode === 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Docente creado exitosamente.",
+            color: "success",
+          });
+        } else if (data.statusCode === 409) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Ya existe docente para esta carrera y centro regional",
+            color: "error",
+          });
+        } else {
+          this.store.setToaster({
+            isActive: true,
+            text: "No se pudo crear el docente, intente nuevamente.",
+            color: "error",
+          });
+        }
+        return response.data;
+      } else {
         this.store.setToaster({
           isActive: true,
-          text: "Docente creado exitosamente.",
-          color: "success",
+          text: "No se pudo crear el docente, intente nuevamente.",
+          color: "error",
         });
-
-        return response.data;
       }
     } catch (error) {
       this.store.setToaster({
