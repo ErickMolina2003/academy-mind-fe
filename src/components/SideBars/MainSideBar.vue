@@ -129,12 +129,12 @@ const bossAcademicOptions = ref([
 ]);
 const coordinatorOptions = ref([
   {
-    name: "perfil",
+    name: "Perfil",
     to: "/perfil",
     icon: "mdi-account-box-outline",
   },
   {
-    name: "clases",
+    name: "Clases",
     to: "/clases",
     icon: "mdi-book-variant",
   },
@@ -148,6 +148,11 @@ const coordinatorOptions = ref([
     to: "/solicitudes-estudiantes",
     icon: "mdi-badge-account",
   },
+  {
+    name: "Historial Estudiantil",
+    to: "/historial-estudiantil",
+    icon: "mdi-account-search",
+  }
 ]);
 
 onMounted(() => {

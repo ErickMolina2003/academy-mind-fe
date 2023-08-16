@@ -27,7 +27,7 @@
 
 
     <v-dialog v-model="showModal" persistent width="1440">
-        <v-card class="pa-4">
+        <v-card class="pt-6">
 
             <v-card-text>
                 <v-card-title class="text-h5 pa-0 pb-4">

@@ -7,7 +7,6 @@
                 <tr>
                     <th>Docente</th>
                     <th>Número de Empleado</th>
-                    <th>Sección</th>
                     <th>Asignatura</th>
                     <th>Evaluación</th>
                 </tr>
@@ -16,10 +15,9 @@
                 <tr v-for="item in displayedTeachers" :key="item">
                     <td>{{ item.section.idTeacher.user.firstName }} {{ item.section.idTeacher.user.firstLastName }}</td>
                     <td>{{ item.section.idTeacher.employeeNumber }}</td>
-                    <td>{{ item.section.codeSection }}</td>
                     <td>{{ item.section.idClass.name }}</td>
                     <td>
-                        <v-icon @click="showEvaluationDetails(item.section)">{{'mdi-eye-outline'}}</v-icon>
+                        <v-icon @click="showEvaluationDetails(item.section)">{{ 'mdi-eye-outline' }}</v-icon>
                     </td>
                 </tr>
             </tbody>
@@ -44,27 +42,28 @@
                     <table class="table" v-if="index !== 11 && index !== 10">
                         <thead>
                             <tr>
-                                <th>Deficiente</th>
-                                <th>Insuficiente</th>
-                                <th>Regular</th>
-                                <th>Bueno</th>
                                 <th>Excelente</th>
+                                <th>Bueno</th>
+                                <th>Regular</th>
+                                <th>Insuficiente</th>
+                                <th>Deficiente</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{{ item.deficcientCount }}</td>
-                                <td>{{ item.insuficcientCount }}</td>
-                                <td>{{ item.regularCount }}</td>
-                                <td>{{ item.greatCount }}</td>
                                 <td>{{ item.excelentCount }}</td>
+                                <td>{{ item.greatCount }}</td>
+                                <td>{{ item.regularCount }}</td>
+                                <td>{{ item.insuficcientCount }}</td>
+                                <td>{{ item.deficcientCount }}</td>
                             </tr>
                         </tbody>
                     </table>
                     <div v-if="index == 11">
                         <h3 class="bg-blue-darken-3 text-left py-1">
                             OBSERVACIONES
-                            <v-btn @click="showObservations = !showObservations" icon size="x-small">
+                            <v-btn @click="showObservations = !showObservations; observations = item.observations" icon
+                                size="x-small">
                                 <v-icon>
                                     {{ showObservations ? "mdi-chevron-up" : "mdi-chevron-down" }}
                                 </v-icon>
@@ -72,10 +71,12 @@
                         </h3>
                         <template v-if="showObservations">
                             <ul class="observation-list">
-                                <li v-for="observation in item.observations" :key="observation" class="observation-item">
+                                <li v-for="observation in displayedObs" :key="observation" class="observation-item">
                                     {{ observation }}
                                 </li>
                             </ul>
+                            <v-pagination v-model="currentObsPage" :total-visible="5" :length="totalObsPages"
+                                @input="updateDisplayedObs" />
                         </template>
                     </div>
                     <v-divider></v-divider>
@@ -106,14 +107,15 @@ const showObservations = ref(false);
 const evaluation = ref([]);
 const showModal = ref(false);
 const searchQuery = ref("");
+const observations = ref([]);
 const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
 const teachersList = ref([]);
 const originalTeachers = ref([]);
 const title = ref("");
 const evaluationHeadings = {
     0: 'CARACTERÍSTICAS PERSONALES DEL DOCENTE',
-    3: 'CARACTERÍSTICAS DISCIPLINARES',
-    7: 'CARACTERÍSTICAS PEDAGÓGICAS Y DIDÁCTICAS DEL DOCENTE'
+    3: 'CARACTERÍSTICAS PEDAGÓGICAS Y DIDÁCTICAS DEL DOCENTE',
+    7: 'CARACTERÍSTICAS DISCIPLINARES'
 };
 
 onMounted(() => {
@@ -147,7 +149,7 @@ async function getTeachers() {
 const showEvaluationDetails = async (section) => {
     const response = await serviceEvaluation.getEvaluationOfTeacher(section.idTeacher.employeeNumber, currentPeriod.value.id, section.idClass.id);
     evaluation.value = response.evaluationCount;
-    title.value = `${section.idTeacher.user.firstName} ${section.idTeacher.user.firstLastName} - ${section.codeSection} ${section.idClass.name}`
+    title.value = `${section.idTeacher.user.firstName} ${section.idTeacher.user.firstLastName} - ${section.idClass.name}`
     showModal.value = true;
 };
 
@@ -180,7 +182,7 @@ document.addEventListener("resetFilter", () => {
 
 
 
-// paginacion
+// paginacion maestros
 const filteredTeachers = computed(() => teachersList.value);
 const itemsPerPage = 5;
 const currentTeachersPage = ref(1);
@@ -190,8 +192,20 @@ const updateDisplayedTeachers = () => {
     const startIndex = (currentTeachersPage.value - 1) * itemsPerPage;
     displayedTeachers.value = filteredTeachers.value.slice(startIndex, startIndex + itemsPerPage);
 };
-watch(currentTeachersPage, updateDisplayedTeachers);
-watch(filteredTeachers, updateDisplayedTeachers);
+watch([currentTeachersPage, filteredTeachers], updateDisplayedTeachers);
+
+// paginacion observaciones
+const filteredObs = computed(() => observations.value);
+const itemsPerPageObs = 10;
+const currentObsPage = ref(1);
+const displayedObs = ref([]);
+const totalObsPages = computed(() => Math.ceil(filteredObs.value.length / itemsPerPageObs));
+const updateDisplayedObs = () => {
+    const startIndex = (currentObsPage.value - 1) * itemsPerPageObs;
+    displayedObs.value = filteredObs.value.slice(startIndex, startIndex + itemsPerPageObs);
+};
+watch([currentObsPage, filteredObs], updateDisplayedObs);
+
 </script>
 
 <style>

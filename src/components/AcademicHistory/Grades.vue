@@ -50,31 +50,31 @@
             </v-row>
         </v-col>
 
-        <v-table fixed-header>
-            <thead>
-                <tr>
-                    <th class="pa-0 px-3">CÓD.</th>
-                    <th class="pa-0 px-3">ASIGNATURA</th>
-                    <th class="pa-0 px-3">UV</th>
-                    <th class="pa-0 px-3">SECCIÓN</th>
-                    <th class="pa-0 px-3">AÑO</th>
-                    <th class="pa-0 px-3">PERIODO</th>
-                    <th class="pa-0 px-3">CALIFICACIÓN</th>
-                    <th class="pa-0 px-3">OBS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in displayedSubjects" :key="item.codigo">
-                    <td class="text-left pa-0 px-3">{{ item.codigo }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.asignatura }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.uv }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.seccion }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.anio }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.periodo }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.calificacion }}</td>
-                    <td class="text-left pa-0 px-3">{{ item.obs }}</td>
-                </tr>
-            </tbody>
+        <v-table fixed-header density="comfortable">
+          <thead>
+            <tr>
+              <th class="pa-0 px-3">CÓDIGO</th>
+              <th class="pa-0 px-3">ASIGNATURA</th>
+              <th class="pa-0 px-3">UV</th>
+              <th class="pa-0 px-3">SECCIÓN</th>
+              <th class="pa-0 px-3">AÑO</th>
+              <th class="pa-0 px-3">PERIODO</th>
+              <th class="pa-0 px-3">CALIFICACIÓN</th>
+              <th class="pa-0 px-3">OBS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in displayedSubjects" :key="item.codigo">
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.code }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.name }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.valueUnits }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.codeSection }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idPeriod.year }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idPeriod.numberPeriod }}</td>
+              <td class="text-left pa-0 px-3">{{ item.note }}</td>
+              <td class="text-left pa-0 px-3">{{ item.stateClass }}</td>
+            </tr>
+          </tbody>
         </v-table>
         <v-pagination v-model="currentSubjectPage" :total-visible="5" :length="totalSubjectsPages"
             @input="updateDisplayedSubjects" />
@@ -83,11 +83,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import grades from "../../mock/grades.json";
 import { useAppStore } from "@/store/app";
+import TuitionService from "@/services/tuition/tuition.service";
 
 const store = useAppStore();
-const subjects = ref(grades);
+const tuitionService = new TuitionService();
+const subjects = ref([]);
 const userLogged = ref(store.user.student);
 const fullName =
     store.user.firstName +
@@ -107,8 +108,15 @@ const user = {
 }
 
 onMounted(() => {
-    updateDisplayedSubjects();
+    getSubjects();
+    
 });
+
+async function getSubjects(){
+    const response = await tuitionService.getAcademicHistory(user.accountNumber);
+    subjects.value = response.registrations;
+    updateDisplayedSubjects();
+}
 
 
 // paginacion
@@ -121,8 +129,7 @@ const updateDisplayedSubjects = () => {
     const startIndex = (currentSubjectPage.value - 1) * itemsPerPage;
     displayedSubjects.value = filteredSubjects.value.slice(startIndex, startIndex + itemsPerPage);
 };
-watch(currentSubjectPage, updateDisplayedSubjects);
-watch(filteredSubjects, updateDisplayedSubjects);
+watch([currentSubjectPage,filteredSubjects], updateDisplayedSubjects);
 </script>
 
 <style>
