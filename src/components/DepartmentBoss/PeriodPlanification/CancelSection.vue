@@ -151,17 +151,17 @@ async function getPeriods() {
 }
 
 async function getTeachersOptions() {
-    const response = await teacherService.getTeachers();
-    const data = response.teachers;
-
-    teachers.value = data.filter((teacher) => teacher.teachingCareer[0].centerCareer.career.id === careerBoss.career.id)
-
+    const response = await teacherService.getTeacherByCareerAndCenter(
+        careerBoss.career.id,
+        careerBoss.regionalCenter.id
+    )
+    teachers.value = response.teachers;
 }
 
 function getTeacherSection(idTeacher) {
     if (idTeacher) {
-        let teacher = teachers.value.find(teacher => teacher.employeeNumber === idTeacher);
-        return teacher?.user.firstName + " " + teacher?.user.firstLastName;
+        let teacher = teachers.value.find(teacher => teacher.teacher.employeeNumber === idTeacher);
+        return teacher.teacher.user.firstName + " " + teacher.teacher.user.firstLastName;
     }
     return;
 }

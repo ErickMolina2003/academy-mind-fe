@@ -16,7 +16,7 @@
                 <h3 class="bg-blue-darken-3 text-left pa-1">
                     CARACTERÍSTICAS PERSONALES DEL DOCENTE
                 </h3>
-                <div v-for="(item, index) in everything.slice(1, 4)" :key="index">
+                <div v-for="(item, index) in everything.slice(0, 4)" :key="index">
                     <p>
                         {{ item.question?.question }}
                     </p>
