@@ -1,27 +1,35 @@
 import axios from "axios";
+import { ReplacementExam } from "../../models/replacement"
 import { useAppStore } from "../../store/app";
 
-export default class EvaluationService {
+export default class ReplacementService {
     store = useAppStore();
 
-    // Obtener docentes con evaluaciones
-    async getTeacherWithEvaluations(idDepartment:string, idCenter: string) {
+    // Reposicion (Crear una solicitud)
+    async createApplication(replacementData: ReplacementExam) {
         
-        const url = `http://localhost:3001/api/teacher-evaluation/teachers/${idDepartment}?center=${idCenter}`;
+        const url = `http://localhost:3001/api/reposition-request/`;
         try {
             const response = await axios({
-                method: "GET",
-                url: url
+                method: "POST",
+                url: url,
+                data: replacementData
             });
-
-            if (response.status === 200) {
+            
+            if (response.status === 201) {
                 const data = await response.data;
-
-                if (data.statusCode !== 200) {
+                
+                if (data.statusCode === 200) {
 
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener docentes. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Solicitud realizada con éxito.",
+                        color: "success",
+                    });
+                } else {
+                    this.store.setToaster({
+                        isActive: true,
+                        text: data.message,
                         color: "error",
                     });
                 }
@@ -29,25 +37,24 @@ export default class EvaluationService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener docentes. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al hacer las solicitudes. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
-
-
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener docentes. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al hacer las solicitudes. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 
-    // Obtener evaluaciones de un docente en una clase
-    async getEvaluationOfTeacher(idTeacher:string,idPeriod:string,idClass:string) {
-        const url = `http://localhost:3001/api/teacher-evaluation/teachers-notes/${idTeacher}/${idPeriod}/${idClass}`;
+
+    //Obtener las solicitudes de un estudiante
+    async getApplicationsOfStudent(idStudent: string) {
+        const url = `http://localhost:3001/api/reposition-request/${idStudent}`;
         try {
             const response = await axios({
                 method: "GET",
@@ -58,10 +65,10 @@ export default class EvaluationService {
                 const data = await response.data;
 
                 if (data.statusCode !== 200) {
-
+                    console.log(data.statusCode);
                     this.store.setToaster({
                         isActive: true,
-                        text: "Error al obtener la evaluacion del docente. Por favor, inténtelo de nuevo más tarde.",
+                        text: "Error al obtener las solicitudes. Por favor, inténtelo de nuevo más tarde.",
                         color: "error",
                     });
                 }
@@ -69,7 +76,7 @@ export default class EvaluationService {
             } else {
                 this.store.setToaster({
                     isActive: true,
-                    text: "Error al obtener la evaluacion del docente. Por favor, inténtelo de nuevo más tarde.",
+                    text: "Error al obtener las solicitudes. Por favor, inténtelo de nuevo más tarde.",
                     color: "error",
                 });
             }
@@ -78,12 +85,10 @@ export default class EvaluationService {
         } catch (error) {
             this.store.setToaster({
                 isActive: true,
-                text: "Error al obtener la evaluacion del docente. Por favor, inténtelo de nuevo más tarde.",
+                text: "Error al obtener las solicitudes. Por favor, inténtelo de nuevo más tarde.",
                 color: "error",
             });
             return error;
         }
     }
 }
-
-

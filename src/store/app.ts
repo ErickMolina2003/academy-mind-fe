@@ -23,14 +23,16 @@ export const useAppStore = defineStore("app", {
         this.user = JSON.parse(newUser);
       }
     },
-    setUpdateTeacher(update: boolean,teacher:any) {
+    setUpdateTeacher(update: boolean,teacher:any,teachingCareer:any) {
       this.updateTeachers = update;
       this.user.teacher = teacher;
+      this.user.teacher.teachingCareer = teachingCareer;
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },
-    setUpdateStudent(update: boolean,student:any) {
+    setUpdateStudent(update: boolean,student:any, studentCareer:any) {
       this.updateStudents = update;
       this.user.student = student;
+      this.user.student.studentCareer = studentCareer;
       
       localStorage.setItem("academy-user", JSON.stringify(this.user));
     },

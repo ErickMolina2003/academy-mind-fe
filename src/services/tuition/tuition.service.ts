@@ -553,8 +553,8 @@ export default class TuitionService {
     }
 
     // Obtener docentes que subieron notas por departamento
-    async getTeachersGrades(idDepartment: string) {
-        const url = `http://localhost:3001/api/tuition/teacher-notes/${idDepartment}`;
+    async getTeachersGrades(idDepartment: string, idCenter: string) {
+        const url = `http://localhost:3001/api/tuition/teacher-notes/${idDepartment}?center=${idCenter}`;
         try {
             const response = await axios({
                 method: "GET",

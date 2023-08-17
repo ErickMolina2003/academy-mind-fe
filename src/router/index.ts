@@ -87,6 +87,12 @@ const routes = [
               import("@/components/Applications/SpecialCancellation.vue"),
           },
           {
+            path: "/pago-reposicion/:tipo",
+            name: "pago-reposicion",
+            component: () =>
+              import("@/components/Applications/PayReplacement.vue"),
+          },
+          {
             path: "/adicionar-asignatura",
             name: "adicionar-asignatura",
             component: () =>

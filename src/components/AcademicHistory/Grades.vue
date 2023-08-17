@@ -89,7 +89,7 @@ import TuitionService from "@/services/tuition/tuition.service";
 const store = useAppStore();
 const tuitionService = new TuitionService();
 const subjects = ref([]);
-const userLogged = ref(store.user.student);
+const userLogged = store.user.student;
 const fullName =
     store.user.firstName +
     ` ` +
@@ -100,13 +100,13 @@ const fullName =
     store.user.secondLastName;
 const user = {
     name: fullName,
-    accountNumber: userLogged.value.accountNumber,
-    center: userLogged.value.studentCareer[0].centerCareer.regionalCenter.name,
-    globalIndex: userLogged.value.overallIndex,
-    periodIndex: userLogged.value.periodIndex,
-    career: userLogged.value.studentCareer[0].centerCareer.career.name
+    accountNumber: userLogged.accountNumber,
+    center: userLogged.studentCareer[0].centerCareer.regionalCenter.name,
+    globalIndex: userLogged.overallIndex,
+    periodIndex: userLogged.periodIndex,
+    career: userLogged.studentCareer[0].centerCareer.career.name
 }
-
+console.log(userLogged);
 onMounted(() => {
     getSubjects();
     

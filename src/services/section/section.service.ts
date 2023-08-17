@@ -85,8 +85,8 @@ export default class SectionService {
   }
 
   // Obtener todas las secciones de un departamento
-  async getSectionsByDepartment(idDepartment: string) {
-    const url = `http://localhost:3001/api/section/department/${idDepartment}`;
+  async getSectionsByDepartment(idDepartment: string, idCenter:string) {
+    const url = `http://localhost:3001/api/section/department/${idDepartment}?center=${idCenter}`;
     try {
       const response = await axios({
         method: "GET",
@@ -157,8 +157,9 @@ export default class SectionService {
     }
   }
 
-  async getSectionByPeriodAndClass(idPeriodo: string, idClase: string) {
-    const url = `http://localhost:3001/api/section/class-period/${idClase}?period=${idPeriodo}`;
+  // Obtener todas las secciones de una clase por periodo y centro regional
+  async getSectionByPeriodAndClass(idPeriod: string, idClase: string, idCenter:string) {
+    const url = `http://localhost:3001/api/section/class-period/${idClase}?center=${idCenter}&period=${idPeriod}`;
     try {
       const response = await axios({
         method: "GET",
@@ -236,8 +237,8 @@ export default class SectionService {
     }
   }
 
-  async getWaitingList(idDepartment: string) {
-    const url = `http://localhost:3001/api/section/waiting-list-sections/${idDepartment}`;
+  async getWaitingList(idDepartment: string,idCenter:string) {
+    const url = `http://localhost:3001/api/section/waiting-list-sections/${idDepartment}?center=${idCenter}`;
     try {
       const response = await axios({
         method: "GET",
