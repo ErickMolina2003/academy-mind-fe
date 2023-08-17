@@ -22,12 +22,12 @@ import sideBar from "@/components/SideBars/SideBar.vue";
 
 const requestOptions = ref([
   {
-    name: "Cambio de Carrera",
-    to: "/cambio-de-carrera",
-  },
-  {
     name: "Cancelación Excepcional",
     to: "/cancelacion-excepcional",
+  },
+  {
+    name: "Cambio de Carrera",
+    to: "/cambio-de-carrera",
   },
   {
     name: "Cambio de Centro",

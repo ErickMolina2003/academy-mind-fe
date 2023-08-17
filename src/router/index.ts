@@ -71,20 +71,45 @@ const routes = [
             component: () => import("@/components/AcademicHistory/Grades.vue"),
           },
           {
-            path: "/cambio-carrera/:tipo",
+            path: "/cambio-carrera/realizar-solicitud",
             name: "cambio-carrera",
-            component: () => import("@/components/Applications/Majors.vue"),
+            component: () =>
+              import("@/components/Applications/ChangeCareer.vue"),
           },
           {
-            path: "/cambio-centro/:tipo",
+            path: "/cambio-carrera/borrar-solicitud",
+            name: "cambio-carrera-borrar-solicitud",
+            component: () =>
+              import("@/components/Applications/DeleteChangeCareer.vue"),
+          },
+          {
+            path: "/cambio-carrera/ver-solicitud",
+            name: "cambio-carrera-ver-solicitud",
+            component: () =>
+              import("@/components/Applications/ViewChangeCareer.vue"),
+          },
+          {
+            path: "/cambio-centro/realizar-solicitud",
             name: "cambio-centro",
             component: () => import("@/components/Applications/Centers.vue"),
           },
           {
-            path: "/cancelacion-excepcional/:tipo",
-            name: "cancelacion-excepcional",
+            path: "/cambio-centro/ver-solicitud",
+            name: "cambio-centro-ver-solicitud",
             component: () =>
-              import("@/components/Applications/SpecialCancellation.vue"),
+              import("@/components/Applications/ViewChangeCenter.vue"),
+          },
+          {
+            path: "/cambio-centro/borrar-solicitud",
+            name: "cambio-centro-borrar-solicitud",
+            component: () =>
+              import("@/components/Applications/DeleteChangeCenter.vue"),
+          },
+          {
+            path: "/cancelacion-excepcional-clases",
+            name: "cancelacion-excepcional-clases",
+            component: () =>
+              import("@/components/Applications/CreateSpecialCancellation.vue"),
           },
           {
             path: "/pago-reposicion/:tipo",

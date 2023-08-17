@@ -27,15 +27,15 @@
       class="pa-4 pt-2"
     >
       <v-autocomplete
-        v-model="selectedCenter"
-        :items="filterCenter.map((center) => center.name)"
-        label="Centro a cambiarse"
+        v-model="selectedCareer"
+        :items="filterCareer.map((item) => item.name)"
+        label="Carrera a cambiarse"
         :rules="[rules.required]"
         return-object
       ></v-autocomplete>
       <v-textarea
         v-model="reasonsChange"
-        label="Justificacion cambio de centro"
+        label="Justificacion cambio de carrera"
         :rules="[rules.required]"
         auto-grow
         variant="filled"
@@ -60,15 +60,15 @@
 import { ref, watch, onMounted } from "vue";
 import { useAppStore } from "@/store/app";
 import PeriodService from "@/services/period/period.service";
-import RegionalCenterService from "@/services/regional-center/regional.center.service";
-import CenterChangeService from "@/services/center-change/center.change.service";
+import CareerChangeService from "@/services/career-change/career.change.service";
+import CareerService from "@/services/career/career.service";
 
-const serviceCenterChange = new CenterChangeService();
-const centerService = new RegionalCenterService();
+const careerService = new CareerService();
 const servicePeriod = new PeriodService();
+const serviceCareerChange = new CareerChangeService();
 const store = useAppStore();
 const isValid = ref(false);
-const selectedCenter = ref("");
+const selectedCareer = ref(null);
 const reasonsChange = ref("Quiero hacer una solicitud de cambio porque ...");
 const centerStudent =
   store.user.student.studentCareer[0].centerCareer.regionalCenter.name;
@@ -80,7 +80,7 @@ const accountStudent = store.user.student.accountNumber;
 const indexStudent = store.user.student.overallIndex;
 const periods = ref([]);
 const periodToModify = ref({});
-const filterCenter = ref([]);
+const filterCareer = ref([]);
 const data = ref([]);
 const periodId = ref("");
 const accountNumber = ref("");
@@ -90,10 +90,11 @@ const idPeriod = ref("");
 
 onMounted(async () => {
   getPeriods();
-  data.value = await centerService.getCenters();
-  filterCenter.value = data.value.regionalCenter.filter(
-    (center) => center.id !== centerStudentId
-  );
+  data.value = await careerService.getCareerByCenter(centerStudentId);
+  filterCareer.value = data.value.careersCenter[
+    `${centerStudentId}`
+  ].careers.filter((career) => career.name !== careerStudent);
+  console.log();
 });
 
 async function getPeriods() {
@@ -102,6 +103,7 @@ async function getPeriods() {
   );
   periods.value = response.periods;
   periodToModify.value = periods.value[0];
+  console.log(periodToModify.value.id);
   periodId.value = periodToModify.value.id;
   if (periodToModify.value.idStatePeriod?.name === "Finalizado") {
     store.setToaster({
@@ -113,7 +115,7 @@ async function getPeriods() {
 }
 
 function borrar() {
-  selectedCenter.value = "";
+  selectedCareer.value = "";
   reasonsChange.value = "Quiero hacer una solicitud de cambio por que ...";
 }
 
@@ -122,19 +124,19 @@ const rules = {
 };
 
 async function submitApplication() {
-  let center = getCenter(selectedCenter.value);
+  let career = getCareer(selectedCareer.value);
   const DataCreate = {
     accountNumber: accountStudent,
-    idCenter: center.id,
+    idCareer: career.id,
     justification: reasonsChange.value,
     idPeriod: `${periodId.value}`,
   };
-  await serviceCenterChange.CreateCenterChange(DataCreate);
+  await serviceCareerChange.CreateCareerChange(DataCreate);
 }
 
-function getCenter(nameCenter: string) {
-  return filterCenter.value.find(
-    (center) => center.name === nameCenter.toUpperCase()
+function getCareer(nameCareer: string) {
+  return filterCareer.value.find(
+    (career) => career.name === nameCareer.toUpperCase()
   );
 }
 </script>

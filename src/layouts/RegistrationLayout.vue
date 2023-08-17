@@ -38,14 +38,14 @@ const registrationOptions = ref([
             to: "/cambio-carrera/realizar-solicitud",
           },
           {
-            name: "Borrar solicitud",
-            to: "/cambio-carrera/borrar-solicitud",
+            name: "Ver solicitud",
+            to: "/cambio-carrera/ver-solicitud",
           },
           {
-            name: "Ver solicitudes",
-            to: "/cambio-carrera/ver-solicitudes",
-          }
-        ]
+            name: "Cancelar solicitud",
+            to: "/cambio-carrera/borrar-solicitud",
+          },
+        ],
       },
       {
         name: "Cambio de Centro",
@@ -55,23 +55,27 @@ const registrationOptions = ref([
             to: "/cambio-centro/realizar-solicitud",
           },
           {
-            name: "Ver solicitudes",
-            to: "/cambio-centro/ver-solicitudes",
-          }
-        ]
+            name: "Ver solicitud",
+            to: "/cambio-centro/ver-solicitud",
+          },
+          {
+            name: "Cancelar solicitud",
+            to: "/cambio-centro/borrar-solicitud",
+          },
+        ],
       },
       {
         name: "Cancelación Excepcional",
         submenu: [
           {
             name: "Realizar solicitud",
-            to: "/cancelacion-excepcional/realizar-solicitud",
+            to: "/cancelacion-excepcional-clases",
           },
           {
-            name: "Ver solicitudes",
-            to: "/cancelacion-excepcional/ver-solicitudes",
-          }
-        ]
+            name: "Ver solicitud",
+            to: "/cancelacion-excepcional/ver-solicitud",
+          },
+        ],
       },
       {
         name: "Pago de reposición",
