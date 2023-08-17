@@ -1,7 +1,7 @@
 <template>
-  <v-container class="pb-1" style="font-size: 0.9rem">
+  <v-container class="pb-6" style="font-size: 0.9rem">
     <h1 style="color: #cc6600">Historial Académico</h1>
-    <v-divider :thickness="5" class="pb-2 mt-1"></v-divider>
+    <v-divider :thickness="5" class="pb-5 mt-2"></v-divider>
     <v-col
       cols="12"
       class="mb-1 px-7 py-5"
@@ -27,11 +27,11 @@
       <v-row class="d-flex"> </v-row>
 
       <v-row class="d-flex">
-        <v-col class="py-0 pb-1" cols="6">
+        <v-col class="py-0 pb-2" cols="6">
           <p><strong>Carrera: </strong> {{ user.career }}</p>
         </v-col>
 
-        <v-col class="py-0 pb-1" cols="6">
+        <v-col class="py-0 pb-2" cols="6">
           <p><strong>Indice Periodo: </strong> {{ user.periodIndex }}</p>
         </v-col>
       </v-row>
@@ -45,10 +45,10 @@
       </v-row>
     </v-col>
 
-    <v-table fixed-header>
+    <v-table fixed-header density="comfortable">
       <thead>
         <tr>
-          <th class="pa-0 px-3">CÓD.</th>
+          <th class="pa-0 px-3">CÓDIGO</th>
           <th class="pa-0 px-3">ASIGNATURA</th>
           <th class="pa-0 px-3">UV</th>
           <th class="pa-0 px-3">SECCIÓN</th>
@@ -60,14 +60,18 @@
       </thead>
       <tbody>
         <tr v-for="item in displayedSubjects" :key="item.codigo">
-          <td class="text-left pa-0 px-3">{{ item.codigo }}</td>
-          <td class="text-left pa-0 px-3">{{ item.asignatura }}</td>
-          <td class="text-left pa-0 px-3">{{ item.uv }}</td>
-          <td class="text-left pa-0 px-3">{{ item.seccion }}</td>
-          <td class="text-left pa-0 px-3">{{ item.anio }}</td>
-          <td class="text-left pa-0 px-3">{{ item.periodo }}</td>
-          <td class="text-left pa-0 px-3">{{ item.calificacion }}</td>
-          <td class="text-left pa-0 px-3">{{ item.obs }}</td>
+          <td class="text-left pa-0 px-3">{{ item.section.idClass.code }}</td>
+          <td class="text-left pa-0 px-3">{{ item.section.idClass.name }}</td>
+          <td class="text-left pa-0 px-3">
+            {{ item.section.idClass.valueUnits }}
+          </td>
+          <td class="text-left pa-0 px-3">{{ item.section.codeSection }}</td>
+          <td class="text-left pa-0 px-3">{{ item.section.idPeriod.year }}</td>
+          <td class="text-left pa-0 px-3">
+            {{ item.section.idPeriod.numberPeriod }}
+          </td>
+          <td class="text-left pa-0 px-3">{{ item.note }}</td>
+          <td class="text-left pa-0 px-3">{{ item.stateClass }}</td>
         </tr>
       </tbody>
     </v-table>
@@ -76,7 +80,6 @@
       :total-visible="5"
       :length="totalSubjectsPages"
       @input="updateDisplayedSubjects"
-      class="mb-4"
     />
   </v-container>
 </template>
@@ -108,23 +111,15 @@ const user = {
 };
 
 onMounted(() => {
-<<<<<<< HEAD
+  getSubjects();
+});
+
+async function getSubjects() {
+  const response = await tuitionService.getAcademicHistory(user.accountNumber);
+  subjects.value = response.registrations;
   updateDisplayedSubjects();
-});
-
-=======
-    getSubjects();
-
-});
-
-async function getSubjects(){
-    const response = await tuitionService.getAcademicHistory(user.accountNumber);
-    subjects.value = response.registrations;
-    updateDisplayedSubjects();
 }
 
-
->>>>>>> 9878d2fcff32de7d454273b1ce65e241788d161a
 // paginacion
 const filteredSubjects = computed(() => subjects.value);
 const itemsPerPage = 8;
@@ -140,13 +135,8 @@ const updateDisplayedSubjects = () => {
     startIndex + itemsPerPage
   );
 };
-<<<<<<< HEAD
-watch(currentSubjectPage, updateDisplayedSubjects);
-watch(filteredSubjects, updateDisplayedSubjects);
+watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
 function downloadPDF() {}
-=======
-watch([currentSubjectPage,filteredSubjects], updateDisplayedSubjects);
->>>>>>> 9878d2fcff32de7d454273b1ce65e241788d161a
 </script>
 
 <style>
