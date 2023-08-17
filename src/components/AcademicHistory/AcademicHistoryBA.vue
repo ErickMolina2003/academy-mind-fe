@@ -1,109 +1,107 @@
 <template>
-  <div>
-    <SearchableNavBar :title="myTitle" :label="myLabel" @search="filterStudents" />
+  <v-container>
+    <SearchableNavBar title="Historial Académico Estudiantil" label="No. Cuenta" @search="filterStudents" />
     <table>
       <thead>
         <tr>
-          <th>Numero de cuenta</th>
+          <th>Número de cuenta</th>
           <th>Nombre</th>
           <th>Correo Institucional</th>
-          <!--<th>Carrera</th>-->
+          <th>Carrera</th>
+          <th>Centro Regional</th>
           <th>Historial Académico</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in filteredStudents" :key="student.dni">
+        <tr v-for="student in displayedStudents" :key="student.dni">
           <td>{{ student.accountNumber }}</td>
           <td>
             {{
-              `${student.user.firstName} ${student.user.secondName} ${student.user.firstLastName} ${student.user.secondLastName}`
+              `${student.user.firstName} ${student.user.secondName} ${student.user.firstLastName}
+                        ${student.user.secondLastName}`
             }}
           </td>
           <td>{{ student.institutionalEmail }}</td>
-          <!--<td>{{ student.career }}</td>-->
+          <td>{{ student.studentCareer[0].centerCareer.career.name }}</td>
+          <td>{{ student.studentCareer[0].centerCareer.regionalCenter.name }}</td>
           <td>
-            <v-btn color="primary" @click="showClassDetails(student)" class="mr-2"
-              >Ver</v-btn
-            >
+            <v-icon @click="showClassDetails(student)">{{'mdi-eye-outline'}}</v-icon>
           </td>
         </tr>
       </tbody>
     </table>
-    <v-dialog v-model="showModal" persistent max-width="950">
-      <v-card>
-        <v-toolbar color="primary" dark>
-          <v-toolbar-title>Historial Académico - {{ selectedStudentAccountNumber }}</v-toolbar-title>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-card-text>
-          <v-table  height="30rem" class="table-grades" fixed-header density="comfortable">
-            <thead >
-              <tr>
-                <th class="text-center">CODIGO</th>
-                <th class="text-center">ASIGNATURA</th>
-                <th class="text-center">UV</th>
-                <th class="text-center">SECCION</th>
-                <th class="text-center">AÑO</th>
-                <th class="text-center">PERIODO</th>
-                <th class="text-center">CALIFICACION</th>
-                <th class="text-center">OBS</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in subjects" :key="item.codigo">
-                <td class="text-center">{{ item.codigo }}</td>
-                <td class="text-center">{{ item.asignatura }}</td>
-                <td class="text-center">{{ item.uv }}</td>
-                <td class="text-center">{{ item.seccion }}</td>
-                <td class="text-center">{{ item.anio }}</td>
-                <td class="text-center">{{ item.periodo }}</td>
-                <td class="text-center">{{ item.calificacion }}</td>
-                <td class="text-center">{{ item.obs }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card-text>
-        <v-card-actions class="fixed-footer">
-          <v-spacer></v-spacer>
-          <v-btn color="bg-blue-darken-3" @click="showModal = false">Cerrar</v-btn>
-          </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+    <v-pagination v-model="currentStudentsPage" :total-visible="5" :length="totalStudentsPages" @input="updateDisplayedStudents" />
+  </v-container>
+  <v-dialog v-model="showModal" persistent max-width="950">
+    <v-card>
+      <v-toolbar color="primary" dark>
+        <v-toolbar-title>Historial académico</v-toolbar-title>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+      <v-card-text>
+        <h2 class="text-center mb-2">{{ title }}</h2>
+        <v-table  fixed-header density="comfortable">
+          <thead>
+            <tr>
+              <th class="pa-0 px-3">CÓDIGO</th>
+              <th class="pa-0 px-3">ASIGNATURA</th>
+              <th class="pa-0 px-3">UV</th>
+              <th class="pa-0 px-3">SECCIÓN</th>
+              <th class="pa-0 px-3">AÑO</th>
+              <th class="pa-0 px-3">PERIODO</th>
+              <th class="pa-0 px-3">CALIFICACIÓN</th>
+              <th class="pa-0 px-3">OBS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in displayedSubjects" :key="item">
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.code }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.name }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idClass.valueUnits }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.codeSection }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idPeriod.year }}</td>
+              <td class="text-left pa-0 px-3">{{ item.section.idPeriod.numberPeriod }}</td>
+              <td class="text-left pa-0 px-3">{{ item.note }}</td>
+              <td class="text-left pa-0 px-3">{{ item.stateClass }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-pagination v-model="currentSubjectPage" :total-visible="5" :length="totalSubjectsPages"
+          @input="updateDisplayedSubjects" />
+      </v-card-text>
+      <v-card-actions class="fixed-footer">
+        <v-spacer></v-spacer>
+        <v-btn color="bg-blue-darken-3" @click="showModal = false">Cerrar</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import StudentService from "@/services/student/student.service";
+import TuitionService from "@/services/tuition/tuition.service";
 import { useAppStore } from "@/store/app";
-import { storeToRefs } from "pinia";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
-import grades from "../../mock/grades.json";
-const subjects = ref(grades);
-
+const subjects = ref([]);
 const store = useAppStore();
-const { updateStudents } = storeToRefs(store);
 const students = ref([]);
-const isLoading = ref(false);
 const originalStudents = ref([]);
 const studentService = new StudentService();
-const myTitle = "Historial Académico Estudiantil";
-const myLabel = "No. Cuenta";
+const tuitionService = new TuitionService();
+const title = ref("");
 const showModal = ref(false);
-const selectedStudent = ref({});
-const selectedStudentFullName = ref("");
-const selectedStudentAccountNumber = ref("");
 
 onMounted(async () => {
   getStudents();
 });
 
 async function getStudents() {
-  isLoading.value = true;
+
   const response = await studentService.getStudents();
   originalStudents.value = response.students;
   students.value = [...originalStudents.value];
-  isLoading.value = false;
+
 }
 
 const filterStudents = (query) => {
@@ -117,25 +115,43 @@ const filterStudents = (query) => {
   }
 };
 
-const filteredStudents = computed(() => students.value);
 
-const showClassDetails = (student) => {
-  selectedStudent.value = student;
-  selectedStudentFullName.value = `${student.user.firstName} ${student.user.secondName} ${student.user.firstLastName} ${student.user.secondLastName}`;
-  selectedStudentAccountNumber.value = student.accountNumber;
+
+const showClassDetails = async (student) => {
+  title.value = `${student.user.firstName} ${student.user.secondName} ${student.user.firstLastName} ${student.user.secondLastName}`;
   showModal.value = true;
+  const response = await tuitionService.getAcademicHistory(student.accountNumber);
+  subjects.value = response.registrations;
 };
 
 document.addEventListener("filter", (event) => {
   filterStudents(event.detail);
 });
 
-watch(updateStudents, () => {
-  if (updateStudents) {
-    getStudents();
-    store.setUpdateStudent(false);
-  }
-});
+// paginacion
+const filteredSubjects = computed(() => subjects.value);
+const itemsPerPage = 10;
+const currentSubjectPage = ref(1);
+const displayedSubjects = ref([]);
+const totalSubjectsPages = computed(() => Math.ceil(filteredSubjects.value.length / itemsPerPage));
+const updateDisplayedSubjects = () => {
+  const startIndex = (currentSubjectPage.value - 1) * itemsPerPage;
+  displayedSubjects.value = filteredSubjects.value.slice(startIndex, startIndex + itemsPerPage);
+};
+watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
+
+const filteredStudents = computed(() => students.value);
+const currentStudentsPage = ref(1);
+const displayedStudents = ref([]);
+const totalStudentsPages = computed(() => Math.ceil(filteredStudents.value.length / itemsPerPage));
+const updateDisplayedStudents = () => {
+  const startIndex = (currentStudentsPage.value - 1) * itemsPerPage;
+  displayedStudents.value = filteredStudents.value.slice(startIndex, startIndex + itemsPerPage);
+}
+watch([currentStudentsPage,filteredStudents], updateDisplayedStudents);
+
+
+
 </script>
 
 <style>

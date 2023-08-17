@@ -83,11 +83,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import grades from "../../mock/grades.json";
 import { useAppStore } from "@/store/app";
+import TuitionService from "@/services/tuition/tuition.service";
 
 const store = useAppStore();
-const subjects = ref(grades);
+const tuitionService = new TuitionService();
+const subjects = ref([]);
 const userLogged = ref(store.user.student);
 const fullName =
   store.user.firstName +
@@ -107,9 +108,23 @@ const user = {
 };
 
 onMounted(() => {
+<<<<<<< HEAD
   updateDisplayedSubjects();
 });
 
+=======
+    getSubjects();
+
+});
+
+async function getSubjects(){
+    const response = await tuitionService.getAcademicHistory(user.accountNumber);
+    subjects.value = response.registrations;
+    updateDisplayedSubjects();
+}
+
+
+>>>>>>> 9878d2fcff32de7d454273b1ce65e241788d161a
 // paginacion
 const filteredSubjects = computed(() => subjects.value);
 const itemsPerPage = 8;
@@ -125,9 +140,13 @@ const updateDisplayedSubjects = () => {
     startIndex + itemsPerPage
   );
 };
+<<<<<<< HEAD
 watch(currentSubjectPage, updateDisplayedSubjects);
 watch(filteredSubjects, updateDisplayedSubjects);
 function downloadPDF() {}
+=======
+watch([currentSubjectPage,filteredSubjects], updateDisplayedSubjects);
+>>>>>>> 9878d2fcff32de7d454273b1ce65e241788d161a
 </script>
 
 <style>

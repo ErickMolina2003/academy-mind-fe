@@ -47,9 +47,6 @@ export default class EvaluationService {
 
     // Obtener evaluaciones de un docente en una clase
     async getEvaluationOfTeacher(idTeacher:string,idPeriod:string,idClass:string) {
-        console.log(idTeacher)
-        console.log(idPeriod)
-        console.log(idClass)
         const url = `http://localhost:3001/api/teacher-evaluation/teachers-notes/${idTeacher}/${idPeriod}/${idClass}`;
         try {
             const response = await axios({
