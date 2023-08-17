@@ -126,7 +126,7 @@ function closeModal() {
 
 
 async function getTeachers() {
-    const response = await tuitionService.getTeachersGrades(careerBoss.career.id);
+    const response = await tuitionService.getTeachersGrades(careerBoss.career.id,careerBoss.regionalCenter.id);
     
     teachers.value = response.teachers;
     originalTeachers.value = teachers.value;

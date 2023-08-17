@@ -522,7 +522,9 @@ async function deletePhoto() {
 
 async function confirmInfo() {
     if (description.value) {
-        if (userIsTeacher) {
+        
+        
+        if (userIsTeacher.value) {
             await teacherService.updateTeacher(dni, {
                 description: description.value,
             });
@@ -531,9 +533,11 @@ async function confirmInfo() {
                 description: description.value,
             });
         } else {
+            
             await studentService.updateStudent(dni, {
                 description: description.value,
             });
+            
         }
 
         store.setToaster({

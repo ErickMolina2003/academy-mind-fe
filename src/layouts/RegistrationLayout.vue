@@ -77,6 +77,19 @@ const registrationOptions = ref([
           },
         ],
       },
+      {
+        name: "Pago de reposición",
+        submenu: [
+          {
+            name: "Realizar solicitud",
+            to: "/pago-reposicion/realizar-solicitud",
+          },
+          {
+            name: "Ver solicitudes",
+            to: "/pago-reposicion/ver-solicitudes",
+          }
+        ]
+      },
     ],
     icon: "mdi-frequently-asked-questions",
   },
