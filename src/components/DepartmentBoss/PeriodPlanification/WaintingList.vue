@@ -151,7 +151,7 @@ async function getPeriods() {
 }
 
 async function getWaitingList() {
-    const response = await sectionService.getWaitingList(careerBoss.career.id);
+    const response = await sectionService.getWaitingList(careerBoss.career.id,careerBoss.regionalCenter.id);
     waitingList.value = response.waitingListSections;
 }
 

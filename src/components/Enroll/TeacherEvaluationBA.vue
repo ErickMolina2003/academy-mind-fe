@@ -140,7 +140,7 @@ async function getPeriods() {
 }
 
 async function getTeachers() {
-    const response = await serviceEvaluation.getTeacherWithEvaluations(careerBoss.career.id);
+    const response = await serviceEvaluation.getTeacherWithEvaluations(careerBoss.career.id,careerBoss.regionalCenter.id);
     teachersList.value = response.teachers;
     originalTeachers.value = teachersList.value;
 }

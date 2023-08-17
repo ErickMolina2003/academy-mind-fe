@@ -186,7 +186,7 @@ async function confirmCancelSection() {
 
 
 async function getSections() {
-    const response = await sectionService.getSectionsByDepartment(careerBoss.career.id);
+    const response = await sectionService.getSectionsByDepartment(careerBoss.career.id,careerBoss.regionalCenter.id);
     sections.value = response.sections;
 }
 

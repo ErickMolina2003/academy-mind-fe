@@ -264,6 +264,8 @@ async function getPeriods() {
 async function getClassesOptions(idCareer) {
   const response = await serviceClasses.getClassesToGo(idCareer,studentLogged.student.accountNumber);
   classNames.value = response.classesToGo;
+  
+  
 }
 
 function getTeacherSection(idTeacher) {
@@ -309,7 +311,7 @@ async function seleccionarAsignatura(asignatura) {
   } else {
     let selectedClass = classNames.value.find(className => className.name === asignatura);
 
-    let sectionsClass = await sectionService.getSectionByPeriodAndClass(periodToModify.value.id, selectedClass.id);
+    let sectionsClass = await sectionService.getSectionByPeriodAndClass(periodToModify.value.id, selectedClass.id, studentCareer.regionalCenter.id);
 
     seccionesFiltradas.value = sectionsClass.sections;
   }

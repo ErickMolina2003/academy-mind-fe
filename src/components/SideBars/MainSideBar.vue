@@ -139,6 +139,11 @@ const coordinatorOptions = ref([
     icon: "mdi-book-variant",
   },
   {
+    name: "Ingresar Notas",
+    to: "/ingresar-notas",
+    icon: "mdi-lead-pencil",
+  },
+  {
     name: "Carga del Periodo",
     to: "/carga-periodo",
     icon: "mdi-calendar-month",

@@ -171,7 +171,7 @@ export default class TeacherService {
 
       if (response.status === 200) {
         const teacher = await response.data.user.teacher;
-        this.store.setUpdateTeacher(true, teacher);
+        this.store.setUpdateTeacher(true, teacher,this.store.user.teacher?.teachingCareer);
 
         this.store.setToaster({
           isActive: true,
