@@ -236,7 +236,9 @@
                 <v-col cols="12" sm="6">
                   <v-autocomplete
                     label="Centro Regional"
-                    :items="centers.careers.map((center) => center.name) || []"
+                    :items="
+                      centers.regionalCenter.map((center) => center.name) || []
+                    "
                     dense
                     clearable
                     required
@@ -523,7 +525,6 @@ async function submitModal() {
     };
 
     const teacherService = new TeacherService();
-
     const response = await teacherService.createTeacher(user);
     if (response) {
       closeModal();
@@ -537,7 +538,7 @@ function getCareer(nameCareer: string) {
   );
 }
 function getCenter(nameCenter: string) {
-  return centers.value.careers.find(
+  return centers.value.regionalCenter.find(
     (center) => center.name === nameCenter.toUpperCase()
   );
 }

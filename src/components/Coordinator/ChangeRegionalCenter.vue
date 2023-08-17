@@ -5,9 +5,9 @@
         class="text-center text-white"
         style="background-color: rgb(var(--v-theme-secondary-lighthen-1))"
       >
-        <span>Solicitudes de Cambio de Centro Regional</span>
+        <span>Solicitudes de Cambio de Centro</span>
       </v-card-title>
-      <div class="d-flex align-center mx-4 my-2">
+      <div class="d-flex align-center mt-1 ml-2">
         <div>
           <v-select
             v-model="itemsPerPage"
@@ -22,13 +22,23 @@
           <v-list-item
             v-for="(user, index) in paginatedStudents"
             :key="index"
-            class="mb-2"
+            class="mb-1"
           >
-            <v-divider :thickness="2"></v-divider>
-            <div class="d-flex justify-space-between align-center ma-2">
+            <v-divider></v-divider>
+            <div class="d-flex justify-space-between align-center ma-1">
               <v-list-item-title
                 class="ml-12"
-                v-text="user.name"
+                v-text="
+                  user.student.user.firstName +
+                  ' ' +
+                  user.student.user.secondName +
+                  ' ' +
+                  user.student.user.firstLastName +
+                  ' ' +
+                  user.student.user.secondLastName +
+                  ' - ' +
+                  user.student.accountNumber
+                "
               ></v-list-item-title>
               <div>
                 <v-btn class="mr-12" color="green" @click="openModal(user)">
@@ -37,7 +47,6 @@
                 </v-btn>
               </div>
             </div>
-            <v-divider :thickness="2"></v-divider>
           </v-list-item>
         </v-list>
       </v-card-text>
@@ -53,30 +62,33 @@
 
   <v-dialog v-model="showModal" class="w-auto" max-width="800px">
     <v-card>
-      <v-card-title class="text-center bg-blue text-center" title=""
-        >Solicitud de Cambio de Centro Regional</v-card-title
-      >
+      <v-card-title class="text-center bg-blue text-center" title="">
+        Solicitud de Cambio de Carrera
+      </v-card-title>
       <v-card-text class="overflow-auto">
         <div class="mb-4 d-flex justify-space-evenly align-center">
-          <v-list-item-title>Estudiante: {{ userData.name }}</v-list-item-title>
-          <p>Núm de Cuenta: {{ userData.account }}</p>
+          <v-list-item-title
+            >Estudiante:
+            {{
+              userData.student.user.firstName +
+              " " +
+              userData.student.user.firstLastName
+            }}</v-list-item-title
+          >
+          <p>Núm de Cuenta: {{ userData.student.accountNumber }}</p>
+          <p>Indice de Periodo: {{ userData.student.periodIndex }}</p>
         </div>
         <div class="bg-blue-lighten-1 text-center">Motivo</div>
-        <v-sheet class="pa-4 text-justify">{{ userData.motive }}</v-sheet>
-        <p class="bg-blue-lighten-1 text-center">Cambio de Centro Regional</p>
+        <v-sheet class="pa-4 text-justify">{{
+          userData.justification
+        }}</v-sheet>
+        <p class="bg-blue-lighten-1 text-center">Cambio de carrera</p>
         <v-sheet class="pa-4">
-          <p>Centro Regional a cambiar: {{ userData.newCenter }}</p>
+          <p>
+            Carrera actual:
+            {{ userData.student.studentCareer[0].centerCareer.career.name }}
+          </p>
         </v-sheet>
-        <p class="bg-blue-lighten-1 text-center">Respaldo de Solicitud</p>
-        <v-btn
-          class="ma-6 bg-blue-grey-lighten-4"
-          :href="userData.pdf"
-          v-if="userData.pdf"
-          download
-        >
-          <v-icon start icon="mdi-download-circle" size="x-large"></v-icon
-          >{{ userData.pdf }}
-        </v-btn>
       </v-card-text>
 
       <v-card-actions class="fixed-footer mx-4">
@@ -108,14 +120,66 @@
   </v-dialog>
 </template>
 
-<script setup>
-import { ref, computed } from "vue";
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import PeriodService from "@/services/period/period.service";
+import CenterChangeService from "@/services/center-change/center.change.service";
+import { useAppStore } from "@/store/app";
+
+const store = useAppStore();
+const careerCoordinator =
+  store.user.teacher.teachingCareer[0].centerCareer.career.id;
+const CenterCoordinator =
+  store.user.teacher.teachingCareer[0].centerCareer.regionalCenter.id;
+const servicePeriod = new PeriodService();
+const serviceCenterChange = new CenterChangeService();
 const showModal = ref(false);
 const userData = ref(null);
-
-const perPageOptions = [5, 10, 25, 50];
 const itemsPerPage = ref(5);
+const perPageOptions = [5, 10, 15, 20];
 const currentPage = ref(1);
+const periods = ref([]);
+const periodToModify = ref({});
+const studentsList = ref([]);
+const idCareerChange = ref("");
+const aplicationStatus = ref("");
+
+onMounted(async () => {
+  getPeriods();
+  getCareerChange();
+});
+
+async function getCareerChange() {
+  const response = await serviceCenterChange.getCenterChange(
+    CenterCoordinator,
+    careerCoordinator
+  );
+  studentsList.value = response.allRequest.filter(
+    (request) => request.applicationStatus === "En progreso"
+  );
+  if (studentsList.value.length === 0) {
+    store.setToaster({
+      isActive: true,
+      text: "No hay solicitudes pendientes de cambio de centro",
+      color: "error",
+    });
+  }
+}
+
+async function getPeriods() {
+  const response = await servicePeriod.getPeriodsByYear(
+    new Date().getFullYear()
+  );
+  periods.value = response.periods;
+  periodToModify.value = periods.value[0];
+  if (periodToModify.value.idStatePeriod?.name === "Finalizado") {
+    store.setToaster({
+      isActive: true,
+      text: "El periodo actual esta finalizado",
+      color: "error",
+    });
+  }
+}
 
 const openModal = (user) => {
   showModal.value = true;
@@ -126,77 +190,34 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const acceptRequest = () => {
-  console.log("Solicitud Aceptada", userData.value);
-  students.value = students.value.filter((user) => user !== userData.value);
-  showModal.value = false;
-};
+async function acceptRequest() {
+  const data = {
+    idCenterChange: userData.value.idCenterChange,
+    aplicationStatus: "Aceptada",
+  };
+  const response = await serviceCenterChange.ReviewCenterChange(data);
+  if (response) {
+    showModal.value = false;
+  }
+}
 
-const cancelRequest = () => {
-  console.log("Solicitud Cancelada", userData.value);
-  students.value = students.value.filter((user) => user !== userData.value);
-  showModal.value = false;
-};
-
-const students = ref([
-  {
-    name: "Fabio Perales",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-VS",
-    pdf: "fileSolicitud.pdf",
-    account: "20191234124",
-  },
-  {
-    name: "Salah Cruz",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-CURC",
-    pdf: "SolicitudCambioCentro_SalahCruz",
-    account: "20209876111",
-  },
-  {
-    name: "Juan Alvarez",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-CURLAS",
-    pdf: "SC_Juan Alvarez",
-    account: "20209876111",
-  },
-  {
-    name: "Jorge Eriberto",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-VS",
-    pdf: "fileSolicitud.pdf",
-    account: "20231234124",
-  },
-  {
-    name: "John Wick",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-VS",
-    pdf: "SolicitudCancelacion_John_Wick",
-    account: "20179876111",
-  },
-  {
-    name: "Roberto Zepeda",
-    motive:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Accumsan tortor posuere ac ut. Iaculis at erat pellentesque adipiscing commodo elit. Vitae suscipit tellus mauris a diam maecenas sed. Vel quam elementum pulvinar etiam non quam lacus. Netus et malesuada fames ac. Quis risus sed vulputate odio ut enim. Et netus et malesuada fames ac turpis egestas integer. Et leo duis ut diam quam nulla porttitor massa id. Massa placerat duis ultricies lacus sed turpis. Donec adipiscing tristique risus nec feugiat. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Gravida in fermentum et sollicitudin ac orci. Adipiscing diam donec adipiscing tristique risus nec feugiat. Imperdiet nulla malesuada pellentesque elit eget gravida cum sociis natoque. Et odio pellentesque diam volutpat commodo sed egestas egestas. Ac odio tempor orci dapibus ultrices in iaculis nunc sed. Diam quis enim lobortis scelerisque. Semper feugiat nibh sed pulvinar proin gravida hendrerit. Quam quisque id diam vel. Quam nulla porttitor massa id. Sed elementum tempus egestas sed sed. Purus non enim praesent elementum facilisis. Blandit turpis cursus in hac habitasse. Urna neque viverra justo nec. Libero justo laoreet sit amet cursus sit amet dictum sit. Dictum sit amet justo donec enim. Phasellus vestibulum lorem sed risus ultricies tristique. At volutpat diam ut venenatis tellus in metus. Amet porttitor eget dolor morbi. Euismod quis viverra nibh cras pulvinar. Nulla facilisi nullam vehicula ipsum a arcu. Imperdiet nulla malesuada pellentesque elit eget. In nibh mauris cursus mattis molestie a iaculis. Duis at tellus at urna condimentum mattis pellentesque id. Massa vitae tortor condimentum lacinia quis vel. Sed vulputate odio ut enim blandit volutpat maecenas volutpat blandit. Nibh ipsum consequat nisl vel. Congue quisque egestas diam in. Scelerisque in dictum non consectetur a erat nam at lectus. Massa tempor nec feugiat nisl. Nisi vitae suscipit tellus mauris a diam maecenas sed. Eget nullam non nisi est sit amet facilisis magna. Amet mattis vulputate enim nulla aliquet porttitor lacus luctus accumsan. Aliquet eget sit amet tellus cras adipiscing enim eu turpis. Bibendum enim facilisis gravida neque convallis a. Scelerisque varius morbi enim nunc faucibus a pellentesque sit amet. Tincidunt tortor aliquam nulla facilisi cras fermentum odio eu. Lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt. Sit amet facilisis magna etiam tempor orci.",
-    newCenter: "UNAH-CURLAS",
-    pdf: "SC_Juan Alvarez",
-    account: "20209876111",
-  },
-]);
-
+async function cancelRequest() {
+  const data = {
+    idCenterChange: userData.value.idCenterChange,
+    aplicationStatus: "Rechazada",
+  };
+  const response = await serviceCenterChange.ReviewCenterChange(data);
+  if (response) {
+    showModal.value = false;
+  }
+}
 const totalPages = computed(() =>
-  Math.ceil(students.value.length / itemsPerPage.value)
+  Math.ceil(studentsList.value.length / itemsPerPage.value)
 );
-
 const paginatedStudents = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value;
   const endIndex = startIndex + itemsPerPage.value;
-  return students.value.slice(startIndex, endIndex);
+  return studentsList.value.slice(startIndex, endIndex);
 });
 
 const changePage = (page) => {
