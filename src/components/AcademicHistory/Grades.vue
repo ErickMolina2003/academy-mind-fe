@@ -38,7 +38,7 @@
       <v-row>
         <v-card-actions class="mx-auto">
           <v-spacer></v-spacer>
-          <v-btn color="deep-purple-accent-4" @click="downloadPDF">
+          <v-btn color="deep-purple-accent-4" @click="generatePDF">
             Descargar Historial Académico
           </v-btn>
         </v-card-actions>
@@ -88,6 +88,12 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { useAppStore } from "@/store/app";
 import TuitionService from "@/services/tuition/tuition.service";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import base64ImageJson from "/src/mock/logoBase64.json";
+import academicHistory from "/src/mock/historial-academico.json";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const store = useAppStore();
 const tuitionService = new TuitionService();
@@ -108,7 +114,10 @@ const user = {
   globalIndex: userLogged.overallIndex,
   periodIndex: userLogged.periodIndex,
   career: userLogged.studentCareer[0].centerCareer.career.name,
+  gradesSum: userLogged.gradesSum,
+  unitValuesSum: userLogged.unitValuesSum,
 };
+
 onMounted(() => {
   getSubjects();
 });
@@ -135,7 +144,274 @@ const updateDisplayedSubjects = () => {
   );
 };
 watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
-function downloadPDF() {}
+
+function generateYearlyTables(registrations) {
+  const years = {}; // Almacena los registros agrupados por año
+  console.log(registrations)
+  // Grupo de registros por año
+  registrations.forEach((registration) => {
+    const year = registration.section.idPeriod.year;
+    if (!years[year]) {
+      years[year] = [];
+    }
+    years[year].push(registration);
+  });
+
+  // Generación de tabla para cada año
+  const tables = [];
+  for (const year in years) {
+    years[year].sort(
+      (a, b) =>
+        a.section.idPeriod.numberPeriod - b.section.idPeriod.numberPeriod
+    );
+    const yearTable = {
+      text: `________________________________ ${year} ________________________________`,
+      style: "divider",
+    };
+    const tableData = {
+      table: {
+        headerRows: 1,
+        widths: [50, "*", 40, 60, 40, 30],
+        body: [
+          [
+            { text: "CODIGO", style: "tableHeader", alignment: "left" },
+            { text: "NOMBRE", style: "tableHeader", alignment: "left" },
+            { text: "UV", style: "tableHeader" },
+            { text: "PERIODO", style: "tableHeader" },
+            { text: "NOTA", style: "tableHeader" },
+            { text: "OBS", style: "tableHeader" },
+          ],
+          ...years[year].map((registration) => [
+            {
+              text: registration.section.idClass.code,
+              style: "tableContent",
+              alignment: "left",
+            },
+            {
+              text: registration.section.idClass.name,
+              style: "tableContent",
+              alignment: "left",
+            },
+            {
+              text: registration.section.idClass.valueUnits.toString(),
+              style: "tableContent",
+            },
+            {
+              text: registration.section.idPeriod.numberPeriod.toString(),
+              style: "tableContent",
+            },
+            { text: registration.note, style: "tableContent" },
+            { text: registration.stateClass, style: "tableContent" },
+          ]),
+        ],
+      },
+      layout: {
+        hLineWidth: function (i, node) {
+          return 0; // Elimina las líneas horizontales
+        },
+        vLineWidth: function (i, node) {
+          return 0; // Elimina las líneas verticales
+        },
+      },
+    };
+
+    // Clases totales aprobadas, resumen
+    const approvedClasses = years[year].filter(
+      (registration) => registration.stateClass === "APR"
+    ).length;
+    const summaryText = {
+      text: `\nTotal Aprobadas: ${approvedClasses}`,
+      style: "clasesAprobadas",
+    };
+
+    tables.push(yearTable, tableData, summaryText);
+  }
+
+  return tables;
+}
+
+const generatePDF = () => {
+  console.log(academicHistory);
+  console.log(subjects.value);
+  const docDefinition = {
+    pageSize: "LETTER",
+    watermark: { text: "UNAH", color: "#184267", opacity: 0.1, bold: true },
+    header: function (currentPage) {
+      if (currentPage > 1) {
+        return [
+          {
+            columns: [
+              {
+                text: `${academicHistory.registrations[0].student.accountNumber}`,
+                alignment: "left",
+                margin: [40, 15],
+              },
+              {
+                text: `${academicHistory.registrations[0].student.user.firstName} ${academicHistory.registrations[0].student.user.secondName} ${academicHistory.registrations[0].student.user.firstLastName} ${academicHistory.registrations[0].student.user.secondLastName}`,
+                alignment: "left",
+                margin: [20, 15],
+              },
+            ],
+          },
+        ];
+      }
+    },
+    footer: function (currentPage, pageCount) {
+      return {
+        columns: [
+          {
+            text: '"La Educación es la Primera Necesidad de La República"',
+            style: "footer",
+            alignment: "center",
+            margin: [15, 5],
+          },
+          {
+            text: `Página ${currentPage} de ${pageCount}`,
+            style: "footer",
+            alignment: "right",
+            margin: [35, 5],
+          },
+        ],
+      };
+    },
+    content: [
+      {
+        text: [
+          {
+            text: "Universidad Nacional Autónoma de Honduras",
+            style: "header",
+          },
+          {
+            text: "\nDirección de Ingresos Permanencia y Promoción",
+            style: "subheader",
+          },
+          { text: "\nHistorial Académico", style: "subheader" },
+        ],
+      },
+      {
+        image: base64ImageJson.base64Image,
+        height: 80,
+        width: 50,
+        absolutePosition: { x: 30, y: 30 },
+      },
+      {
+        margin: [0, 25, 0, 0],
+        table: {
+          heights: 70,
+          widths: [230, "*"],
+          body: [
+            [
+              {
+                type: "none",
+                ol: [
+                  `\nCuenta:\t  ${user.accountNumber}`,
+                  `Nombre:\t${store.user.firstName} ${store.user.secondName}`,
+                  `Apellido:\t${store.user.firstLastName} ${store.user.secondLastName}`,
+                ],
+                style: "personalInfo",
+              },
+              {
+                type: "none",
+                ol: [
+                  `\nCarrera Actual: ${user.career}`,
+                  `Centro: ${user.center}`,
+                  `Índice: ${user.globalIndex}`,
+                ],
+                style: "personalInfo",
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: function (i, node) {
+            return i === 0 || i === node.table.body.length ? 2 : 1;
+          },
+          vLineWidth: function (i, node) {
+            return i === 0 || i === node.table.widths.length ? 2 : 1;
+          },
+          hLineColor: function (i, node) {
+            return i === 0 || i === node.table.body.length ? "black" : "black";
+          },
+          vLineColor: function (i, node) {
+            return i === 0 || i === node.table.widths.length
+              ? "black"
+              : "black";
+          },
+        },
+      },
+      ...generateYearlyTables(subjects.value),
+      {
+        style: "clasesAprobadas",
+        text: [
+          {
+            text: "______________________________________________________________________",
+            alignment: "center",
+          },
+          { text: "\n\nCálculo del índice académico" },
+        ],
+      },
+      {
+        margin: [0, 10, 0, 0],
+        table: {
+          headerRows: 1,
+          body: [
+            ["Suma de UV x Nota:", { text: `${user.gradesSum}`, alignment: "center" }],
+            ["Suma de UV:", { text: `${user.unitValuesSum}`, alignment: "center" }],
+            [
+              "lndice académico:",
+              { text: `${user.gradesSum} / ${user.unitValuesSum} = ${user.globalIndex}%`, alignment: "center" },
+            ],
+          ],
+        },
+        layout: "noBorders",
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 20,
+        alignment: "center",
+        bold: true,
+      },
+      subheader: {
+        fontSize: 16,
+        alignment: "center",
+        bold: true,
+      },
+      personalInfo: {
+        fontSize: 12,
+        fillColor: "#b3b3b3",
+        color: "black",
+        alignment: "left",
+        bold: true,
+      },
+      tableHeader: {
+        fontSize: 12,
+        alignment: "center",
+        bold: true,
+      },
+      tableContent: {
+        fontSize: 12,
+        alignment: "center",
+      },
+      footer: {
+        fontSize: 11,
+      },
+      divider: {
+        fontSize: 15,
+        alignment: "center",
+        margin: [0, 20, 0, 10],
+        bold: true,
+      },
+      clasesAprobadas: {
+        fontSize: 12,
+        alignment: "left",
+        margin: [20, 10, 0, 0],
+        bold: true,
+      },
+    },
+  };
+  pdfMake.createPdf(docDefinition).download("historial_academico.pdf");
+};
 </script>
 
 <style>

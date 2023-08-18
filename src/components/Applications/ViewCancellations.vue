@@ -1,56 +1,100 @@
 <template>
-  <div v-if="data.length != 0">
-    <h2 class="text-center py-2">
-      Solicitud de cancelaciones excepcionales
-    </h2>
+  <div v-if="ongoingClasses">
+    <div class="mb-5">
+      <h2 class="text-center py-2">Solicitud de cancelaciones excepcionales</h2>
+    </div>
     <v-table class="classes-table pb-4" fixed-header density="comfortable">
       <thead>
         <tr>
-          <th v-for="headerClasses in headersClasses" :key="headerClasses.text">{{ headerClasses.text }}</th>
+          <th>CODIGO</th>
+          <th>ASIGNATURA</th>
+          <th>SECCIÓN</th>
+          <th>HI</th>
+          <th>HF</th>
+          <th>DIAS</th>
+          <th>UV</th>
+          <th>PERIODO</th>
+          <th>ESTADO</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in data" :key="item.codigo">
-          <td v-for="headerClasses in headersClasses" :key="headerClasses.value">{{ item[headerClasses.value] }}</td>
-        </tr>
-      </tbody>
-    </v-table>
-
-    <v-table>
-      <thead>
-        <tr>
-          <th>Dictamen</th>
-          <th>Fecha de solicitud</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ dictamen[0].resultado }}</td>
-          <td>{{ dictamen[0].fecha }}</td>
+        <tr v-if="ongoingClasses" v-for="item in ongoingClasses" :key="item.id">
+          <td>
+            <span>{{ item.idTuition.section.idClass.code }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.idClass.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.codeSection }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.hour }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.finalHour }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.days }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.idClass.valueUnits }}</span>
+          </td>
+          <td>
+            <span>{{ item.idTuition.section.idPeriod.numberPeriod }}</span>
+          </td>
+          <td>
+            <span>{{ item.status }}</span>
+          </td>
         </tr>
       </tbody>
     </v-table>
   </div>
-  <h2 class="text-center py-2" v-else>
-    NO TIENE NINGUNA SOLICITUD DE CANCELACIÓN EXCEPCIONAL DE CLASES
-  </h2>
+  <div v-else>
+    <h2 class="text-center py-2">
+      No existe solicitud de cancelaciones excepcionales
+    </h2>
+  </div>
 </template>
 
-<script setup >
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useAppStore } from "@/store/app";
+import ExceptionalCancellationService from "@/services/exceptional-cancellation/exceptional.cancellation.service";
 
+const serviceExceptionalCancellation = new ExceptionalCancellationService();
+const store = useAppStore();
+const accountStudent = store.user.student.accountNumber;
+const selectedClass = ref({});
+const file = ref([]);
+const isValid = ref(false);
+const reasonsChange = ref("");
+const fileError = ref(false);
+const tableError = ref(false);
+const textError = ref(false);
+const ongoingClasses = ref([]);
 
-const props = defineProps({
-  title: String,
-  data: Array | undefined,
-  headersClasses: Array,
-  dictamen: Array
-})
+onMounted(async () => {
+  getSections();
+});
 
-
+async function getSections() {
+  const response =
+    await serviceExceptionalCancellation.getAllExceptionalCancellation();
+  ongoingClasses.value = response.cancelations;
+  console.log(ongoingClasses.value);
+}
 </script>
 
 <style scoped>
 .classes-table {
-  font-size: .7rem;
+  font-size: 0.7rem;
+}
+.selected-row {
+  background-color: lightyellow;
+}
+.error-message {
+  color: red;
+  font-size: 0.8rem;
 }
 </style>

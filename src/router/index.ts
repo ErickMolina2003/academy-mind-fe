@@ -106,10 +106,16 @@ const routes = [
               import("@/components/Applications/DeleteChangeCenter.vue"),
           },
           {
-            path: "/cancelacion-excepcional-clases",
+            path: "/cancelacion-excepcional/realizar-solicitud",
             name: "cancelacion-excepcional-clases",
             component: () =>
               import("@/components/Applications/CreateSpecialCancellation.vue"),
+          },
+          {
+            path: "/cancelacion-excepcional/ver-solicitud",
+            name: "cancelacion-excepcional-clases-ver-solicitud",
+            component: () =>
+              import("@/components/Applications/ViewCancellations.vue"),
           },
           {
             path: "/pago-reposicion/:tipo",

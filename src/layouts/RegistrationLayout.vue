@@ -69,12 +69,12 @@ const registrationOptions = ref([
         submenu: [
           {
             name: "Realizar solicitud",
-            to: "/cancelacion-excepcional-clases",
+            to: "/cancelacion-excepcional/realizar-solicitud",
           },
-          {
-            name: "Ver solicitud",
-            to: "/cancelacion-excepcional/ver-solicitud",
-          },
+          // {
+          //   name: "Ver solicitud",
+          //   to: "/cancelacion-excepcional/ver-solicitud",
+          // },
         ],
       },
       {
@@ -87,8 +87,8 @@ const registrationOptions = ref([
           {
             name: "Ver solicitudes",
             to: "/pago-reposicion/ver-solicitudes",
-          }
-        ]
+          },
+        ],
       },
     ],
     icon: "mdi-frequently-asked-questions",

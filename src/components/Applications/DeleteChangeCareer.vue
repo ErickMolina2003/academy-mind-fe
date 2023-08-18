@@ -91,7 +91,6 @@ function formatDate(dateString) {
 }
 
 async function deleteChangeCareer() {
-  console.log(data.value[0].idCareerChange);
   await serviceCareerChange.deleteCareerChange(data.value[0].idCareerChange);
 }
 </script>

@@ -62,7 +62,7 @@
                                 {{ student.note }}
                             </td>
                             <td v-if="edit" class="text-left pa-0 px-3">
-                                <v-text-field type="number" v-model="student.note" variant="underlined" ></v-text-field>
+                                <v-text-field type="number" v-model="student.note" variant="underlined"></v-text-field>
                             </td>
                             <td v-if="student.stateClass === 'En progreso'" class="text-left pa-0 px-3">
                                 N/D
@@ -71,8 +71,8 @@
                                 {{ student.stateClass }}
                             </td>
                             <td v-if="edit" class="text-left pa-0 px-3">
-                                <v-combobox v-model="student.newStateClass" :disabled="student.stateClass === 'En progreso'" :items="showState(student.stateClass)"
-                                    variant="underlined">
+                                <v-combobox v-model="student.newStateClass" :disabled="student.stateClass === 'En progreso'"
+                                    :items="showState(student.stateClass)" variant="underlined">
                                 </v-combobox>
                             </td>
                             <td class="text-center pa-0 px-3" v-if="edit">
@@ -91,7 +91,7 @@
                 </div>
 
                 <div class="fixed-footer d-flex justify-lg-space-between">
-                    <v-btn @click="sendEmails">Enviar notas</v-btn>
+                    <v-btn :disabled="edit" @click="sendEmails">Enviar notas</v-btn>
                     <v-btn color="blue-darken-1" @click="modalStudents = false; edit = false;">
                         Cerrar
                     </v-btn>
@@ -160,11 +160,21 @@ async function getSections() {
 }
 
 async function entryNote(idRegistration, note, classState) {
-    let gradeData = {};
-    if(note){gradeData.note = note}
-    if (classState) {gradeData.statusClass = classState}
-    if(gradeData!=={}){await tuitionService.addGradeStudent(idRegistration, gradeData)};
-    getNotes();
+    
+    if (note) {
+        let gradeData = {};
+        if (note) { gradeData.note = note }
+        if (classState) { gradeData.statusClass = classState }
+        if (gradeData !== {}) { await tuitionService.addGradeStudent(idRegistration, gradeData) };
+        getNotes();
+    } else {
+        this.store.setToaster({
+            isActive: true,
+            text: "Ingrese la nota del estudiante.",
+            color: "error",
+        });
+    }
+
 }
 
 function showState(actualState) {
@@ -176,8 +186,9 @@ async function getNotes() {
     students.value = response.registration;
 }
 
-function sendEmails() {
+async function sendEmails() {
     modalStudents.value = false;
+    const response = await tuitionService.sendNoticeEmails(currentSection.value.id);
 }
 
 //Modal para ver estudiantes
