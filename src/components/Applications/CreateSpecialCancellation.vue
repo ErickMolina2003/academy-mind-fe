@@ -1,100 +1,175 @@
 <template>
-  <div>
+  <div v-if="ongoingClasses">
+    <div class="mb-5">
+      <v-row>
+        <v-col cols="auto">
+          <v-icon class="icon-attention">mdi-alert</v-icon>
+        </v-col>
+        <v-col cols="auto">
+          <span class="text-attention"
+            >Para cancelar una asignatura debes seleccionarla primero y luego
+            dar clic en el botón cancelar.</span
+          >
+        </v-col>
+      </v-row>
+    </div>
     <v-table class="classes-table pb-4" fixed-header density="comfortable">
       <thead>
         <tr>
-          <th v-for="header in headersClasses" :key="header.text">
-            {{ header.text }}
-          </th>
+          <th>CODIGO</th>
+          <th>ASIGNATURA</th>
+          <th>SECCIÓN</th>
+          <th>HI</th>
+          <th>HF</th>
+          <th>DIAS</th>
+          <th>UV</th>
+          <th>PERIODO</th>
+          <th>SELECCIONE</th>
         </tr>
       </thead>
       <tbody>
         <tr
+          v-if="ongoingClasses"
           v-for="item in ongoingClasses"
-          :key="item.codigo"
-          :class="{ 'selected-oneClass': isSelected(item) }"
-          @click="toggleSelection(item)"
+          :key="item.id"
+          :class="{ 'selected-row': item.selected }"
         >
-          <td v-for="header in headersClasses" :key="header.value">
-            {{ item[header.value] }}
+          <td>
+            <span>{{ item.section.idClass.code }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.idClass.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.codeSection }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.hour }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.finalHour }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.days }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.idClass.valueUnits }}</span>
+          </td>
+          <td>
+            <span>{{ item.section.idPeriod.numberPeriod }}</span>
+          </td>
+          <td>
+            <a href="#" @click="selectClass(item)">Select</a>
           </td>
         </tr>
       </tbody>
     </v-table>
     <p v-if="tableError" class="error-message pb-5">
-      Por favor, seleccione al menos una clase.
+      Por favor, seleccione una asignatura.
     </p>
-
+    <v-textarea
+      v-model="reasonsChange"
+      :rules="[rules.validate]"
+      label="Justificacion cancelación de asignatura"
+      auto-grow
+      variant="filled"
+      rows="1"
+    ></v-textarea>
+    <p v-if="textError" class="error-message pb-5">
+      Por favor, escriba su justificación.
+    </p>
     <v-file-input
       v-model="file"
       accept="application/pdf"
       label="Adjunte un PDF que respalde su solicitud"
     ></v-file-input>
-    <p v-if="fileError" class="error-message pb-4">
+    <p v-if="fileError" class="error-message pb-5">
       Por favor, adjunte un archivo PDF.
     </p>
-
     <v-btn color="deep-purple-accent-4" @click="submitApplication">
-      Realizar solicitud
+      Cancelar asignatura
     </v-btn>
   </div>
-  <h2 class="text-center py-2">NO TIENE CLASES MATRICULADAS</h2>
+  <div v-else>
+    <v-row>
+      <v-col cols="auto">
+        <v-icon class="icon-attention">mdi-alert</v-icon>
+      </v-col>
+      <v-col cols="auto">
+        <span class="text-attention"
+          >No se encuentra en fecha para realizar la cancelación</span
+        >
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useAppStore } from "@/store/app";
+import PeriodService from "@/services/period/period.service";
+import ExceptionalCancellationService from "@/services/exceptional-cancellation/exceptional.cancellation.service";
 
-const selectedClasses = ref([]);
+const serviceExceptionalCancellation = new ExceptionalCancellationService();
+const servicePeriod = new PeriodService();
+const store = useAppStore();
+const accountStudent = store.user.student.accountNumber;
+const selectedClass = ref({});
 const file = ref([]);
 const isValid = ref(false);
-const mensajeError = ref([]);
+const reasonsChange = ref("");
 const fileError = ref(false);
 const tableError = ref(false);
+const textError = ref(false);
+const ongoingClasses = ref([]);
+const reason = ref("");
+const justificationPdf = ref("");
+const idTuition = ref("");
+const urlPdf = ref("");
+import {
+  ref as firebaseRed,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+import { storage } from "@/firebase";
+import { v4 } from "uuid";
+import { url } from "inspector";
 
-function isSelected(item) {
-  for (const key in selectedClasses.value) {
-    if (selectedClasses.value[key].codigo === item.codigo) {
-      return true;
-    }
-  }
-  return false;
+const rules = {
+  validate: (value) => value.length > 20 || "Minimo 20 caracteres",
+};
+
+onMounted(async () => {
+  getSections();
+});
+
+async function getSections() {
+  const response =
+    await serviceExceptionalCancellation.getExceptionalCancellation(
+      accountStudent
+    );
+  ongoingClasses.value = response.tuitions;
 }
 
-function findIndexByCodigo(arr, codigo) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].codigo === codigo) {
-      return i;
+const selectClass = (item) => {
+  if (selectedClass.value !== item) {
+    if (selectedClass.value.selected) {
+      selectedClass.value.selected = false;
     }
+    item.selected = true;
+    selectedClass.value = item;
+    console.log(selectedClass.value);
   }
-  return -1;
-}
-
-function toggleSelection(item) {
-  let index = -1;
-
-  for (let i = 0; i < selectedClasses.value.length; i++) {
-    if (selectedClasses.value[i].codigo === item.codigo) {
-      index = i;
-      break;
-    }
-  }
-
-  if (index === -1) {
-    selectedClasses.value.push(item);
-  } else {
-    selectedClasses.value.splice(index, 1);
-  }
-}
+};
 
 function checkTable() {
-  if (selectedClasses.value.length === 0) {
+  if (!selectedClass.value.id) {
     tableError.value = true;
     isValid.value = false;
-    return isValid.value;
+    return false;
   } else {
-    isValid.value = true;
     tableError.value = false;
-    return isValid.value;
+    return true;
   }
 }
 
@@ -102,88 +177,61 @@ function checkFile() {
   if (!file.value || file.value.length === 0) {
     fileError.value = true;
     isValid.value = false;
-    return isValid.value;
+    return false;
   } else {
-    isValid.value = true;
     fileError.value = false;
-    return isValid.value;
+    return true;
   }
 }
 
-function submitApplication() {
-  if (checkTable()) {
-    if (checkFile()) {
-      alert(`SOLICITUD REALIZADA ÉXITOSAMENTE`);
-      emit("update-selected-classes", selectedClasses.value);
-      borrar();
-    } else {
-      checkTable();
-    }
+function checkText() {
+  if (!reasonsChange.value.trim()) {
+    textError.value = true;
+    isValid.value = false;
+    return false;
   } else {
-    checkFile();
+    textError.value = false;
+    return true;
   }
 }
 
-function borrar() {
-  fileError.value = false;
-  tableError.value = false;
-  selectedClasses.value = [];
-  file.value = null;
+async function submitApplication() {
+  const isTableValid = checkTable();
+  const isFileValid = checkFile();
+  const isTextValid = checkText();
+  if (isTableValid && isFileValid && isTextValid) {
+    const pdfRef = firebaseRed(
+      storage,
+      `justification/${file.value[0].name + v4()}`
+    );
+    try {
+      const response = await uploadBytes(pdfRef, file.value[0]);
+      const url = await getDownloadURL(response.ref);
+      urlPdf.value = url;
+    } catch (error) {
+      store.setToaster({
+        isActive: true,
+        text: "Error al subir el archivo",
+        color: "error",
+      });
+    }
+    const data = {
+      idTuition: selectedClass.value.id,
+      reason: reasonsChange.value,
+      justificationPdf: `${urlPdf.value}`,
+    };
+    await serviceExceptionalCancellation.CreateExceptionalCancellation(data);
+  }
 }
-
-const headersClasses = [
-  { text: "CODIGO", value: "codigo" },
-  { text: "ASIGNATURA", value: "asignatura" },
-  { text: "SECCIÓN", value: "seccion" },
-  { text: "HI", value: "hi" },
-  { text: "HF", value: "hf" },
-  { text: "DIAS", value: "dias" },
-  { text: "EDIFICIO", value: "edificio" },
-  { text: "AULA", value: "aula" },
-  { text: "UV", value: "uv" },
-  { text: "OBS", value: "obs" },
-  { text: "PERIODO", value: "periodo" },
-];
-const ongoingClasses = [
-  {
-    codigo: "FS-100",
-    asignatura: "Fisica 1",
-    seccion: 9000,
-    hi: 9000,
-    hf: 1000,
-    dias: "LuMaMiJuVi",
-    edificio: "B2",
-    aula: "301",
-    uv: 5,
-    obs: "",
-    periodo: "2",
-  },
-  {
-    codigo: "FS-200",
-    asignatura: "Fisica 2",
-    seccion: 9000,
-    hi: 9000,
-    hf: 1000,
-    dias: "LuMaMiJuVi",
-    edificio: "B2",
-    aula: "301",
-    uv: 5,
-    obs: "",
-    periodo: "2",
-  },
-];
 </script>
 
 <style scoped>
 .classes-table {
   font-size: 0.7rem;
 }
-
-.selected-oneClass {
-  background-color: lightblue;
-  cursor: pointer;
+.selected-row {
+  background-color: lightyellow;
 }
-
 .error-message {
   color: red;
   font-size: 0.8rem;
