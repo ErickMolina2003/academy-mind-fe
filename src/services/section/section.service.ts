@@ -85,7 +85,7 @@ export default class SectionService {
   }
 
   // Obtener todas las secciones de un departamento
-  async getSectionsByDepartment(idDepartment: string, idCenter:string) {
+  async getSectionsByDepartment(idDepartment: string, idCenter: string) {
     const url = `http://localhost:3001/api/section/department/${idDepartment}?center=${idCenter}`;
     try {
       const response = await axios({
@@ -158,7 +158,7 @@ export default class SectionService {
   }
 
   // Obtener todas las secciones de una clase por periodo y centro regional
-  async getSectionByPeriodAndClass(idPeriod: string, idClase: string, idCenter:string) {
+  async getSectionByPeriodAndClass(idPeriod: string, idClase: string, idCenter: string) {
     const url = `http://localhost:3001/api/section/class-period/${idClase}?center=${idCenter}&period=${idPeriod}`;
     try {
       const response = await axios({
@@ -237,7 +237,7 @@ export default class SectionService {
     }
   }
 
-  async getWaitingList(idDepartment: string,idCenter:string) {
+  async getWaitingList(idDepartment: string, idCenter: string) {
     const url = `http://localhost:3001/api/section/waiting-list-sections/${idDepartment}?center=${idCenter}`;
     try {
       const response = await axios({
@@ -315,48 +315,45 @@ export default class SectionService {
     }
   }
 
+  // Obtener todas las secciones de un docente en el periodo de Ingreso de notas
+  async getTeacherGrades(employeeNumber: string) {
+    const url = `http://localhost:3001/api/section/teacher-grades/${employeeNumber}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url
+      });
 
-    // Obtener todas las secciones de un docente en el periodo de Ingreso de notas
-    async getTeacherGrades(employeeNumber:string){
-        const url = `http://localhost:3001/api/section/teacher-grades/${employeeNumber}`;
-        try {
-            const response = await axios({
-                method: "GET",
-                url: url
-            });
-            
-            if (response.status === 200) {
-                const data = await response.data;
-                
-                if (data.statusCode !== 200) {
-                    
-                    this.store.setToaster({
-                        isActive: true,
-                        text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
-                        color: "error",
-                    });
-                }
-                return data;
-            } else {
-                this.store.setToaster({
-                    isActive: true,
-                    text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
-                    color: "error",
-                });
-            }
+      if (response.status === 200) {
+        const data = await response.data;
 
+        if (data.statusCode !== 200) {
 
-        } catch (error) {
-            this.store.setToaster({
-                isActive: true,
-                text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
-                color: "error",
-            });
-            return error;
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
         }
-    }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
 
-    
+
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 
   async getSectionsByTeacherAll(employeeNumber: string) {
     const url = `http://localhost:3001/api/section/teacher/${employeeNumber}`;
@@ -388,6 +385,43 @@ export default class SectionService {
       this.store.setToaster({
         isActive: true,
         text: "Error al obtener la sección. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  // Obtener carga academica de un periodo
+  async getAcademicCharge(idCareer: string, idCenter:string,idPeriod: string) {
+    const url = `http://localhost:3001/api/section/period-charge/${idCareer}?center=${idCenter}&period=${idPeriod}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        if (data.statusCode !== 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
+        }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las sección. Por favor, inténtelo de nuevo más tarde.",
         color: "error",
       });
       return error;

@@ -85,7 +85,7 @@
 
             <v-card-actions class="fixed-footer">
                 <v-spacer></v-spacer>
-                <v-btn color="bg-blue-darken-3" @click="showModal = false">Cerrar</v-btn>
+                <v-btn color="bg-blue-darken-3" @click="showModal = false; evaluation=[];observations=[];showObservations=false;">Cerrar</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>

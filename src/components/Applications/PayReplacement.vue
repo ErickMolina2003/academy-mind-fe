@@ -21,7 +21,7 @@
                 <tr>
                     <th class="pa-0 px-3">Solicitud</th>
                     <th class="pa-0 px-3">Precio</th>
-                    <th class="pa-0 px-3">Observación</th>
+                    <th class="pa-0 px-3">Justificación</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,7 +29,7 @@
                     <td class="text-left pa-0 px-3">{{ item.idPeriod.numberPeriod }} Periodo Académico del año {{
                         item.idPeriod.year }}</td>
                     <td class="text-left pa-0 px-3">{{ item.price }}</td>
-                    <td class="text-left pa-0 px-3">Observación</td>
+                    <td class="text-left pa-0 px-3">{{ item.justification}}</td>
                 </tr>
             </tbody>
         </v-table>

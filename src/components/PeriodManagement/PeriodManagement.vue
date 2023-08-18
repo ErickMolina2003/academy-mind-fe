@@ -1,7 +1,7 @@
 <template>
   <div>
     <SearchableNavBar title="Estados del Periodo" />
-    <h1>Año academico {{ new Date().getFullYear() }}</h1>
+    <h1>Año académico {{ new Date().getFullYear() }}</h1>
     <v-table class="mx-6 mt-4" fixed-header>
       <thead>
         <tr>
@@ -377,9 +377,8 @@ const generatePDF = () => {
         text: [
           { text: "CALENDARIO DE ", style: "header" },
           {
-            text: "PRE-MATRICULA ",
+            text: "MATRICULA ",
             style: "header",
-            italics: true,
           },
           { text: "\nA NIVEL NACIONAL", style: "subheader" },
         ],

@@ -114,7 +114,10 @@ const user = {
   globalIndex: userLogged.overallIndex,
   periodIndex: userLogged.periodIndex,
   career: userLogged.studentCareer[0].centerCareer.career.name,
+  gradesSum: userLogged.gradesSum,
+  unitValuesSum: userLogged.unitValuesSum,
 };
+
 onMounted(() => {
   getSubjects();
 });
@@ -144,7 +147,7 @@ watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
 
 function generateYearlyTables(registrations) {
   const years = {}; // Almacena los registros agrupados por año
-
+  console.log(registrations)
   // Grupo de registros por año
   registrations.forEach((registration) => {
     const year = registration.section.idPeriod.year;
@@ -228,6 +231,8 @@ function generateYearlyTables(registrations) {
 }
 
 const generatePDF = () => {
+  console.log(academicHistory);
+  console.log(subjects.value);
   const docDefinition = {
     pageSize: "LETTER",
     watermark: { text: "UNAH", color: "#184267", opacity: 0.1, bold: true },
@@ -255,7 +260,7 @@ const generatePDF = () => {
       return {
         columns: [
           {
-            text: '"La Educación es la Primera Necesidad de Ia República"',
+            text: '"La Educación es la Primera Necesidad de La República"',
             style: "footer",
             alignment: "center",
             margin: [15, 5],
@@ -280,7 +285,7 @@ const generatePDF = () => {
             text: "\nDirección de Ingresos Permanencia y Promoción",
             style: "subheader",
           },
-          { text: "\nHistorial Acaoomico", style: "subheader" },
+          { text: "\nHistorial Académico", style: "subheader" },
         ],
       },
       {
@@ -299,18 +304,18 @@ const generatePDF = () => {
               {
                 type: "none",
                 ol: [
-                  `\nCuenta:\t  ${academicHistory.registrations[0].student.accountNumber}`,
-                  `Nombre:\t${academicHistory.registrations[0].student.user.firstName} ${academicHistory.registrations[0].student.user.secondName}`,
-                  `Apellido:\t${academicHistory.registrations[0].student.user.firstLastName} ${academicHistory.registrations[0].student.user.secondLastName}`,
+                  `\nCuenta:\t  ${user.accountNumber}`,
+                  `Nombre:\t${store.user.firstName} ${store.user.secondName}`,
+                  `Apellido:\t${store.user.firstLastName} ${store.user.secondLastName}`,
                 ],
                 style: "personalInfo",
               },
               {
                 type: "none",
                 ol: [
-                  "\nCarrera Actual: INGENIERIA EN SISTEMAS",
-                  "Centro:\tCIUDAD UNIVERSITARIA",
-                  `Indice: \t86%`,
+                  `\nCarrera Actual: ${user.career}`,
+                  `Centro: ${user.center}`,
+                  `Índice: ${user.globalIndex}`,
                 ],
                 style: "personalInfo",
               },
@@ -334,7 +339,7 @@ const generatePDF = () => {
           },
         },
       },
-      ...generateYearlyTables(academicHistory.registrations),
+      ...generateYearlyTables(subjects.value),
       {
         style: "clasesAprobadas",
         text: [
@@ -350,11 +355,11 @@ const generatePDF = () => {
         table: {
           headerRows: 1,
           body: [
-            ["Suma de UV x Nota:", { text: "17015", alignment: "center" }],
-            ["Suma de UV:", { text: "199", alignment: "center" }],
+            ["Suma de UV x Nota:", { text: `${user.gradesSum}`, alignment: "center" }],
+            ["Suma de UV:", { text: `${user.unitValuesSum}`, alignment: "center" }],
             [
               "lndice académico:",
-              { text: "17015 / 199 = 86%", alignment: "center" },
+              { text: `${user.gradesSum} / ${user.unitValuesSum} = ${user.globalIndex}%`, alignment: "center" },
             ],
           ],
         },
