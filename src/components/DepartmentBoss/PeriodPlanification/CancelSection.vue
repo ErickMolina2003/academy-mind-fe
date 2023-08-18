@@ -160,8 +160,9 @@ async function getTeachersOptions() {
 
 function getTeacherSection(idTeacher) {
     if (idTeacher) {
-        let teacher = teachers.value.find(teacher => teacher.teacher.employeeNumber === idTeacher);
-        return teacher.teacher.user.firstName + " " + teacher.teacher.user.firstLastName;
+        let teacher = teachers.value.find(item => item.teacher.employeeNumber === idTeacher);
+
+        return teacher?.teacher.user.firstName + " " + teacher?.teacher.user.firstLastName;
     }
     return;
 }

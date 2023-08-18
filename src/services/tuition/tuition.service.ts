@@ -672,5 +672,51 @@ export default class TuitionService {
         }
     }
 
+    // Avisar a estudiantes de la subida de notas
+    // http://localhost:3001/api/tuition/grades-ready/f71ae331-2c59-4c9a-ae0f-05a0268b07d3
+    async sendNoticeEmails(idSection: string) {
+        const url = `http://localhost:3001/api/tuition/grades-ready/${idSection}`;
+        try {
+            const response = await axios({
+                method: "GET",
+                url: url
+            });
+
+            if (response.status === 200) {
+                const data = await response.data;
+
+                if (data.statusCode !== 200) {
+
+                    this.store.setToaster({
+                        isActive: true,
+                        text: data.message,
+                        color: "error",
+                    });
+                }else{
+                    this.store.setToaster({
+                        isActive: true,
+                        text: "Correos enviados con éxito.",
+                        color: "success",
+                    });
+                }
+                return data;
+            } else {
+                this.store.setToaster({
+                    isActive: true,
+                    text: "Error al enviar los correos. Por favor, inténtelo de nuevo más tarde.",
+                    color: "error",
+                });
+            }
+
+
+        } catch (error) {
+            this.store.setToaster({
+                isActive: true,
+                text: "Error al enviar los correos. Por favor, inténtelo de nuevo más tarde.",
+                color: "error",
+            });
+            return error;
+        }
+    }
 
 }
