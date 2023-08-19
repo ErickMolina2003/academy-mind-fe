@@ -234,29 +234,36 @@ const fechas = ref([
     fecha: "",
     hora: "9:00am a 11:59pm",
     estudiantes: [
-      "Índice global de excelencia académica (84-100)",
-      "Primer ingreso",
+      "- Índice global de excelencia académica (84%-100%)",
+      "- Primer ingreso",
+      "- PROSENE",
+      "- Representantes de la UNAH en aspectos Artisticos, Culturales y Deportivos",
+      "- Por Egresar (Índice global 80% a 100%)",
+      "- Primer ingreso provenientes de otras universidades y Graduados de la UNAH\n ",
     ],
   },
   {
     fecha: "",
     hora: "9:00am a 11:59pm",
-    estudiantes: ["Índice global de excelencia académica (80-83)"],
+    estudiantes: [
+      "- Índice global de excelencia académica (80%-83%)",
+      "- Por Egresar (Índice global 0% a 79%)\n ",
+    ],
   },
   {
     fecha: "",
     hora: "9:00am a 11:59pm",
-    estudiantes: ["Índice global (73-79)"],
+    estudiantes: ["Índice global (73%-79%)"],
   },
   {
     fecha: "",
     hora: "9:00am a 11:59pm",
-    estudiantes: ["Índice global (65-72)"],
+    estudiantes: ["Índice global (65%-72%)"],
   },
   {
     fecha: "",
     hora: "9:00am a 11:59pm",
-    estudiantes: ["Índice global (0-64)"],
+    estudiantes: ["Índice global (0%-64%)"],
   },
 ]);
 
