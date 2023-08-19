@@ -333,17 +333,11 @@ const generatePDF = () => {
           ],
         },
         layout: {
-          hLineWidth: function (i, node) {
-            return 5; // Grosor para líneas horizontales
-          },
           vLineWidth: function (i, node) {
-            return 5; // Grosor para líneas verticales
-          },
-          hLineColor: function (i, node) {
-            return "white"; // Establece el color de las líneas horizontales en blanco
+            return 5;
           },
           vLineColor: function (i, node) {
-            return "white"; // Establece el color de las líneas verticales en blanco
+            return "white";
           },
         },
       },
@@ -425,7 +419,7 @@ const generatePDF = () => {
       },
       personalInfo: {
         fontSize: 12,
-        fillColor: "#b3b3b3",
+        fillColor: "#dddddd",
         color: "black",
         alignment: "left",
         bold: true,
