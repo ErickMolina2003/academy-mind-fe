@@ -316,6 +316,7 @@ const generatePDF = () => {
                   `Nombre:\t${store.user.firstName} ${store.user.secondName}`,
                   `Apellido:\t${store.user.firstLastName} ${store.user.secondLastName}`,
                 ],
+                border: [false, false, false, false],
                 style: "personalInfo",
               },
               {
@@ -325,6 +326,7 @@ const generatePDF = () => {
                   `Centro: ${user.center}`,
                   `Índice: ${user.globalIndex}`,
                 ],
+                border: [true, false, false, false],
                 style: "personalInfo",
               },
             ],
@@ -332,18 +334,16 @@ const generatePDF = () => {
         },
         layout: {
           hLineWidth: function (i, node) {
-            return i === 0 || i === node.table.body.length ? 2 : 1;
+            return 5; // Grosor para líneas horizontales
           },
           vLineWidth: function (i, node) {
-            return i === 0 || i === node.table.widths.length ? 2 : 1;
+            return 5; // Grosor para líneas verticales
           },
           hLineColor: function (i, node) {
-            return i === 0 || i === node.table.body.length ? "black" : "black";
+            return "white"; // Establece el color de las líneas horizontales en blanco
           },
           vLineColor: function (i, node) {
-            return i === 0 || i === node.table.widths.length
-              ? "black"
-              : "black";
+            return "white"; // Establece el color de las líneas verticales en blanco
           },
         },
       },
