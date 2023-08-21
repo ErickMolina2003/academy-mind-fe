@@ -91,6 +91,7 @@ import TuitionService from "@/services/tuition/tuition.service";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import base64ImageJson from "/src/mock/logoBase64.json";
+import sello from "/src/mock/selloBase64.json";
 import academicHistory from "/src/mock/historial-academico.json";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -147,7 +148,7 @@ watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
 
 function generateYearlyTables(registrations) {
   const years = {}; // Almacena los registros agrupados por año
-  console.log(registrations)
+  console.log(registrations);
   // Grupo de registros por año
   registrations.forEach((registration) => {
     const year = registration.section.idPeriod.year;
@@ -237,24 +238,31 @@ const generatePDF = () => {
     pageSize: "LETTER",
     watermark: { text: "UNAH", color: "#184267", opacity: 0.1, bold: true },
     header: function (currentPage) {
+      const headerContent = [];
       if (currentPage > 1) {
-        return [
-          {
-            columns: [
-              {
-                text: `${academicHistory.registrations[0].student.accountNumber}`,
-                alignment: "left",
-                margin: [40, 15],
-              },
-              {
-                text: `${academicHistory.registrations[0].student.user.firstName} ${academicHistory.registrations[0].student.user.secondName} ${academicHistory.registrations[0].student.user.firstLastName} ${academicHistory.registrations[0].student.user.secondLastName}`,
-                alignment: "left",
-                margin: [20, 15],
-              },
-            ],
-          },
-        ];
+        headerContent.push({
+          columns: [
+            {
+              text: `${user.accountNumber}`,
+              alignment: "left",
+              margin: [40, 15],
+            },
+            {
+              text: `${store.user.firstName} ${store.user.secondName} ${store.user.firstLastName} ${store.user.secondLastName}`,
+              alignment: "left",
+              margin: [20, 15],
+            },
+          ],
+        });
       }
+      headerContent.push({
+        image: sello.base64Image, // Cambia por la URL de tu imagen
+        height: 160,
+        width: 100, // Ajusta el ancho de la imagen según tus necesidades
+        opacity: 0.4, // Ajusta la opacidad de la imagen
+        absolutePosition: { x: 250, y: 300 }, // Posición absoluta en la página
+      });
+      return headerContent;
     },
     footer: function (currentPage, pageCount) {
       return {
@@ -308,6 +316,7 @@ const generatePDF = () => {
                   `Nombre:\t${store.user.firstName} ${store.user.secondName}`,
                   `Apellido:\t${store.user.firstLastName} ${store.user.secondLastName}`,
                 ],
+                border: [false, false, false, false],
                 style: "personalInfo",
               },
               {
@@ -317,53 +326,84 @@ const generatePDF = () => {
                   `Centro: ${user.center}`,
                   `Índice: ${user.globalIndex}`,
                 ],
+                border: [true, false, false, false],
                 style: "personalInfo",
               },
             ],
           ],
         },
         layout: {
-          hLineWidth: function (i, node) {
-            return i === 0 || i === node.table.body.length ? 2 : 1;
-          },
           vLineWidth: function (i, node) {
-            return i === 0 || i === node.table.widths.length ? 2 : 1;
-          },
-          hLineColor: function (i, node) {
-            return i === 0 || i === node.table.body.length ? "black" : "black";
+            return 5;
           },
           vLineColor: function (i, node) {
-            return i === 0 || i === node.table.widths.length
-              ? "black"
-              : "black";
+            return "white";
+          },
+        },
+      },
+      {
+        margin: [0, 20, 0, 0],
+        table: {
+          widths: ["*"],
+          body: [
+            [
+              {
+                text: `${user.career}`,
+                style: "personalInfo",
+                alignment: "center",
+                fontSize: 16,
+              },
+            ],
+          ],
+        },
+        layout: {
+          hLineWidth: function (i, node) {
+            return 0; // Elimina las líneas horizontales
+          },
+          vLineWidth: function (i, node) {
+            return 0; // Elimina las líneas verticales
           },
         },
       },
       ...generateYearlyTables(subjects.value),
       {
-        style: "clasesAprobadas",
-        text: [
+        stack: [
           {
-            text: "______________________________________________________________________",
-            alignment: "center",
-          },
-          { text: "\n\nCálculo del índice académico" },
-        ],
-      },
-      {
-        margin: [0, 10, 0, 0],
-        table: {
-          headerRows: 1,
-          body: [
-            ["Suma de UV x Nota:", { text: `${user.gradesSum}`, alignment: "center" }],
-            ["Suma de UV:", { text: `${user.unitValuesSum}`, alignment: "center" }],
-            [
-              "lndice académico:",
-              { text: `${user.gradesSum} / ${user.unitValuesSum} = ${user.globalIndex}%`, alignment: "center" },
+            style: "clasesAprobadas",
+            text: [
+              {
+                text: "______________________________________________________________________",
+                alignment: "center",
+              },
+              { text: "\n\nCálculo del índice académico" },
             ],
-          ],
-        },
-        layout: "noBorders",
+          },
+          {
+            margin: [0, 10, 0, 0],
+            table: {
+              headerRows: 1,
+              body: [
+                [
+                  "Suma de UV x Nota:",
+                  { text: `${user.gradesSum}`, alignment: "center" },
+                ],
+                [
+                  "Suma de UV:",
+                  { text: `${user.unitValuesSum}`, alignment: "center" },
+                ],
+                [
+                  "lndice académico:",
+                  {
+                    text: `${user.gradesSum} / ${user.unitValuesSum} = ${user.globalIndex}%`,
+                    alignment: "center",
+                  },
+                ],
+              ],
+            },
+            layout: "noBorders",
+          },
+        ],
+        pageBreak: "before",
       },
     ],
     styles: {
@@ -379,7 +419,7 @@ const generatePDF = () => {
       },
       personalInfo: {
         fontSize: 12,
-        fillColor: "#b3b3b3",
+        fillColor: "#dddddd",
         color: "black",
         alignment: "left",
         bold: true,
