@@ -71,8 +71,13 @@
               <div style="background-color: rgb(var(--v-theme-secondary-lighthen-1));">
                 <h4 class="mb-2  text-white text-center">Secciones</h4>
               </div>
-              <v-card class="pa-4">
-                <v-virtual-scroll :items="seccionesFiltradas" item-height="48" class="virtual-scroll-list">
+              <v-card class="pa-4" v-if="asignaturaSeleccionada">
+                <div v-if="seccionesFiltradas.length === 0" item-height="48" class="virtual-scroll-list">
+                  <v-list-item>
+                  <v-list-item-title style="font-size: 1rem;">No hay secciones disponibles</v-list-item-title>
+                </v-list-item>
+                </div>
+                <v-virtual-scroll v-else :items="seccionesFiltradas" item-height="48" class="virtual-scroll-list">
                   <template #default="{ item }">
                     <v-list-item :key="item.id" @click="seleccionarSeccion(item)"
                       :class="{ 'list-item-selected': item === seccionSeleccionada }">
@@ -300,6 +305,7 @@ async function getSections() {
 
 
 async function seleccionarAsignatura(asignatura) {
+  asignaturaSeleccionada.value = asignatura;
   if (tuitions.value.find(tuition => tuition.section.idClass.name === asignatura)) {
     store.setToaster({
       isActive: true,
@@ -308,6 +314,7 @@ async function seleccionarAsignatura(asignatura) {
     });
 
     seccionesFiltradas.value = [];
+    asignaturaSeleccionada.value=null;
   } else {
     let selectedClass = classNames.value.find(className => className.name === asignatura);
 
@@ -359,6 +366,7 @@ async function matricularAsignatura() {
 
       getTuitionsByStudent(studentLogged.student.accountNumber);
       seccionSeleccionada.value = null;
+      asignaturaSeleccionada.value=null;
       seccionesFiltradas.value = [];
       getUV();
     } else {
