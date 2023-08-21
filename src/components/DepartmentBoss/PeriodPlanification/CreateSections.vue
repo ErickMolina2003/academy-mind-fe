@@ -36,8 +36,12 @@
                         <td>{{ section.days }}</td>
                         <td>{{ section.idClassroom.idBuilding.name }}</td>
                         <td>{{ section.idClassroom.code }}</td>
-                        <td>{{ section.space }}</td>
-                        <td>{{ section.waitingSpace }}</td>
+                        <td>{{ section.space-section.availableSpaces }}/{{ section.space }}</td>
+                        <td v-if="section.waitingAvailableSpaces">
+                            {{ section.waitingSpace-section.waitingAvailableSpaces }}/{{ section.waitingSpace }}
+                        </td>
+                        <td v-else>0/{{section.waitingSpace }}</td>
+                        
                         <td><v-icon @click="openModifyModal(section)">{{ 'mdi-pencil' }}</v-icon></td>
                         <td>
                             <input type="checkbox" v-if="section.waitingList == 'true'" checked disabled>

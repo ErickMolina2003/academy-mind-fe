@@ -21,12 +21,12 @@
                                     cols="12" md="12" lg="12">
                                     <div>
                                         <h3 class="bg-blue-darken-1 my-3 pa-1">Imagenes</h3>
-                                        <v-file-input chips prepend-icon="mdi-camera" accept="image/*"
-                                            v-model="uploadImage"></v-file-input>
+                                        <v-file-input chips multiple prepend-icon="mdi-camera" accept="image/*"
+                                            v-model="uploadImage" @change="handleFileChange()"></v-file-input>
                                         <v-container justify="start">
                                             <v-row justify="center">
-                                                <v-col cols="auto" v-if="uploadImage[0]">
-                                                    <v-img height="110" width="110" cover :src="getImageUrl"></v-img>
+                                                <v-col cols="auto" v-if="uploadImage" v-for="(image) in uploadImage">
+                                                    <v-img height="110" width="110" cover :src="getImageUrl(image)"></v-img>
                                                 </v-col>
                                             </v-row>
                                         </v-container>
@@ -41,13 +41,13 @@
                                             <v-row class="pa-0 ma-0" style="font-size:.8rem;">
                                                 <v-col cols="12" v-if="!deleteImg && !choosingImg" class="pa-0 mb-2 d-flex"
                                                     style="cursor: pointer;" @click="choosingImg = true">
-                                                    <v-icon  class="pa-0">{{
+                                                    <v-icon class="pa-0">{{
                                                         'mdi-face-man-profile' }} </v-icon>
-                                                        <span>Elegir una imagen de perfil</span>
+                                                    <span>Elegir una imagen de perfil</span>
                                                 </v-col>
                                                 <v-col cols="12" v-if="!deleteImg && !choosingImg" class="pa-0 d-flex"
                                                     style="cursor: pointer;" @click="deleteImg = true">
-                                                    <v-icon  class="pa-0">{{ 'mdi-delete' }}
+                                                    <v-icon class="pa-0">{{ 'mdi-delete' }}
                                                     </v-icon>
                                                     <span>Borrar una imagen</span>
                                                 </v-col>
@@ -88,7 +88,7 @@
                             <v-btn style="width: 150px" class="bg-blue-grey-darken-1 mr-6" variant="text" rounded
                                 @click="closeImageDialog">Cerrar</v-btn>
                             <v-btn style="width: 150px" class="bg-blue-darken-4 text-right" rounded variant="text"
-                                @click="uploadingImage">
+                                @click="uploadingImage" :disabled="isLoading">
                                 Confirmar
                             </v-btn>
                         </div>
@@ -252,7 +252,7 @@ let account = "";
 const originalDescription = ref("");
 const originalEmail = ref("");
 const video = ref();
-
+const isLoading = ref(false);
 const userImages = ref([]);
 const pictureModal = ref(false);
 const uploadImage = ref([]);
@@ -288,9 +288,9 @@ async function uploadingVideo() {
 
 }
 
-const getImageUrl = computed(() => {
-    return URL.createObjectURL(uploadImage.value[0]);
-});
+const getImageUrl = (image: any) => {
+    return URL.createObjectURL(image);
+};
 const getSecondImageUrl = computed(() => {
     return URL.createObjectURL(uploadImage.value[1]);
 });
@@ -308,7 +308,7 @@ const getVideoOfUser = () => {
 }
 
 function getProfilePicture(index: number) {
-    
+
 
     if (index == 1) {
         profilePicture.value = store.user.student.photoOne;
@@ -317,7 +317,7 @@ function getProfilePicture(index: number) {
     } else if (index == 3) {
         profilePicture.value = store.user.student.photoThree;
     } else {
-        
+
         profilePicture.value = null;
     }
 
@@ -347,26 +347,30 @@ onMounted(() => {
 account = userLogged.value.employeeNumber ?? userLogged.value.accountNumber;
 const imageToUpload = ref("");
 async function uploadingImage() {
+    isLoading.value = true;
+    for (let newImage of uploadImage.value) {
+        
 
-    if (!uploadImage.value) return;
 
-    let bucket = "";
-    if (store.user.teacher) {
-        bucket = "teacher";
-    }
+        if (!newImage) return;
 
-    if (store.user.student) {
-        bucket = "student";
-    }
+        let bucket = "";
+        if (store.user.teacher) {
+            bucket = "teacher";
+        }
 
-    if (store.user.isAdmin) {
-        bucket = "admin";
-    }
-    uploadedImage.value = [];
-    for (const image of uploadImage.value) {
-        const imageRef = firebaseRed(storage, `images/${bucket}/${image.name + v4()}`);
+        if (store.user.student) {
+            bucket = "student";
+        }
+
+        if (store.user.isAdmin) {
+            bucket = "admin";
+        }
+        uploadedImage.value = [];
+
+        const imageRef = firebaseRed(storage, `images/${bucket}/${newImage.name + v4()}`);
         try {
-            const response = await uploadBytes(imageRef, image);
+            const response = await uploadBytes(imageRef, newImage);
             const url = await getDownloadURL(response.ref);
             uploadedImage.value.push(url);
             imageToUpload.value = uploadedImage.value[0];
@@ -377,55 +381,56 @@ async function uploadingImage() {
                 color: "error",
             });
         }
-    }
 
-    if (uploadedImage.value.length > 0) {
-        try {
-            if (!store.user.student.photoOne) {
 
-                await studentService.updateStudent(dni, {
-                    photoOne: imageToUpload.value,
+        if (uploadedImage.value.length > 0) {
+            try {
+                if (!store.user.student.photoOne) {
+
+                    await studentService.updateStudent(dni, {
+                        photoOne: imageToUpload.value,
+                    });
+
+                    imageToUpload.value = "";
+
+                } else if (!store.user.student.photoTwo) {
+
+                    await studentService.updateStudent(dni, {
+                        photoTwo: imageToUpload.value,
+                    });
+
+                    imageToUpload.value = "";
+                } else if (!store.user.student.photoThree) {
+
+                    await studentService.updateStudent(dni, {
+                        photoThree: imageToUpload.value,
+                    });
+
+                    imageToUpload.value = "";
+                }
+            } catch (error) {
+                store.setToaster({
+                    isActive: true,
+                    text: "Error al subir imagen.",
+                    color: "error",
                 });
-
-                imageToUpload.value = "";
-
-            } else if (!store.user.student.photoTwo) {
-
-                await studentService.updateStudent(dni, {
-                    photoTwo: imageToUpload.value,
-                });
-
-                imageToUpload.value = "";
-            } else if (!store.user.student.photoThree) {
-
-                await studentService.updateStudent(dni, {
-                    photoThree: imageToUpload.value,
-                });
-
-                imageToUpload.value = "";
             }
-
-            store.setToaster({
-                isActive: true,
-                text: "Imágenes subidas con éxito.",
-                color: "success",
-            });
-            
-
-        } catch (error) {
-            store.setToaster({
-                isActive: true,
-                text: "Error al subir imagen.",
-                color: "error",
-            });
         }
+
     }
+
+    store.setToaster({
+        isActive: true,
+        text: "Imágenes subidas con éxito.",
+        color: "success",
+    });
     pictureModal.value = false;
     getProfilePicture(store.user.student.currentPhoto);
     uploadImage.value = [];
     getImagesOfUser();
-}
+    isLoading.value = false;
 
+}
 
 function closeImageDialog() {
     uploadImage.value = [];
@@ -455,7 +460,7 @@ async function chooseProfileImg(index: number) {
 }
 
 async function deletePhoto() {
-    
+
     try {
         if (photoIndex.value == 1) {
 
@@ -522,8 +527,8 @@ async function deletePhoto() {
 
 async function confirmInfo() {
     if (description.value) {
-        
-        
+
+
         if (userIsTeacher.value) {
             await teacherService.updateTeacher(dni, {
                 description: description.value,
@@ -533,11 +538,12 @@ async function confirmInfo() {
                 description: description.value,
             });
         } else {
-            
+
             await studentService.updateStudent(dni, {
                 description: description.value,
+                currentPhoto: store.user.student.currentPhoto
             });
-            
+
         }
 
         store.setToaster({
@@ -580,6 +586,38 @@ async function confirmInfo() {
     }
     emit("close", false);
 }
+
+function handleFileChange() {
+    
+    let tryImages: any = [];
+    for (let index in userImages.value) {
+
+        if (userImages.value[index] !== undefined) {
+            
+            tryImages.push(userImages.value[index])
+        }
+    }
+    
+    
+    // if (userImages.value.length + uploadImage.value.length <= 3) {
+    //     // userImages.value.push(...uploadImage.value);
+    //     uploadImage.value = [];
+    // }
+
+    const remainingSlots = 3 - tryImages.length;
+    const filesToUpload = Array.from(uploadImage.value).slice(0, remainingSlots);
+
+    uploadImage.value = filesToUpload;
+    
+
+}
+
+// const filesRules = [
+//     (value: any) => {
+//         return 3 - userImages.length
+//     }
+
+// ]
 
 const rules = {
     required: (value: any) => !!value || "Campo obligatorio",

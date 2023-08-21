@@ -2,7 +2,7 @@
     <v-main style="padding-left: 0%" class="mx-3">
         <v-card>
             <v-card-title class="text-center text-white " style="background-color: rgb(var(--v-theme-secondary-lighthen-1))">
-                <span>Carga del Período</span>
+                <span>Carga del {{ currentPeriod.numberPeriod }} Período Académico {{ currentPeriod.year }}</span>
             </v-card-title>
             <div class="d-flex align-center mx-4 my-2">
                 <div>

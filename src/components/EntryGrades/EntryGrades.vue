@@ -160,10 +160,18 @@ async function getSections() {
 }
 
 async function entryNote(idRegistration, note, classState) {
-    
+
     if (note) {
+        if (note < 0 || note > 100) {
+            this.store.setToaster({
+                isActive: true,
+                text: "La nota debe ser mayor o igual a 0 y menor o igual a 100.",
+                color: "error",
+            });
+            return;
+        }
         let gradeData = {};
-        if (note) { gradeData.note = note }
+        { gradeData.note = note }
         if (classState) { gradeData.statusClass = classState }
         if (gradeData !== {}) { await tuitionService.addGradeStudent(idRegistration, gradeData) };
         getNotes();

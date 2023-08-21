@@ -287,13 +287,10 @@ async function getPeriods() {
 async function getCancelationsDates() {
   const response = await servicePeriod.getPeriodOngoing();
 
+  
   if (response.periods[0]?.exceptionalCancelationStarts) {
-    cancelStartDate.value = formatDate(
-      response.periods[0].exceptionalCancelationStarts
-    );
-    cancelEndDate.value = formatDate(
-      response.periods[0].exceptionalCancelationEnds
-    );
+    cancelStartDate.value = new Date(response.periods[0].exceptionalCancelationStarts).toISOString().split('T')[0];
+    cancelEndDate.value = new Date(response.periods[0].exceptionalCancelationEnds).toISOString().split('T')[0];
   }
 }
 
@@ -351,6 +348,8 @@ const showCancelDatesModal = () => {
 
 async function setCancelDates() {
   if (!isFormValid.value) return;
+  
+  
 
   const response = await servicePeriod.modifyCancelationsDates(
     periodRightNow.value.id,
@@ -359,11 +358,6 @@ async function setCancelDates() {
       exceptionalCancelationEnds: cancelEndDate.value,
     }
   );
-
-  if (response.statusCode === 200) {
-    cancelStartDate.value = formatDate(cancelStartDate.value);
-    cancelEndDate.value = formatDate(cancelEndDate.value);
-  }
 
   cancelDatesModalOpen.value = false;
 }
@@ -518,20 +512,36 @@ async function confirmAndChange() {
 
 const validateStartDate = (value) => {
   if (!value) return true;
-  const startDate = new Date(value);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Establecer la hora a medianoche para que solo comparemos las fechas
+  
+  let today = new Date();
+  today.setHours(0, 0, 0, 0)
 
-  if (startDate >= today) return true;
+  let selectedDate = new Date(value);
+  selectedDate.setDate(selectedDate.getDate() + 1);
+  selectedDate.setHours(0, 0, 0, 0);
+  // Formatear la fecha ingresada al formato "yyyy-MM-dd"
+  selectedDate = new Date(selectedDate).toISOString().split('T')[0];
+  today = new Date(today).toISOString().split('T')[0];
+  
+  
+  cancelStartDate.value = selectedDate;
+  if (selectedDate >= today) return true;
   return "La fecha debe ser hoy o posterior";
 };
 
 const validateEndDate = (value) => {
   if (!value) return true;
-  const startDate = new Date(cancelStartDate.value);
-  const endDate = new Date(value);
+  
 
-  if (endDate >= startDate) return true;
+  let selectedDate = new Date(value);
+  selectedDate.setDate(selectedDate.getDate() + 1);
+  selectedDate.setHours(0, 0, 0, 0);
+  selectedDate = new Date(selectedDate).toISOString().split('T')[0];
+  cancelEndDate.value = selectedDate;
+  
+  
+
+  if (selectedDate > cancelStartDate.value) return true;
   return "La fecha de cierre debe ser posterior a la fecha de inicio";
 };
 
@@ -547,3 +557,4 @@ td {
   text-align: left;
 }
 </style>
+
