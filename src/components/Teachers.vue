@@ -9,6 +9,7 @@
           <th>Correo Institucional</th>
           <th>Cargo</th>
           <th>Carrera</th>
+          <th>Centro Regional</th>
         </tr>
       </thead>
       <tbody>
@@ -31,16 +32,26 @@
           </td>
           <td>
             <ul class="career-list">
-              <li v-for="career in teacher.teachingCareer" :key="career.idTeachingCareer">
+              <li
+                v-for="career in teacher.teachingCareer"
+                :key="career.idTeachingCareer"
+              >
                 {{ career.centerCareer.career.name }}
               </li>
             </ul>
           </td>
+          <td>
+            {{ teacher.teachingCareer[0].centerCareer.regionalCenter.name }}
+          </td>
         </tr>
       </tbody>
     </table>
-    <v-pagination v-model="currentPage" :total-visible="5" :length="totalPages"
-      @input="updateDisplayedTeachers()"></v-pagination>
+    <v-pagination
+      v-model="currentPage"
+      :total-visible="5"
+      :length="totalPages"
+      @input="updateDisplayedTeachers()"
+    ></v-pagination>
   </div>
 </template>
 
@@ -65,16 +76,20 @@ const itemsPerPage = 10;
 const currentPage = ref(1);
 const displayedTeachers = ref([]);
 
-const totalPages = computed(() => Math.ceil(filteredTeachers.value.length / itemsPerPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredTeachers.value.length / itemsPerPage)
+);
 
 const updateDisplayedTeachers = () => {
   const startIndex = (currentPage.value - 1) * itemsPerPage;
-  displayedTeachers.value = filteredTeachers.value.slice(startIndex, startIndex + itemsPerPage);
+  displayedTeachers.value = filteredTeachers.value.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 };
 
 watch(currentPage, updateDisplayedTeachers);
 watch(filteredTeachers, updateDisplayedTeachers);
-
 
 onMounted(async () => {
   await getTeachers();
@@ -87,6 +102,7 @@ async function getTeachers() {
   originalTeachers.value = response.teachers;
   teachers.value = [...originalTeachers.value];
   isLoading.value = false;
+  console.log(teachers.value);
 }
 
 const filterTeachers = (query) => {
@@ -99,8 +115,6 @@ const filterTeachers = (query) => {
     );
   }
 };
-
-
 
 // Capturar el evento personalizado 'filter' emitido desde NavBar.vue
 document.addEventListener("filter", (event) => {
