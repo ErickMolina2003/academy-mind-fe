@@ -55,7 +55,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import TeacherService from "@/services/teacher/teacher.service";
 import { useAppStore } from "@/store/app";
