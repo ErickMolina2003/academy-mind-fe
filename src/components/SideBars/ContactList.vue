@@ -37,18 +37,10 @@
             </v-form>
             <v-card-actions class="fixed-footer">
               <v-spacer></v-spacer>
-              <v-btn
-                color="blue-darken-1"
-                variant="text"
-                @click="closeAddContact"
-              >
-                Cerrar
+              <v-btn color="error" variant="text" @click="closeAddContact">
+                Cancelar
               </v-btn>
-              <v-btn
-                color="blue-darken-1"
-                variant="text"
-                @click="submitAddContact"
-              >
+              <v-btn color="success" variant="text" @click="submitAddContact">
                 Guardar
               </v-btn>
             </v-card-actions>
@@ -59,11 +51,14 @@
           <v-card>
             <v-toolbar color="blue" title="Solicitud de Contactos"></v-toolbar>
             <br />
-            <v-list class="overflow-auto contacts-box">
+            <v-list
+              v-if="currentStudent && currentStudent.friendRequests"
+              class="overflow-auto contacts-box"
+            >
               <v-list-item
-                v-for="(item, index) in items"
-                :key="index"
-                :prepend-avatar="item.avatar"
+                v-for="(item, index) in currentStudent.friendRequests"
+                :key="item.accountNumber"
+                :prepend-avatar="item.profilePicture"
                 class="mb-2"
               >
                 <div class="d-flex justify-space-between align-center">
@@ -72,7 +67,7 @@
                     <v-btn
                       class="ma-2"
                       color="green"
-                      @click="acceptContact(index)"
+                      @click="acceptContact(item.accountNumber)"
                     >
                       Accept
                       <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
@@ -81,7 +76,7 @@
                     <v-btn
                       class="ma-2"
                       color="red"
-                      @click="rejectContact(index)"
+                      @click="rejectContact(item.accountNumber)"
                     >
                       Decline
                       <v-icon end icon="mdi-cancel"></v-icon>
@@ -90,6 +85,12 @@
                 </div>
               </v-list-item>
             </v-list>
+            <h4
+              class="text-center"
+              v-if="currentStudent && !currentStudent.friendRequests"
+            >
+              No tiene solicitudes nuevas
+            </h4>
             <v-card-actions class="fixed-footer">
               <v-spacer></v-spacer>
               <v-btn
@@ -106,12 +107,15 @@
       </div>
     </v-toolbar>
 
-    <v-list class="overflow-auto contacts-box">
+    <v-list
+      v-if="currentStudent && currentStudent.friends"
+      class="overflow-auto contacts-box"
+    >
       <v-list-item
-        v-for="(item, index) in items"
-        :key="index"
-        :prepend-avatar="item.avatar"
-        @click="onContactClick(index)"
+        v-for="(item, index) in currentStudent.friends"
+        :key="item.accountNumber"
+        :prepend-avatar="item.profilePicture"
+        @click="onContactClick(item.accountNumber)"
         class="mb-2"
       >
         <div class="d-flex justify-space-between">
@@ -124,27 +128,55 @@
             </span>
           </v-list-item-icon>
         </div>
-        <v-list-item-subtitle>
-          {{ item.lastmessage }}
-        </v-list-item-subtitle>
       </v-list-item>
     </v-list>
+    <h4
+      class="text-center mt-5"
+      v-if="currentStudent && !currentStudent.friends"
+    >
+      No tiene contactos para conversar
+    </h4>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import { watch } from "vue";
 import { ref } from "vue";
+import { onMounted } from "vue";
+import { onValue, ref as dbref, set, update } from "firebase/database";
+import { db } from "@/firebase";
+import { useAppStore } from "@/store/app";
+import { computed } from "vue";
 
+const store = useAppStore();
 const dialogInbox = ref(false);
 const dialogAddContact = ref(false);
 const accountNum = ref("");
-
 const props = defineProps();
 const emit = defineEmits();
 const onContactClick = (index) => {
-  console.log("Contacto clickeado:", index);
-  emit("contactClick");
+  emit("contactClick", index);
 };
+
+const students = ref([]);
+const currentStudent = ref();
+
+onMounted(async () => {
+  //obtener todos
+  onValue(dbref(db), (snapshot) => {
+    students.value = [];
+    const data = snapshot.val();
+    if (data !== null) {
+      Object.values(data).map((student) => {
+        students.value.push(student);
+        if (student.accountNumber == store.user.student.accountNumber) {
+          currentStudent.value = student;
+        }
+      });
+    }
+  });
+});
+
 //Añadir contacto
 const closeAddContact = () => {
   dialogAddContact.value = false;
@@ -163,6 +195,43 @@ function validateFields() {
 const submitAddContact = () => {
   const value = validateFields();
   if (value) {
+    let studentsAccountNumbers = [];
+    let actualStudent;
+
+    students.value.forEach((student) => {
+      studentsAccountNumbers.push(student.accountNumber);
+      if (student.accountNumber == store.user.student.accountNumber) {
+        actualStudent = student;
+      }
+    });
+
+    console.log(studentsAccountNumbers);
+    console.log(value);
+
+    if (!studentsAccountNumbers.includes(accountNum.value)) {
+      store.setToaster({
+        color: "error",
+        isActive: true,
+        text: "No se ha encontrado al estudiante",
+      });
+
+      return;
+    }
+
+    students.value.forEach((student) => {
+      if (student.accountNumber == accountNum.value) {
+        let existingFriendRequest = student.friendRequests ?? null;
+        update(dbref(db, `/${student.accountNumber}`), {
+          friendRequests: existingFriendRequest
+            ? [...existingFriendRequest, actualStudent]
+            : [actualStudent],
+        });
+        console.log(actualStudent);
+      }
+    });
+
+    accountNum.value = "";
+
     console.log("Contacto guardado:", accountNum.value);
     closeAddContact();
   } else {
@@ -186,7 +255,34 @@ const closeInbox = () => {
 };
 
 function acceptContact(index) {
-  console.log("Contacto aceptado:", `id: ${index}`);
+  let acceptedStudent;
+  students.value.forEach((student) => {
+    if (student.accountNumber == index) {
+      acceptedStudent = student;
+    }
+  });
+
+  let indexOfAccepted;
+  currentStudent.value.friendRequests.forEach((request, index) => {
+    if (request.accountNumber == index) {
+      indexOfAccepted = index;
+    }
+  });
+  currentStudent.value.friendRequests.splice(indexOfAccepted, 1);
+  let existingFriends = currentStudent.value.friends ?? null;
+  update(dbref(db, `/${currentStudent.value.accountNumber}`), {
+    friends: existingFriends
+      ? [...existingFriends, acceptedStudent]
+      : [acceptedStudent],
+    friendRequests: currentStudent.value.friendRequests,
+  });
+
+  let existingFriends2 = acceptedStudent.value.friends ?? null;
+  update(dbref(db, `/${index}`), {
+    friends: existingFriends2
+      ? [...existingFriends2, currentStudent]
+      : [currentStudent],
+  });
 }
 
 function rejectContact(index) {

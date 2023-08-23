@@ -210,7 +210,6 @@ async function getPeriods() {
   }
 }
 async function getSections(idPeriod) {
-  console.log(userLogged.value);
   if (userIsTeacher.value) {
     const response = await sectionService.getSectionsByTeacher(
       store.user.teacher.employeeNumber,
