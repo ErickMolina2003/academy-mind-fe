@@ -16,8 +16,10 @@
       </v-col>
       <v-col class="py-0" cols="12" md="12" lg="12">
         <v-card-text class="text-white pt-2 pb-1 mb-2">
-          <v-icon left size="small">mdi-book-open</v-icon>
-          {{ clase }}
+          <div class="icon-text-container">
+            <v-icon left size="small">mdi-book-open</v-icon>
+            <div class="text-content">{{ clase }}</div>
+          </div>
         </v-card-text>
       </v-col>
       <!-- Agregar v-if para mostrar horario solo si se envía como prop -->
@@ -101,5 +103,14 @@ defineProps<{
 <style scoped>
 .class-card-footer {
   background-color: #527da2;
+}
+.icon-text-container {
+  display: flex;
+  align-items: center;
+}
+.text-content {
+  white-space: nowrap; /* Evita saltos de línea */
+  overflow: hidden; /* Oculta el contenido que desborda */
+  text-overflow: ellipsis; /* Agrega puntos suspensivos para el contenido oculto */
 }
 </style>

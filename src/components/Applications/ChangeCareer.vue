@@ -1,68 +1,59 @@
 <template>
-  <div v-if="show">
-    <v-card class="ma-4">
-      <v-col cols="12" class="rounded-lg mb-2 px-7 py-2">
-        <h2 class="text-center py-2">Solicitud cambio de carrera</h2>
-        <hr />
-        <v-row class="d-flex pt-2">
-          <v-col cols="6">
-            <h3>Centro de Estudios:</h3>
-            <p class="student-info">{{ centerStudent }}</p>
-          </v-col>
-          <v-col cols="6">
-            <h3>Carrera actual:</h3>
-            <p class="student-info">{{ careerStudent }}</p>
-          </v-col>
-        </v-row>
-        <v-row class="d-flex">
-          <v-col cols="6">
-            <h3>Indice global:</h3>
-            <p class="student-info">{{ indexStudent }}</p>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-form
-        ref="form"
-        v-model="isValid"
-        @submit.prevent="submitApplication"
-        class="pa-4 pt-2"
-      >
-        <v-autocomplete
-          v-model="selectedCareer"
-          :items="filterCareer.map((item) => item.name)"
-          label="Carrera a cambiarse"
-          :rules="[rules.required]"
-          return-object
-        ></v-autocomplete>
-        <v-textarea
-          v-model="reasonsChange"
-          label="Justificacion cambio de carrera"
-          :rules="[rules.required]"
-          auto-grow
-          variant="filled"
-          rows="1"
-        ></v-textarea>
-      </v-form>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-btn variant="text" @click="() => borrar()"> Borrar </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          :disabled="!isValid"
-          color="deep-purple-accent-4"
-          @click="submitApplication"
-        >
-          Realizar solicitud
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </div>
-  <v-card v-else>
-    <v-card-text
-      class="text-center font-weight-medium text-h5 text-lg-h4 mb-3 pt-3"
+  <v-card class="ma-4">
+    <v-col cols="12" class="rounded-lg mb-2 px-7 py-2">
+      <h2 class="text-center py-2">Solicitud cambio de carrera</h2>
+      <hr />
+      <v-row class="d-flex pt-2">
+        <v-col cols="6">
+          <h3>Centro de Estudios:</h3>
+          <p class="student-info">{{ centerStudent }}</p>
+        </v-col>
+        <v-col cols="6">
+          <h3>Carrera actual:</h3>
+          <p class="student-info">{{ careerStudent }}</p>
+        </v-col>
+      </v-row>
+      <v-row class="d-flex">
+        <v-col cols="6">
+          <h3>Indice global:</h3>
+          <p class="student-info">{{ indexStudent }}</p>
+        </v-col>
+      </v-row>
+    </v-col>
+    <v-form
+      ref="form"
+      v-model="isValid"
+      @submit.prevent="submitApplication"
+      class="pa-4 pt-2"
     >
-      No puedes realizar la solicitud de cambio de carrera.
-    </v-card-text>
+      <v-autocomplete
+        v-model="selectedCareer"
+        :items="filterCareer.map((item) => item.name)"
+        label="Carrera a cambiarse"
+        :rules="[rules.required]"
+        return-object
+      ></v-autocomplete>
+      <v-textarea
+        v-model="reasonsChange"
+        label="Justificacion cambio de carrera"
+        :rules="[rules.required]"
+        auto-grow
+        variant="filled"
+        rows="1"
+      ></v-textarea>
+    </v-form>
+    <v-divider></v-divider>
+    <v-card-actions>
+      <v-btn variant="text" @click="() => borrar()"> Borrar </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        :disabled="!isValid"
+        color="deep-purple-accent-4"
+        @click="submitApplication"
+      >
+        Realizar solicitud
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 <script setup lang="ts">
@@ -121,11 +112,10 @@ async function getPeriods() {
     periodId.value
   );
   if (responseTuition.registrations.length !== 0) {
-    show.value = false;
     store.setToaster({
       isActive: true,
-      text: "Para poder realizar solicitud de cambio de carrera debe cancelar las asignaturas matriculadas en el período.",
-      color: "error",
+      text: "Para la aprobacion de cambio de carrera, no debes tener matriculas registradas en el periodo actual.",
+      color: "warning",
     });
   }
 }
