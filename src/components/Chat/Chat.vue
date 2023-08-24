@@ -1,40 +1,42 @@
 <template>
-  <v-card>
+  <v-card class="chat-card" v-if="contactChat && currentStudent && messages">
     <v-card-title class="pa-0">
       <v-list class="bg-blue-darken-4 mx-auto" rounded>
         <v-list-item
-          prepend-avatar="https://cdn.vuetifyjs.com/images/john.png"
-          title="John Leider"
-          subtitle="john@unah.hn"
+          :prepend-avatar="contactChat.profilePicture"
+          :title="contact"
+          :subtitle="contactChat.name"
         />
       </v-list>
     </v-card-title>
     <v-card-text class="chat-box overflow-auto flex-grow-1">
       <v-row>
         <v-col
-          v-for="(message, index) in chat"
-          :key="index"
-          :cols="message.isReceived ? '6' : '6'"
-          :offset="message.isReceived ? '6' : '0'"
+          v-for="(message, index) in messages"
+          :key="message"
+          :cols="message.emisor != store.user.student.accountNumber ? '6' : '6'"
+          :offset="
+            message.emisor == store.user.student.accountNumber ? '6' : '0'
+          "
           class="d-flex"
         >
           <div
-            v-if="message.isReceived"
+            v-if="message.emisor == store.user.student.accountNumber"
             class="d-inline-block bg-light-blue-lighten-3 mt-3 mx-3 pa-3 text-left rounded-xl rounded-be-0 ml-auto"
           >
-            <p>{{ message.text }}</p>
+            <p>{{ message.message }}</p>
           </div>
           <div
             v-else
             class="d-inline-block bg-grey-lighten-2 mt-3 mx-3 pa-3 text-left rounded-custom mr-auto"
           >
-            <p>{{ message.text }}</p>
+            <p>{{ message.message }}</p>
           </div>
         </v-col>
       </v-row>
     </v-card-text>
 
-    <v-card-actions class="bg-blue-darken-4 pt-5 p-0">
+    <v-card-actions class="bg-blue-darken-4 pt-5 p-0 footer">
       <div class="d-flex flex-grow-1">
         <v-textarea
           v-model="newMessage"
@@ -43,6 +45,7 @@
           variant="solo"
           rounded="xl"
           class="mx-3"
+          @keyup.enter="sendMessage()"
         />
         <v-btn
           @click="sendMessage()"
@@ -57,10 +60,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import chat from "../../mock/chat.json";
+import { onValue, ref as dbref, set, update } from "firebase/database";
+import { db } from "@/firebase";
+import { useAppStore } from "@/store/app";
+
+const currentStudent = ref();
+const contactChat = ref();
+const messages = ref([]);
+
 const newMessage = ref("");
-const props = defineProps();
+const props = defineProps({
+  contact: String,
+});
+const store = useAppStore();
+
+onMounted(async () => {
+  //obtener todos
+  onValue(dbref(db), (snapshot) => {
+    const data = snapshot.val();
+    if (data !== null) {
+      Object.values(data).map((student) => {
+        if (student.accountNumber == store.user.student.accountNumber) {
+          currentStudent.value = student;
+          student.conversations.forEach((conversation) => {
+            if (conversation.contactNumber == props.contact) {
+              messages.value = conversation.messages;
+              return;
+            }
+          });
+        }
+        if (student.accountNumber == props.contact) {
+          contactChat.value = student;
+        }
+      });
+    }
+  });
+});
+
 const emit = defineEmits();
 const closeChat = () => {
   emit("closeChat");
@@ -68,7 +106,66 @@ const closeChat = () => {
 //Funcion de prueba no actualiza JSON;
 function sendMessage() {
   if (this.newMessage.trim() !== "") {
-    console.log("Mensaje enviado:", this.newMessage);
+    let currentStudentConversation = null;
+    let newCurrentConversation;
+    if (currentStudent.value.conversations) {
+      currentStudent.value.conversations.forEach((conversation) => {
+        if (conversation.contactNumber == props.contact) {
+          currentStudentConversation = conversation;
+        }
+      });
+    } else {
+      newCurrentConversation = {
+        contactNumber: props.contact,
+        messages: [],
+      };
+    }
+    const newMessageConversation = {
+      emisor: store.user.student.accountNumber,
+      receptor: props.contact,
+      message: newMessage.value,
+    };
+    if (currentStudentConversation) {
+      currentStudentConversation.messages.push(newMessageConversation);
+    } else {
+      newCurrentConversation?.messages.push(newMessageConversation);
+    }
+
+    update(dbref(db, `/${currentStudent.value.accountNumber}`), {
+      conversations: currentStudent.value.conversations,
+    });
+
+    let contactStudentConversation = null;
+    let newConversation;
+    if (contactChat.value.conversations) {
+      contactChat.value.conversations.forEach((conversation) => {
+        if (conversation.contactNumber == store.user.student.accountNumber) {
+          contactStudentConversation = conversation;
+        }
+      });
+    } else {
+      newConversation = {
+        contactNumber: currentStudent.value.accountNumber,
+        messages: [],
+      };
+    }
+
+    const newMessageConversationContact = {
+      emisor: store.user.student.accountNumber,
+      receptor: props.contact,
+      message: newMessage.value,
+    };
+    if (contactStudentConversation) {
+      contactStudentConversation.messages.push(newMessageConversationContact);
+    } else {
+      newConversation.messages.push(newMessageConversationContact);
+      contactChat.value.conversations = [newConversation];
+    }
+
+    update(dbref(db, `/${contactChat.value.accountNumber}`), {
+      conversations: contactChat.value.conversations,
+    });
+
     this.newMessage = "";
   }
 }
@@ -80,5 +177,13 @@ function sendMessage() {
 }
 .rounded-custom {
   border-radius: 20px 20px 20px 0;
+}
+
+.chat-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>
