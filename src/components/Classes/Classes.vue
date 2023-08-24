@@ -339,12 +339,12 @@ const endIdx = computed(() => startIdx.value + itemsPerPage.value);
 
 // Calcula las secciones a mostrar en la página actual
 const displayedSections = computed(() =>
-  sectionsAll.slice(startIdx.value, endIdx.value)
+  sectionsAll.value.slice(startIdx.value, endIdx.value)
 );
 
 // Calcula el número total de páginas para la sección "Historial"
 const totalPages = computed(() =>
-  Math.ceil(sectionsAll.length / itemsPerPage.value)
+  Math.ceil(sectionsAll.value.length / itemsPerPage.value)
 );
 
 onMounted(async () => {
