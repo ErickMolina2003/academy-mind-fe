@@ -83,7 +83,6 @@ export default class CareerChangeService {
 
   async ReviewCareerChange(data: any) {
     const url = `http://localhost:3001/api/career-change/review`;
-    console.log(data);
     try {
       const response = await axios({
         method: "POST",

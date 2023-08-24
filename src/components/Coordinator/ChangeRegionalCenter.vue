@@ -185,7 +185,6 @@ async function getCareerChange() {
   studentsList.value = response.allRequest.filter(
     (request) => request.applicationStatus === "En progreso"
   );
-  console.log(studentsList.value);
   if (studentsList.value.length === 0) {
     store.setToaster({
       isActive: true,

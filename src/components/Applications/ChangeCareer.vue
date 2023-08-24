@@ -97,7 +97,6 @@ onMounted(async () => {
   filterCareer.value = data.value.careersCenter[
     `${centerStudentId}`
   ].careers.filter((career) => career.name !== careerStudent);
-  console.log();
 });
 
 async function getPeriods() {

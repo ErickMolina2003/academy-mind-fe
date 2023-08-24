@@ -84,7 +84,6 @@ async function getSections() {
       accountStudent
     );
   ongoingClasses.value = response.tuitions;
-  console.log(ongoingClasses.value);
 }
 </script>
 

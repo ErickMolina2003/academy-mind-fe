@@ -76,9 +76,7 @@ onMounted(async () => {
     )
     .then((response) => {
       if (response.data.success) {
-        console.log(response.data.success);
       } else {
-        console.log(response.data.success);
         store.setToaster({
           isActive: true,
           text: "La solicitud ha expirado",

@@ -380,7 +380,6 @@ async function getSections(idPeriod) {
       idPeriod
     );
     sections.value = response.registrations;
-    console.log(sections.value);
   }
 }
 

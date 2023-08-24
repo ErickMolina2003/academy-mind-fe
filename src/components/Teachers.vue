@@ -102,7 +102,6 @@ async function getTeachers() {
   originalTeachers.value = response.teachers;
   teachers.value = [...originalTeachers.value];
   isLoading.value = false;
-  console.log(teachers.value);
 }
 
 const filterTeachers = (query) => {

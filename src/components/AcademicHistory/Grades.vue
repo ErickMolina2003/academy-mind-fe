@@ -148,7 +148,6 @@ watch([currentSubjectPage, filteredSubjects], updateDisplayedSubjects);
 
 function generateYearlyTables(registrations) {
   const years = {}; // Almacena los registros agrupados por año
-  console.log(registrations);
   // Grupo de registros por año
   registrations.forEach((registration) => {
     const year = registration.section.idPeriod.year;
@@ -232,8 +231,6 @@ function generateYearlyTables(registrations) {
 }
 
 const generatePDF = () => {
-  console.log(academicHistory);
-  console.log(subjects.value);
   const docDefinition = {
     pageSize: "LETTER",
     header: function (currentPage) {

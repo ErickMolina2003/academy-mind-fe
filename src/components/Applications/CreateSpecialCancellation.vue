@@ -158,7 +158,6 @@ const selectClass = (item) => {
     }
     item.selected = true;
     selectedClass.value = item;
-    console.log(selectedClass.value);
   }
 };
 
