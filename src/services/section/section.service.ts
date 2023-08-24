@@ -392,8 +392,45 @@ export default class SectionService {
   }
 
   // Obtener carga academica de un periodo
-  async getAcademicCharge(idCareer: string, idCenter:string,idPeriod: string) {
+  async getAcademicCharge(idCareer: string, idCenter: string, idPeriod: string) {
     const url = `http://localhost:3001/api/section/period-charge/${idCareer}?center=${idCenter}&period=${idPeriod}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+
+      if (response.status === 200) {
+        const data = await response.data;
+
+        if (data.statusCode !== 200) {
+          this.store.setToaster({
+            isActive: true,
+            text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+            color: "error",
+          });
+        }
+        return data;
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener las secciones. Por favor, inténtelo de nuevo más tarde.",
+          color: "error",
+        });
+      }
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener las sección. Por favor, inténtelo de nuevo más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
+
+  // Obtener todas las secciones del periodo en ingreso de notas
+  async getSectionsPeriodOnGrades(idDepartment: string, idCenter: string) {
+    const url = `http://localhost:3001/api/section/on-grades/${idDepartment}?center=${idCenter}`;
     try {
       const response = await axios({
         method: "GET",
