@@ -85,7 +85,7 @@
           <v-window-item value="two">
             <v-row v-if="!isAdmin" class="pb-0 mb-0 pt-2 mt-0 user-description">
               <v-col
-                v-for="section in displayedSectionsForTabTwo"
+                v-for="section in displayedSections"
                 :key="section.id"
                 cols="12"
                 sm="6"
@@ -156,10 +156,11 @@
               </v-col>
             </v-row>
             <v-pagination
-              v-model="currentPageTwo"
+              v-if="tab === 'two'"
+              v-model="currentPage"
               :total-visible="5"
-              :length="totalPagesForTabTwo"
-              @input="updateDisplayedSections()"
+              :length="totalPages"
+              class="mt-4"
             ></v-pagination>
           </v-window-item>
         </v-window>
@@ -299,7 +300,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAppStore } from "@/store/app";
 import ClassCard from "@/components/ClassCard/ClassCard.vue";
 import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
@@ -307,24 +308,6 @@ import PeriodService from "@/services/period/period.service";
 import SectionService from "@/services/section/section.service";
 import TuitionService from "../../services/tuition/tuition.service";
 
-const updateDisplayedSections = () => {
-  const startIndexForTabTwo = (currentPageTwo.value - 1) * itemsPerPage;
-
-  if (tab.value === "two") {
-    // Actualizar las secciones mostradas en la pestaña "Historial"
-    displayedSectionsForTabTwo.value = sectionsAll.value.slice(
-      startIndexForTabTwo,
-      startIndexForTabTwo + itemsPerPage
-    );
-  }
-};
-const totalPagesForTabTwo = computed(() =>
-  Math.ceil(sectionsAll.value.length / itemsPerPage)
-);
-
-const itemsPerPage = 1; // Número de elementos por página
-const currentPageTwo = ref(1); // Página actual para la pestaña "Historial"
-const displayedSectionsForTabTwo = ref([]); // Secciones mostradas en la pestaña "Historial"
 const profileVideo = ref();
 const userName = ref("");
 const userPicture = ref("");
@@ -347,13 +330,27 @@ const periods = ref([]);
 const periodToModify = ref({});
 const tab = ref(null);
 
+//Paginación para la sección "Historial"
+const currentPage = ref(1);
+const itemsPerPage = ref(5);
+
+const startIdx = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIdx = computed(() => startIdx.value + itemsPerPage.value);
+
+// Calcula las secciones a mostrar en la página actual
+const displayedSections = computed(() =>
+  sectionsAll.slice(startIdx.value, endIdx.value)
+);
+
+// Calcula el número total de páginas para la sección "Historial"
+const totalPages = computed(() =>
+  Math.ceil(sectionsAll.length / itemsPerPage.value)
+);
+
 onMounted(async () => {
   getPeriods();
-  updateDisplayedSections();
 });
 
-watch(currentPageTwo, updateDisplayedSections);
-watch(sectionsAll, updateDisplayedSections);
 async function getPeriods() {
   const response = await servicePeriod.getPeriodsByYear(
     new Date().getFullYear()
@@ -383,6 +380,7 @@ async function getSections(idPeriod) {
       idPeriod
     );
     sections.value = response.registrations;
+    console.log(sections.value);
   }
 }
 
@@ -397,7 +395,6 @@ async function getSectionsAll() {
       store.user.student.accountNumber
     );
     sectionsAll.value = response.registrations;
-    console.log(sectionsAll.value);
   }
 }
 
