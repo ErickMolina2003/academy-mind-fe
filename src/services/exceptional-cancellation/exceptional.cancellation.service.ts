@@ -21,13 +21,13 @@ export default class ExceptionalCancellationService {
       } else if (data.statusCode === 404) {
         this.store.setToaster({
           isActive: true,
-          text: "No se encuentra en fecha para realizar la cancelación",
+          text: "No ha realizado solicitud de cancelaciones excepcionales",
           color: "error",
         });
       } else {
         this.store.setToaster({
           isActive: true,
-          text: "Error al obtener el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
+          text: "Error al obtener cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
           color: "error",
         });
       }
@@ -35,7 +35,7 @@ export default class ExceptionalCancellationService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al obtener la lista de los cambios de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al obtener la lista de cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;
@@ -104,7 +104,7 @@ export default class ExceptionalCancellationService {
       } else {
         this.store.setToaster({
           isActive: true,
-          text: "Error al obtener el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
+          text: "Error al obtener cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
           color: "error",
         });
       }
@@ -112,7 +112,7 @@ export default class ExceptionalCancellationService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al obtener la lista de los cambios de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al obtener la lista de cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;
@@ -184,7 +184,7 @@ export default class ExceptionalCancellationService {
       } else {
         this.store.setToaster({
           isActive: true,
-          text: "Error al obtener el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
+          text: "Error al obtener cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
           color: "error",
         });
       }
@@ -192,7 +192,7 @@ export default class ExceptionalCancellationService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al obtener la lista de los cambios de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al obtener la lista de cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;

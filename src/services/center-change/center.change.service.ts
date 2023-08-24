@@ -35,7 +35,7 @@ export default class CenterChangeService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al obtener la lista de los cambios de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al obtener la lista de los cambios de centro. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;
@@ -54,19 +54,19 @@ export default class CenterChangeService {
       if (dataResponse.statusCode === 200) {
         this.store.setToaster({
           isActive: true,
-          text: "Cambio de carrera creado correctamente.",
+          text: "Cambio de centro creado correctamente.",
           color: "success",
         });
       } else if (dataResponse.statusCode === 409) {
         this.store.setToaster({
           isActive: true,
-          text: "Usted tiene una solicitud de cambio de carrera pendiente de revisión.",
+          text: "Usted tiene una solicitud de cambio de centro pendiente de revisión.",
           color: "error",
         });
       } else if (dataResponse.statusCode === 404) {
         this.store.setToaster({
           isActive: true,
-          text: "El centro regional seleccionado no ceunta con la carrera que estudia actualmente.",
+          text: "El centro regional seleccionado no cuenta con la carrera que estudia actualmente.",
           color: "error",
         });
       }
@@ -74,7 +74,7 @@ export default class CenterChangeService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al crear el cambio de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al crear el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;
@@ -94,7 +94,7 @@ export default class CenterChangeService {
       if (dataResponse.statusCode === 200) {
         this.store.setToaster({
           isActive: true,
-          text: "Cambio de carrera revisado correctamente.",
+          text: "Cambio de centro revisado correctamente.",
           color: "success",
         });
       } else if (dataResponse.statusCode === 409) {
@@ -106,7 +106,7 @@ export default class CenterChangeService {
       } else {
         this.store.setToaster({
           isActive: true,
-          text: "Error al revisar el cambio de carrera. Por favor, inténtelo de nuevo o más tarde.",
+          text: "Error al revisar el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
           color: "error",
         });
       }
@@ -114,7 +114,7 @@ export default class CenterChangeService {
     } catch (error) {
       this.store.setToaster({
         isActive: true,
-        text: "Error al revisar el cambio de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        text: "Error al revisar el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
         color: "error",
       });
       return error;

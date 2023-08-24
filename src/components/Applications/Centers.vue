@@ -2,7 +2,7 @@
   <div v-if="show">
     <v-card class="ma-4">
       <v-col cols="12" class="rounded-lg mb-2 px-7 py-2">
-        <h2 class="text-center py-2">Solicitud cambio de carrera</h2>
+        <h2 class="text-center py-2">Solicitud cambio de centro</h2>
         <hr />
         <v-row class="d-flex pt-2">
           <v-col cols="6">

@@ -80,8 +80,10 @@ onMounted(async () => {
 
 async function getSections() {
   const response =
-    await serviceExceptionalCancellation.getAllExceptionalCancellation();
-  ongoingClasses.value = response.cancelations;
+    await serviceExceptionalCancellation.getExceptionalCancellation(
+      accountStudent
+    );
+  ongoingClasses.value = response.tuitions;
   console.log(ongoingClasses.value);
 }
 </script>

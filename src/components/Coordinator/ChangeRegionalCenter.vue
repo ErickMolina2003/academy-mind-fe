@@ -73,7 +73,7 @@
   <v-dialog v-model="showModal" class="w-auto" max-width="800px">
     <v-card>
       <v-card-title class="text-center bg-blue text-center" title="">
-        Solicitud de Cambio de Carrera
+        Solicitud de Cambio de Centro
       </v-card-title>
       <v-card-text class="overflow-auto">
         <div class="mb-4 d-flex justify-space-evenly align-center">
@@ -95,11 +95,13 @@
         <v-sheet class="pa-4 text-justify">{{
           userData.justification
         }}</v-sheet>
-        <p class="bg-blue-lighten-1 text-center">Cambio de carrera</p>
+        <p class="bg-blue-lighten-1 text-center">Cambio de centro</p>
         <v-sheet class="pa-4">
           <p>
-            Carrera actual:
-            {{ userData.student.studentCareer[0].centerCareer.career.name }}
+            Centro actual:
+            {{
+              userData.student.studentCareer[0].centerCareer.regionalCenter.name
+            }}
           </p>
         </v-sheet>
       </v-card-text>
@@ -183,6 +185,7 @@ async function getCareerChange() {
   studentsList.value = response.allRequest.filter(
     (request) => request.applicationStatus === "En progreso"
   );
+  console.log(studentsList.value);
   if (studentsList.value.length === 0) {
     store.setToaster({
       isActive: true,

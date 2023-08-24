@@ -60,7 +60,7 @@ export default class CareerChangeService {
       } else if (dataResponse.statusCode === 409) {
         this.store.setToaster({
           isActive: true,
-          text: "Usted tiene una solicitud de cambio de carrera pendiente de revisión.",
+          text: "Usted ya tiene una solicitud pendiente de revisión.",
           color: "error",
         });
       } else {
