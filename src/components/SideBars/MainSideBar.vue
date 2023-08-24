@@ -70,7 +70,7 @@ const teacherOptions = ref([
     name: "Ingresar Notas",
     to: "/ingresar-notas",
     icon: "mdi-lead-pencil",
-  }
+  },
 ]);
 
 const studentOptions = ref([
@@ -117,7 +117,7 @@ const bossAcademicOptions = ref([
     icon: "mdi-account-search",
   },
   {
-    name: "Gestion de Docentes",
+    name: "Gestión de Docentes",
     to: "/gestion-docentes",
     icon: "mdi-account-tie",
   },
@@ -125,7 +125,7 @@ const bossAcademicOptions = ref([
     name: "Periodo Académico",
     to: "/periodo-academico",
     icon: "mdi-calendar-month-outline",
-  }
+  },
 ]);
 const coordinatorOptions = ref([
   {
@@ -157,7 +157,7 @@ const coordinatorOptions = ref([
     name: "Historial Estudiantil",
     to: "/historial-estudiantil",
     icon: "mdi-account-search",
-  }
+  },
 ]);
 
 onMounted(() => {
@@ -174,7 +174,6 @@ function logout() {
 }
 
 const userOptions = computed(() => {
- 
   if (
     isTeacher.value &&
     !isAdmin.value &&
