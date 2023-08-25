@@ -2,35 +2,16 @@
   <v-card class="chat-card" v-if="contactChat && currentStudent && messages">
     <v-card-title class="pa-0">
       <v-list class="bg-blue-darken-4 mx-auto" rounded>
-        <v-list-item
-          :prepend-avatar="contactChat.profilePicture"
-          :title="contact"
-          :subtitle="contactChat.name"
-        />
+        <v-list-item :prepend-avatar="image" :title="contact" :subtitle="name" />
       </v-list>
     </v-card-title>
     <v-card-text class="chat-box overflow-auto flex-grow-1">
-      <v-row>
-        <v-col
-          v-for="(message, index) in messages"
-          :key="message"
-          :cols="message.emisor != store.user.student.accountNumber ? '6' : '6'"
-          :offset="
-            message.emisor == store.user.student.accountNumber ? '6' : '0'
-          "
-          class="d-flex"
-        >
+      <v-row class="d-block">
+        <v-col v-for="(message, index) in messages" :key="message" cols="auto" class="d-flex">
           <div
-            v-if="message.emisor == store.user.student.accountNumber"
-            class="d-inline-block bg-light-blue-lighten-3 mt-3 mx-3 pa-3 text-left rounded-xl rounded-be-0 ml-auto"
-          >
-            <p>{{ message.message }}</p>
-          </div>
-          <div
-            v-else
-            class="d-inline-block bg-grey-lighten-2 mt-3 mx-3 pa-3 text-left rounded-custom mr-auto"
-          >
-            <p>{{ message.message }}</p>
+            :class="message?.emisor == store.user.student.accountNumber ? 'emisor-message bg-light-blue-lighten-3 mt-3 mx-3 pa-3  rounded-xl rounded-be-0 ml-auto' : 'receptor-message bg-grey-lighten-2 mt-3 mx-3 pa-3  rounded-xl rounded-bs-0 mr-auto'">
+            <p :class="message?.emisor == store.user.student.accountNumber ? 'text-right' : 'text-left'">
+              {{ message?.message }}</p>
           </div>
         </v-col>
       </v-row>
@@ -38,21 +19,9 @@
 
     <v-card-actions class="bg-blue-darken-4 pt-5 p-0 footer">
       <div class="d-flex flex-grow-1">
-        <v-textarea
-          v-model="newMessage"
-          placeholder="Mensaje"
-          rows="1"
-          variant="solo"
-          rounded="xl"
-          class="mx-3"
-          @keyup.enter="sendMessage()"
-        />
-        <v-btn
-          @click="sendMessage()"
-          class="mx-3 bg-blue"
-          icon="mdi-send"
-          color="white"
-        >
+        <v-textarea v-model="newMessage" placeholder="Mensaje" rows="1" variant="solo" rounded="xl" class="mx-3"
+          @keyup.enter="sendMessage()" />
+        <v-btn @click="sendMessage()" class="mx-3 bg-blue" icon="mdi-send" color="white">
         </v-btn>
       </div>
     </v-card-actions>
@@ -73,6 +42,8 @@ const messages = ref([]);
 const newMessage = ref("");
 const props = defineProps({
   contact: String,
+  name:String,
+  image:String
 });
 const store = useAppStore();
 
@@ -107,13 +78,22 @@ const closeChat = () => {
 function sendMessage() {
   if (this.newMessage.trim() !== "") {
     let currentStudentConversation = null;
-    let newCurrentConversation;
+    let newCurrentConversation=null;
     if (currentStudent.value.conversations) {
+      let conversationExist = false;
       currentStudent.value.conversations.forEach((conversation) => {
         if (conversation.contactNumber == props.contact) {
           currentStudentConversation = conversation;
+          conversationExist = true;
+          return;
         }
       });
+      if(!conversationExist){
+        newCurrentConversation = {
+            contactNumber: props.contact,
+            messages: [],
+          };
+      }
     } else {
       newCurrentConversation = {
         contactNumber: props.contact,
@@ -131,24 +111,40 @@ function sendMessage() {
       newCurrentConversation?.messages.push(newMessageConversation);
     }
 
+    let existingConversation = currentStudent.value.conversations ?? null;
+
     update(dbref(db, `/${currentStudent.value.accountNumber}`), {
-      conversations: currentStudent.value.conversations,
+      conversations: existingConversation
+        ? newCurrentConversation 
+        ? [...currentStudent.value.conversations, newCurrentConversation]
+        : currentStudent.value.conversations
+        : newCurrentConversation,
     });
 
     let contactStudentConversation = null;
-    let newConversation;
+    let newConversation = null;
     if (contactChat.value.conversations) {
+      let conversationExist = false;
       contactChat.value.conversations.forEach((conversation) => {
         if (conversation.contactNumber == store.user.student.accountNumber) {
           contactStudentConversation = conversation;
-        }
+          conversationExist = true;
+          return;
+        } 
       });
+      if (!conversationExist) {
+        newConversation = {
+            contactNumber: currentStudent.value.accountNumber,
+            messages: [],
+          };
+      }
     } else {
       newConversation = {
         contactNumber: currentStudent.value.accountNumber,
         messages: [],
       };
     }
+    
 
     const newMessageConversationContact = {
       emisor: store.user.student.accountNumber,
@@ -162,11 +158,20 @@ function sendMessage() {
       contactChat.value.conversations = [newConversation];
     }
 
+    let existingConversation2 = contactChat.value.conversations ?? null;
     update(dbref(db, `/${contactChat.value.accountNumber}`), {
-      conversations: contactChat.value.conversations,
+      conversations: existingConversation2
+        ? newConversation
+        ? [...contactChat.value.conversations, newConversation]
+        : contactChat.value.conversations
+        : newConversation,
+    }).then(() => {
+      const chatContainer = document.querySelector('.chat-box');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     });
 
     this.newMessage = "";
+
   }
 }
 </script>
@@ -174,7 +179,9 @@ function sendMessage() {
 <style scoped>
 .chat-box {
   max-height: calc(100vh - 200px);
+
 }
+
 .rounded-custom {
   border-radius: 20px 20px 20px 0;
 }
@@ -185,5 +192,7 @@ function sendMessage() {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+
 }
 </style>

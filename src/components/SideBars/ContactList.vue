@@ -69,7 +69,7 @@
                       color="green"
                       @click="acceptContact(item.accountNumber)"
                     >
-                      Accept
+                      Aceptar
                       <v-icon end icon="mdi-checkbox-marked-circle"></v-icon>
                     </v-btn>
 
@@ -147,8 +147,10 @@ import { onValue, ref as dbref, set, update } from "firebase/database";
 import { db } from "@/firebase";
 import { useAppStore } from "@/store/app";
 import { computed } from "vue";
+import  ChatService from "@/services/chat/chat.service";
 
 const store = useAppStore();
+const chatService = new ChatService();
 const dialogInbox = ref(false);
 const dialogAddContact = ref(false);
 const accountNum = ref("");
@@ -218,7 +220,7 @@ const submitAddContact = () => {
       return;
     }
 
-    students.value.forEach((student) => {
+    students.value.forEach(async (student) => {
       if (student.accountNumber == accountNum.value) {
         let existingFriendRequest = student.friendRequests ?? null;
         update(dbref(db, `/${student.accountNumber}`), {
@@ -227,6 +229,7 @@ const submitAddContact = () => {
             : [actualStudent],
         });
         console.log(actualStudent);
+        await chatService.sendFriendshipRequest(store.user.student.accountNumber, accountNum.value);
       }
     });
 
@@ -277,11 +280,14 @@ function acceptContact(index) {
     friendRequests: currentStudent.value.friendRequests,
   });
 
-  let existingFriends2 = acceptedStudent.value.friends ?? null;
+  let existingFriends2 = acceptedStudent.value?.friends ?? null;
+  console.log(existingFriends2);
+  console.log(currentStudent);
+  console.log(index);
   update(dbref(db, `/${index}`), {
     friends: existingFriends2
-      ? [...existingFriends2, currentStudent]
-      : [currentStudent],
+      ? [...existingFriends2, currentStudent.value]
+      : [currentStudent.value],
   });
 }
 
