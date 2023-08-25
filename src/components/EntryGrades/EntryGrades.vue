@@ -1,7 +1,7 @@
 <template>
     <v-container v-if="currentPeriod" class="pa-4">
         <SearchableNavBar title="Ingresar notas de estudiantes" />
-        <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
+        <h2 style="padding-bottom: 15px">Lista de Secciones {{ currentPeriod.numberPeriod }} PAC {{ currentPeriod.year }}</h2>
 
         <v-table class="table-grades" fixed-header density="comfortable">
             <thead>
