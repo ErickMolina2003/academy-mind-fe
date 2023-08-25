@@ -71,10 +71,10 @@ const registrationOptions = ref([
             name: "Realizar solicitud",
             to: "/cancelacion-excepcional/realizar-solicitud",
           },
-          // {
-          //   name: "Ver solicitud",
-          //   to: "/cancelacion-excepcional/ver-solicitud",
-          // },
+          {
+            name: "Ver solicitud",
+            to: "/cancelacion-excepcional/ver-solicitud",
+          },
         ],
       },
       {

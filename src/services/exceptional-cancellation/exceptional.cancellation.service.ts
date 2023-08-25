@@ -198,4 +198,42 @@ export default class ExceptionalCancellationService {
       return error;
     }
   }
+
+  async getExceptionalCancellationByStudent(accountNumber: string) {
+    const url = `http://localhost:3001/api/exceptional-cancellation/by-student/${accountNumber}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+      const data = await response.data;
+      if (data.statusCode === 200) {
+        this.store.setToaster({
+          isActive: true,
+          text: "Solicitud Obtenida correctamente",
+          color: "success",
+        });
+      } else if (data.statusCode === 404) {
+        this.store.setToaster({
+          isActive: true,
+          text: "No ha realizado solicitud de cancelaciones excepcionales",
+          color: "error",
+        });
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
+          color: "error",
+        });
+      }
+      return data;
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener la lista de cancelaciones excepcionales. Por favor, inténtelo de nuevo o más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 }

@@ -1,9 +1,10 @@
 <template>
   <div v-if="ongoingClasses">
-    <div class="mb-5">
+    <div class="mb-2">
       <h2 class="text-center py-2">Solicitud de cancelaciones excepcionales</h2>
     </div>
-    <v-table class="classes-table pb-4" fixed-header density="comfortable">
+    <hr />
+    <v-table class="classes-table pb-4 mt-2" fixed-header density="comfortable">
       <thead>
         <tr>
           <th>CODIGO</th>
@@ -80,10 +81,11 @@ onMounted(async () => {
 
 async function getSections() {
   const response =
-    await serviceExceptionalCancellation.getExceptionalCancellation(
+    await serviceExceptionalCancellation.getExceptionalCancellationByStudent(
       accountStudent
     );
-  ongoingClasses.value = response.tuitions;
+  ongoingClasses.value = response.cancelations;
+  console.log(ongoingClasses.value);
 }
 </script>
 
