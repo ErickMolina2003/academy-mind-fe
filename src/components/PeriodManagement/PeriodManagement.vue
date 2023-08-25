@@ -520,7 +520,10 @@ const validateStartDate = (value) => {
     if (!value) return true;
 
     let today = new Date();
+    today.setHours(0, 0, 0, 0);
     today = new Date(today).toISOString().split('T')[0];
+    
+    
     cancelStartDate.value = value;
     if (value >= today) return true;
     return "La fecha debe ser hoy o posterior";
@@ -529,17 +532,20 @@ const validateStartDate = (value) => {
 const validateEndDate = (value) => {
     if (!value) return true;
     cancelEndDate.value = value;
-
+    
     if (value > cancelStartDate.value) return true;
     return "La fecha de cierre debe ser posterior a la fecha de inicio";
 };
 
 const validateRegistration = (value) => {
     if (!value) return true;
-
+    
     let today = new Date();
+    today.setHours(0, 0, 0, 0);
     today = new Date(today).toISOString().split('T')[0];
     registrationDate.value = value;
+    
+    
     if (value >= today) return true;
     return "La fecha debe ser hoy o posterior";
 };
