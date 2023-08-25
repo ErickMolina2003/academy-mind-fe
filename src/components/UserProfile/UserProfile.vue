@@ -128,6 +128,8 @@
           </v-col>
         </v-row>
       </v-col>
+    </v-row>
+    <v-row>
       <v-col
         v-if="!isAdmin"
         cols="3"
@@ -138,11 +140,11 @@
       </v-col>
       <v-col v-if="!isAdmin" class="user-description rounded-lg ml-4 px-7 py-3">
         <h4 class="font-weight-regular mt-1">Clases del periodo actual</h4>
-        <v-sheet class="mx-auto" max-width="900">
+        <v-sheet class="mx-auto" max-width="822">
           <v-slide-group class="pa-1" center-active show-arrows>
             <v-slide-group-item v-for="section in sections" :key="section.id">
               <ClassCard
-                max-width="352"
+                width="350"
                 class="mr-1"
                 v-if="userIsTeacher"
                 :clase="section.idClass.name"
@@ -150,7 +152,7 @@
                 :anio="section.idPeriod.year"
               />
               <ClassCard
-                max-width="352"
+                width="350"
                 class="mr-1"
                 v-if="!userIsTeacher"
                 :clase="section.section.idClass.name"
