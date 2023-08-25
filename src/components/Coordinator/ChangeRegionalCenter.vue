@@ -7,15 +7,25 @@
       >
         <span>Solicitudes de Cambio de Centro</span>
       </v-card-title>
-      <div class="d-flex align-center mt-1 ml-2">
-        <div>
+      <div class="d-flex justify-space-between mx-4 my-2">
+        <div class="d-flex align-center mt-1 ml-2">
           <v-select
             v-model="itemsPerPage"
             :items="perPageOptions"
             variant="outlined"
           ></v-select>
+
+          <span class="ml-3">Registros por página</span>
         </div>
-        <span class="ml-3">Registros por página</span>
+
+        <div class="d-flex align-center mt-1 mr-2">
+          <v-text-field
+            v-model="searchInput"
+            label="No. Cuenta"
+            style="width: 200px"
+          ></v-text-field>
+          <v-icon icon="mdi-magnify" class="ml-3"></v-icon>
+        </div>
       </div>
       <v-card-text class="mt-1" style="padding: 0">
         <v-list class="overflow-auto">
@@ -151,6 +161,19 @@ onMounted(async () => {
   getPeriods();
   getCareerChange();
 });
+const searchInput = ref("");
+
+const filteredStudents = computed(() => {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+
+  if (!searchTerm) {
+    return studentsList.value;
+  }
+
+  return studentsList.value.filter((user) =>
+    user.student.accountNumber.includes(searchTerm)
+  );
+});
 
 async function getCareerChange() {
   const response = await serviceCenterChange.getCenterChange(
@@ -208,12 +231,12 @@ async function cancelRequest() {
   }
 }
 const totalPages = computed(() =>
-  Math.ceil(studentsList.value.length / itemsPerPage.value)
+  Math.ceil(filteredStudents.value.length / itemsPerPage.value)
 );
 const paginatedStudents = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage.value;
   const endIndex = startIndex + itemsPerPage.value;
-  return studentsList.value.slice(startIndex, endIndex);
+  return filteredStudents.value.slice(startIndex, endIndex);
 });
 
 const changePage = (page) => {
