@@ -3,30 +3,36 @@
         <SearchableNavBar title="Notas Ingresadas" label="No.Empleado" />
 
         <div>
-            <h2 style="padding-bottom: 15px">Lista de Docentes</h2>
+            <h2 style="padding-bottom: 15px">Lista de Secciones {{ currentPeriod.numberPeriod }} PAC {{ currentPeriod.year }}</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Número de empleado</th>
-                        <th>Ver notas ingresadas</th>
+                        <th class="text-left pa-0 px-4">Cód.</th>
+                        <th class="text-left pa-0 px-4">Asignatura</th>
+                        <th class="text-left pa-0 px-4">Sección</th>
+                        <th class="text-left pa-0 px-4">Núm. Empleado</th>
+                        <th class="text-left pa-0 px-4">Docente</th>
+                        <th class="text-left pa-0 px-4">Notas</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="teacher in displayedTeachers">
-                        <td>{{ teacher.user.firstName }} {{ teacher.user.firstLastName }}</td>
-                        <td>{{ teacher.employeeNumber }}</td>
-                        <td><v-icon @click="toggleModal( teacher )">{{'mdi-eye-outline'}}</v-icon></td>
+                    <tr v-for="section in displayedSections">
+                        <td class="text-left pa-0 px-4">{{ section.idClass.code }}</td>
+                        <td class="text-left pa-0 px-4">{{ section.idClass.name }}</td>
+                        <td class="text-left pa-0 px-4">{{ section.codeSection }}</td>
+                        <td class="text-left pa-0 px-4">{{ section.idTeacher.employeeNumber }}</td>
+                        <td class="text-left pa-0 px-4">{{ section.idTeacher.user.firstName }} {{ section.idTeacher.user.firstLastName }}</td>
+                        <td class="pa-0 px-2"><v-icon @click="toggleModal( section )">{{'mdi-eye-outline'}}</v-icon></td>
                     </tr>
                 </tbody>
             </table>
-            <v-pagination v-model="currentTeachersPage" :total-visible="5" :length="totalTeachersPages" @input="updateDisplayedTeachers" />
+            <v-pagination v-model="currentSectionsPage" :total-visible="5" :length="totalSectionsPages" @input="updateDisplayedSections" />
         </div>
         
     </v-container>
 
 
-    <v-dialog v-model="showModal" persistent width="1440">
+    <v-dialog v-model="showModal" persistent width="1000">
         <v-card class="pt-6">
 
             <v-card-text>
@@ -40,8 +46,6 @@
                             <th>Número de cuenta</th>
                             <th>Nota</th>
                             <th>Observación</th>
-                            <th>Sección</th>
-                            <th>Asignatura</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,8 +56,6 @@
                             <td v-else>{{ noteStudent.note }}</td>
                             <td v-if="noteStudent.stateClass=='En progreso'">N/D</td>
                             <td v-else>{{ noteStudent.stateClass }}</td>
-                            <td>{{ noteStudent.section.codeSection }}</td>
-                            <td>{{ noteStudent.section.idClass.name }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -77,10 +79,12 @@ import SearchableNavBar from "@/components/NavBars/SearchableNavBar.vue";
 import PeriodService from "@/services/period/period.service";
 import TuitionService from "@/services/tuition/tuition.service";
 import TeacherService from "@/services/teacher/teacher.service";
+import SectionService from "@/services/section/section.service";
 import { useAppStore } from "@/store/app";
 
 const store = useAppStore();
 const tuitionService = new TuitionService();
+const sectionService = new SectionService();
 const teacherService = new TeacherService();
 const servicePeriod = new PeriodService();
 const showModal = ref(false);
@@ -88,8 +92,9 @@ const titleModal = ref("");
 const periods = ref([]);
 const currentPeriod = ref({});
 const notesToDisplay = ref([]);
-const originalTeachers = ref([]);
 const teachers = ref([]);
+const sections = ref([]);
+const originalSections = ref([]);
 const careerBoss = store.user.teacher.teachingCareer[0].centerCareer;
 const grades = ref();
 onMounted(() => {
@@ -102,7 +107,7 @@ async function getPeriods() {
     currentPeriod.value = periods.value[0];
 
     if (currentPeriod.value) {
-        getTeachers();
+        getSections();
     } else {
         store.setToaster({
             isActive: true,
@@ -114,9 +119,9 @@ async function getPeriods() {
 }
 
 
-function toggleModal(teacher) {
-    getGradesByTeacher(teacher.employeeNumber);
-    titleModal.value =`Notas ingresadas ${teacher.user.firstName} ${teacher.user.firstLastName}`;
+function toggleModal(section) {
+    getStudentsOfSection(section.id);
+    titleModal.value =`${section.idClass.name} - ${section.codeSection}`;
     showModal.value = true;
 }
 
@@ -125,65 +130,63 @@ function closeModal() {
 }
 
 
-async function getTeachers() {
-    const response = await tuitionService.getTeachersGrades(careerBoss.career.id,careerBoss.regionalCenter.id);
-    
-    teachers.value = response.teachers;
-    originalTeachers.value = teachers.value;
+
+async function getSections() {
+    const response = await sectionService.getSectionsPeriodOnGrades(careerBoss.career.id,careerBoss.regionalCenter.id);
+    sections.value = response.sections;
+    originalSections.value = sections.value;
 }
 
-async function getGradesByTeacher(idTeacher) {
-    const response = await tuitionService.getGradesByTeacher(idTeacher,careerBoss.career.id);
-    notesToDisplay.value = response.notes;
-    
+async function getStudentsOfSection(idSection) {
+    const response = await tuitionService.getStudentsOfSection(idSection);
+    notesToDisplay.value = response.registration;    
 }
-
 
 // paginacion
 
 const filteredNotes = computed(() => notesToDisplay.value);
-const filteredTeachers = computed(() => teachers.value);
+const filteredSections = computed(() => sections.value);
 const itemsPerPage = 7;
 const currentNotesPage = ref(1);
-const currentTeachersPage = ref(1);
+const currentSectionsPage = ref(1);
 const displayedNotes = ref([]);
-const displayedTeachers = ref([]);
+const displayedSections = ref([]);
 
 const totalNotesPages = computed(() => Math.ceil(filteredNotes.value.length / itemsPerPage));
-const totalTeachersPages = computed(() => Math.ceil(filteredTeachers.value.length / itemsPerPage));
+const totalSectionsPages = computed(() => Math.ceil(filteredSections.value.length / itemsPerPage));
 const updateDisplayedNotes = () => {
     const startIndex = (currentNotesPage.value - 1) * itemsPerPage;
     displayedNotes.value = filteredNotes.value.slice(startIndex, startIndex + itemsPerPage);
 };
-const updateDisplayedTeachers = () => {
-    const startIndex = (currentTeachersPage.value - 1) * itemsPerPage;
-    displayedTeachers.value = filteredTeachers.value.slice(startIndex, startIndex + itemsPerPage);
+const updateDisplayedSections = () => {
+    const startIndex = (currentSectionsPage.value - 1) * itemsPerPage;
+    displayedSections.value = filteredSections.value.slice(startIndex, startIndex + itemsPerPage);
 };
 
 
 watch(currentNotesPage, updateDisplayedNotes);
-watch(currentTeachersPage, updateDisplayedTeachers);
+watch(currentSectionsPage, updateDisplayedSections);
 watch(filteredNotes, updateDisplayedNotes);
-watch(filteredTeachers, updateDisplayedTeachers);
+watch(filteredSections, updateDisplayedSections);
 
-const filterTeachers = (query) => {
+const filterSections = (query) => {
     const lowerCaseQuery = query.toLowerCase().trim();
     if (lowerCaseQuery === "") {
-        teachers.value = [...originalTeachers.value];
+        sections.value = [...originalSections.value];
     } else {
-        teachers.value = originalTeachers.value.filter((teacher) =>
-            teacher.employeeNumber.toLowerCase().includes(lowerCaseQuery)
+        sections.value = originalSections.value.filter((section) =>
+            section.idTeacher.employeeNumber.toLowerCase().includes(lowerCaseQuery)
         );
     }
 };
 
 
 document.addEventListener("filter", (event) => {
-    filterTeachers(event.detail);
+    filterSections(event.detail);
 });
 
 document.addEventListener("resetFilter", () => {
-    teachers.value = [...originalTeachers.value];
+    sections.value = [...originalSections.value];
 });
 
 

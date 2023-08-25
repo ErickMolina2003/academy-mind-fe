@@ -477,6 +477,7 @@ function closeDialog() {
     registrationModalOpen.value=false;
     chosenState.value = "";
     showAutocomplete.value = false;
+    registrationDate.value = null;
 }
 
 async function confirmRegistrationDate() {

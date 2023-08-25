@@ -2,7 +2,7 @@
     <v-container v-if="periodToModify" class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
-            <h2 style="padding-bottom: 15px">Lista de Secciones</h2>
+            <h2 style="padding-bottom: 15px">Lista de Secciones {{ periodToModify.numberPeriod }} PAC {{ periodToModify.year }}</h2>
         <div style="max-height: 350px; overflow-y: scroll;">
             
             <table>

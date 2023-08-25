@@ -9,7 +9,7 @@
         "
         class="text-center text-white"
       >
-        Lista de Estudiantes
+        Lista de Estudiantes {{ periodToModify.numberPeriod }} PAC {{ periodToModify.year }}
       </h2>
       <table>
         <thead>
