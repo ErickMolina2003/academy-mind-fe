@@ -111,13 +111,6 @@ async function getPeriods() {
     accountStudent,
     periodId.value
   );
-  if (responseTuition.registrations.length !== 0) {
-    store.setToaster({
-      isActive: true,
-      text: "Para la aprobacion de cambio de carrera, no debes tener matriculas registradas en el periodo actual.",
-      color: "warning",
-    });
-  }
 }
 
 function borrar() {

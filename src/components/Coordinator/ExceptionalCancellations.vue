@@ -28,7 +28,17 @@
             <div class="d-flex justify-space-between align-center ma-1">
               <v-list-item-title
                 class="ml-12"
-                v-text="user.idTuition.student.accountNumber"
+                v-text="
+                  user.idTuition.student.user.firstName +
+                  ' ' +
+                  user.idTuition.student.user.secondName +
+                  ' ' +
+                  user.idTuition.student.user.firstLastName +
+                  '  ' +
+                  user.idTuition.student.user.secondLastName +
+                  ' - ' +
+                  user.idTuition.student.accountNumber
+                "
               ></v-list-item-title>
               <div>
                 <v-btn class="mr-12" color="green" @click="openModal(user)">
@@ -57,8 +67,28 @@
       >
       <v-card-text class="overflow-auto">
         <div class="mb-4 d-flex justify-space-evenly align-center">
-          <p>Núm de Cuenta: {{ userData.idTuition.student.accountNumber }}</p>
-          <p>Indice de Periodo: {{ userData.idTuition.student.periodIndex }}</p>
+          <p>
+            <strong>Estudiante:</strong>
+            {{
+              userData.idTuition.student.user.firstName +
+              " " +
+              userData.idTuition.student.user.firstLastName
+            }}
+          </p>
+          <p>
+            <strong>No. Cuenta:</strong>
+            {{ userData.idTuition.student.accountNumber }}
+          </p>
+        </div>
+        <div class="mb-4 d-flex justify-space-evenly align-center">
+          <p>
+            <strong>Índice de Periodo:</strong>
+            {{ userData.idTuition.student.periodIndex }}
+          </p>
+          <p>
+            <strong>Índice Global:</strong>
+            {{ userData.idTuition.student.overallIndex }}
+          </p>
         </div>
         <div class="bg-blue-lighten-1 text-center">Motivo</div>
         <v-sheet class="pa-4 text-justify">{{ userData.reason }}</v-sheet>
@@ -138,6 +168,12 @@ const perPageOptions = [5, 10, 15, 20];
 const currentPage = ref(1);
 const studentsList = ref([]);
 const status = ref("");
+const careerId = ref(
+  store.user.teacher.teachingCareer[0].centerCareer.career.id
+);
+const centerId = ref(
+  store.user.teacher.teachingCareer[0].centerCareer.regionalCenter.id
+);
 
 onMounted(async () => {
   getAllCancellation();
@@ -145,7 +181,10 @@ onMounted(async () => {
 
 async function getAllCancellation() {
   const response =
-    await serviceExceptionalCancellation.getAllExceptionalCancellation();
+    await serviceExceptionalCancellation.getAllExceptionaCancellationByCareer(
+      careerId.value,
+      centerId.value
+    );
   studentsList.value = response.cancelations.filter(
     (cancelation) => cancelation.status !== "Rechazada"
   );

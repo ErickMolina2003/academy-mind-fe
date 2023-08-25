@@ -76,7 +76,10 @@
             }}</v-list-item-title
           >
           <p>Núm de Cuenta: {{ userData.student.accountNumber }}</p>
-          <p>Indice de Periodo: {{ userData.student.periodIndex }}</p>
+        </div>
+        <div class="mb-4 d-flex justify-space-evenly align-center">
+          <p>Índice de Periodo: {{ userData.student.periodIndex }}</p>
+          <p>Índice Global: {{ userData.student.overallIndex }}</p>
         </div>
         <div class="bg-blue-lighten-1 text-center">Motivo</div>
         <v-sheet class="pa-4 text-justify">{{
@@ -172,13 +175,6 @@ async function getPeriods() {
   );
   periods.value = response.periods;
   periodToModify.value = periods.value[0];
-  if (periodToModify.value.idStatePeriod?.name === "Finalizado") {
-    store.setToaster({
-      isActive: true,
-      text: "El periodo actual esta finalizado",
-      color: "error",
-    });
-  }
 }
 
 const openModal = (user) => {
