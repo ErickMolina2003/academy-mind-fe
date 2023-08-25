@@ -9,7 +9,8 @@
         "
         class="text-center text-white"
       >
-        Lista de Estudiantes {{ periodToModify.numberPeriod }} PAC {{ periodToModify.year }}
+        Lista de Estudiantes {{ periodToModify.numberPeriod }} PAC
+        {{ periodToModify.year }}
       </h2>
       <table>
         <thead>
@@ -64,9 +65,18 @@ const currentPeriod = ref({});
 const originalStudents = ref([]);
 const students = ref([]);
 const periodToModify = ref({});
+const careerId = ref(
+  store.user.teacher.teachingCareer[0].centerCareer.career.id
+);
+const centerId = ref(
+  store.user.teacher.teachingCareer[0].centerCareer.regionalCenter.id
+);
 
 onMounted(async () => {
   getPeriods();
+  console.log(
+    store.user.teacher.teachingCareer[0].centerCareer.regionalCenter.id
+  );
 });
 
 async function getPeriods() {
@@ -84,12 +94,10 @@ async function getPeriods() {
 }
 
 async function getStudentsPeriod(idPeriod: number) {
-  const description = ref(
-    store.user.teacher.teachingCareer[0].centerCareer.career.id
-  );
   const response = await serviceTuition.getTuitionsStudentByPeriodAndDepartment(
     idPeriod,
-    description.value
+    careerId.value,
+    centerId.value
   );
   originalStudents.value = response.registrations;
   students.value = [...originalStudents.value]; // Actualizar la lista students
