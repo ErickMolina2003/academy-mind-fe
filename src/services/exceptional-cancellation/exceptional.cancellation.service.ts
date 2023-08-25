@@ -157,4 +157,45 @@ export default class ExceptionalCancellationService {
       return error;
     }
   }
+
+  async getAllExceptionaCancellationByCareer(
+    careerId: string,
+    centerId: string
+  ) {
+    const url = `http://localhost:3001/api/exceptional-cancellation/by-carrer/${careerId}?center=${centerId}`;
+    try {
+      const response = await axios({
+        method: "GET",
+        url: url,
+      });
+      const data = await response.data;
+      if (data.statusCode === 200) {
+        this.store.setToaster({
+          isActive: true,
+          text: "Solicitud Obtenida correctamente",
+          color: "success",
+        });
+      } else if (data.statusCode === 404) {
+        this.store.setToaster({
+          isActive: true,
+          text: "No hay solicitudes realizadas",
+          color: "error",
+        });
+      } else {
+        this.store.setToaster({
+          isActive: true,
+          text: "Error al obtener el cambio de centro. Por favor, inténtelo de nuevo o más tarde.",
+          color: "error",
+        });
+      }
+      return data;
+    } catch (error) {
+      this.store.setToaster({
+        isActive: true,
+        text: "Error al obtener la lista de los cambios de carrera. Por favor, inténtelo de nuevo o más tarde.",
+        color: "error",
+      });
+      return error;
+    }
+  }
 }
