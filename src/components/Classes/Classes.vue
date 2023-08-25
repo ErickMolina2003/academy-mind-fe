@@ -85,7 +85,7 @@
           <v-window-item value="two">
             <v-row v-if="!isAdmin" class="pb-0 mb-0 pt-2 mt-0 user-description">
               <v-col
-                v-for="section in sectionsAll"
+                v-for="section in displayedSections"
                 :key="section.id"
                 cols="12"
                 sm="6"
@@ -155,6 +155,13 @@
                 />
               </v-col>
             </v-row>
+            <v-pagination
+              v-if="tab === 'two'"
+              v-model="currentPage"
+              :total-visible="5"
+              :length="totalPages"
+              class="mt-4"
+            ></v-pagination>
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -322,6 +329,23 @@ const serviceTuition = new TuitionService();
 const periods = ref([]);
 const periodToModify = ref({});
 const tab = ref(null);
+
+//Paginación para la sección "Historial"
+const currentPage = ref(1);
+const itemsPerPage = ref(5);
+
+const startIdx = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIdx = computed(() => startIdx.value + itemsPerPage.value);
+
+// Calcula las secciones a mostrar en la página actual
+const displayedSections = computed(() =>
+  sectionsAll.value.slice(startIdx.value, endIdx.value)
+);
+
+// Calcula el número total de páginas para la sección "Historial"
+const totalPages = computed(() =>
+  Math.ceil(sectionsAll.value.length / itemsPerPage.value)
+);
 
 onMounted(async () => {
   getPeriods();

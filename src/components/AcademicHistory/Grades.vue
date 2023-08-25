@@ -236,7 +236,6 @@ const generatePDF = () => {
   console.log(subjects.value);
   const docDefinition = {
     pageSize: "LETTER",
-    watermark: { text: "UNAH", color: "#184267", opacity: 0.1, bold: true },
     header: function (currentPage) {
       const headerContent = [];
       if (currentPage > 1) {
