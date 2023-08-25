@@ -2,9 +2,10 @@
     <v-container v-if="periodToModify" class="pa-1">
         <SearchableNavBar title="Crear secciones" label="Asignatura" btnTitle="Crear sección"
             @createSection="createSection" />
-            <h2 style="padding-bottom: 15px">Lista de Secciones {{ periodToModify.numberPeriod }} PAC {{ periodToModify.year }}</h2>
+        <h2 style="padding-bottom: 15px">Lista de Secciones {{ periodToModify.numberPeriod }} PAC {{ periodToModify.year }}
+        </h2>
         <div style="max-height: 350px; overflow-y: scroll;">
-            
+
             <table>
                 <thead>
                     <tr>
@@ -36,12 +37,12 @@
                         <td>{{ section.days }}</td>
                         <td>{{ section.idClassroom.idBuilding.name }}</td>
                         <td>{{ section.idClassroom.code }}</td>
-                        <td>{{ section.space-section.availableSpaces }}/{{ section.space }}</td>
+                        <td>{{ section.space - section.availableSpaces }}/{{ section.space }}</td>
                         <td v-if="section.waitingAvailableSpaces">
-                            {{ section.waitingSpace-section.waitingAvailableSpaces }}/{{ section.waitingSpace }}
+                            {{ section.waitingSpace - section.waitingAvailableSpaces }}/{{ section.waitingSpace }}
                         </td>
-                        <td v-else>0/{{section.waitingSpace }}</td>
-                        
+                        <td v-else>0/{{ section.waitingSpace }}</td>
+
                         <td><v-icon @click="openModifyModal(section)">{{ 'mdi-pencil' }}</v-icon></td>
                         <td>
                             <input type="checkbox" v-if="section.waitingList == 'true'" checked disabled>
@@ -75,11 +76,12 @@
                         <v-select v-model="selectedDays" :items="journey" label="Días" :disabled="!units"></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete v-model="initialHour" :items="generateHourOptions()" label="Hora Inicial"
+                        <v-autocomplete v-model="initialHour" :items="options" label="Hora Inicial"
                             :rules="initialHourRules"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-text-field v-model="finalHour" label="Hora Final" :readonly="true"></v-text-field>
+                        <v-autocomplete v-model="finalHour" label="Hora Final" :items="optionsFinal"
+                            :rules="finalHourRules"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="4">
                         <v-autocomplete v-model="selectedTeacher"
@@ -209,6 +211,7 @@ const sectionToModify = ref();
 
 onMounted(() => {
     getPeriods();
+    generateHourOptions();
     document.addEventListener("filter", (event) => {
         searchQuery.value = event.detail;
     });
@@ -223,7 +226,7 @@ async function getPeriods() {
     const response = await servicePeriod.getPeriodRegistrationPlanification();
     periods.value = response.periods;
     periodToModify.value = periods.value[0];
-    
+
     if (periodToModify.value) {
         getSections();
         getClassesOptions(careerBoss.career.id);
@@ -249,7 +252,7 @@ const journey = computed(() => {
 
 
 async function getSections() {
-    const response = await sectionService.getSectionsByDepartment(careerBoss.career.id,careerBoss.regionalCenter.id);
+    const response = await sectionService.getSectionsByDepartment(careerBoss.career.id, careerBoss.regionalCenter.id);
     sections.value = response.sections;
 }
 
@@ -280,15 +283,22 @@ async function getTeachersOptions() {
     )
     teachers.value = response.teachers;
 }
-
+const options = ref([]);
+const optionsFinal =ref([]);
 // Función para generar las opciones de horas en formato "0600" a "1900"
 const generateHourOptions = () => {
-    const options = [];
+    // const options = [];
     for (let hour = 6; hour <= 19; hour++) {
-        const formattedHour = hour.toString().padStart(2, '0') + '00';
-        options.push(formattedHour);
+        const formattedHour = hour.toString().padStart(2, '0') + ':00';
+        const formattedHalfHour = hour.toString().padStart(2, '0') + ':30';
+        options.value.push(formattedHour);
+        if (hour < 19) {
+            options.value.push(formattedHalfHour);
+        }
     }
-    return options;
+    optionsFinal.value = options.value;
+    options.value.push(["19:30"]);
+    // return options.value;
 };
 
 function clearModifyForm() {
@@ -423,6 +433,11 @@ watch(units, () => {
     finalHour.value = "";
 });
 
+watch(selectedDays, () => {
+    initialHour.value = "";
+    finalHour.value = "";
+});
+
 // Watcher para actualizar la lista de aulas cuando se selecciona un edificio
 watch(selectedBuilding, async (newValue) => {
     if (newValue) {
@@ -435,24 +450,29 @@ watch(selectedBuilding, async (newValue) => {
 
 });
 
-watch([units, selectedDays, initialHour], () => {
-    if (units.value && selectedDays.value.length && initialHour.value) {
-        const initialTime = Number(initialHour.value.substring(0, 2));
-        let endHour;
 
-        if (selectedDays.value.length === units.value * 2) {
-            // Si la cantidad de días es el doble de las unidades, sumar 1 hora a la hora inicial
-            endHour = initialTime + 1;
+
+watch([units, selectedDays, initialHour], () => {
+    if (units.value && selectedDays.value && initialHour.value) {
+        const initialTime = initialHour.value.split(":");
+        const initialHourValue = Number(initialTime[0]);
+        const initialMinuteValue = Number(initialTime[1]);
+        let endHour = initialHourValue;
+        let endMinute = initialMinuteValue;
+
+        if (selectedDays.value.length === units.value*2) {
+                endHour++;
         } else {
-            // Si no, sumar las unidades a la hora inicial
-            endHour = initialTime + Number(units.value);
+            endHour += Math.floor(units.value);
+            endMinute += (units.value % 1) * 60; 
+            while (endMinute >= 60) {
+                endHour++;
+                endMinute -= 60;
+            }
         }
 
-
-        const formattedEndHour = String(endHour).padStart(2, "0") + "00";
-
         // Validar si la hora final se pasa de las 20:00
-        if (endHour > 20) {
+        if (endHour > 20 || (endHour === 20 && endMinute > 0)) {
             store.setToaster({
                 isActive: true,
                 text: "La hora final no puede exceder las 20:00 (8:00 PM).",
@@ -461,6 +481,7 @@ watch([units, selectedDays, initialHour], () => {
             finalHour.value = "";
             initialHour.value = "";
         } else {
+            const formattedEndHour = String(endHour).padStart(2, "0") + ":" + String(endMinute).padStart(2, "0");
             finalHour.value = formattedEndHour;
         }
     } else {
@@ -484,6 +505,10 @@ const initialHourRules = [
     (value) => !!value || "Debe seleccionar una hora inicial.",
     (value) => !finalHour.value || value < finalHour.value || "La hora inicial debe ser menor que la hora final."
 ];
+const finalHourRules = [
+    (value) => !!value || "Debe seleccionar una hora final.",
+    (value) => !initialHour.value || value > initialHour.value || "La hora final debe ser mayor que la hora inicial."
+]
 
 const unitsRules = [
     (value) => !!value || "Debe ingresar las unidades valorativas.",
