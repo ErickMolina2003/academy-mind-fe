@@ -78,7 +78,7 @@
                       color="red"
                       @click="rejectContact(item.accountNumber)"
                     >
-                      Decline
+                      Rechazar
                       <v-icon end icon="mdi-cancel"></v-icon>
                     </v-btn>
                   </div>
@@ -147,7 +147,7 @@ import { onValue, ref as dbref, set, update } from "firebase/database";
 import { db } from "@/firebase";
 import { useAppStore } from "@/store/app";
 import { computed } from "vue";
-import  ChatService from "@/services/chat/chat.service";
+import ChatService from "@/services/chat/chat.service";
 
 const store = useAppStore();
 const chatService = new ChatService();
@@ -207,9 +207,6 @@ const submitAddContact = () => {
       }
     });
 
-    console.log(studentsAccountNumbers);
-    console.log(value);
-
     if (!studentsAccountNumbers.includes(accountNum.value)) {
       store.setToaster({
         color: "error",
@@ -228,14 +225,15 @@ const submitAddContact = () => {
             ? [...existingFriendRequest, actualStudent]
             : [actualStudent],
         });
-        console.log(actualStudent);
-        await chatService.sendFriendshipRequest(store.user.student.accountNumber, accountNum.value);
+        await chatService.sendFriendshipRequest(
+          store.user.student.accountNumber,
+          accountNum.value
+        );
       }
     });
 
     accountNum.value = "";
 
-    console.log("Contacto guardado:", accountNum.value);
     closeAddContact();
   } else {
     console.log("Validación", value);
@@ -264,7 +262,6 @@ function acceptContact(index) {
       acceptedStudent = student;
     }
   });
-
   let indexOfAccepted;
   currentStudent.value.friendRequests.forEach((request, index) => {
     if (request.accountNumber == index) {
@@ -280,10 +277,8 @@ function acceptContact(index) {
     friendRequests: currentStudent.value.friendRequests,
   });
 
-  let existingFriends2 = acceptedStudent.value?.friends ?? null;
-  console.log(existingFriends2);
-  console.log(currentStudent);
-  console.log(index);
+  let existingFriends2 = acceptedStudent.friends ?? null;
+
   update(dbref(db, `/${index}`), {
     friends: existingFriends2
       ? [...existingFriends2, currentStudent.value]
@@ -292,7 +287,27 @@ function acceptContact(index) {
 }
 
 function rejectContact(index) {
-  console.log("Contacto rechazado:", `id: ${index}`);
+  let rejectedStudent;
+
+  students.value.forEach((student) => {
+    if (student.accountNumber == index) {
+      rejectedStudent = student;
+    }
+  });
+
+  let indexOfRejected;
+
+  currentStudent.value.friendRequests.forEach((request, index) => {
+    if (request.accountNumber == index) {
+      indexOfRejected = index;
+    }
+  });
+
+  currentStudent.value.friendRequests.splice(indexOfRejected, 1);
+
+  update(dbref(db, `/${currentStudent.value.accountNumber}`), {
+    friendRequests: currentStudent.value.friendRequests,
+  });
 }
 
 const items = [
