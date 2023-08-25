@@ -74,7 +74,7 @@
                               <p class="mb-2">Cantidad: {{ item.count }}</p>
                             </v-col>
                             <v-col cols="6">
-                              <p>{{ item.percentage ? `Porcentaje: ${item.percentage}%` : '' }}</p>
+                              <p>{{ item.percentage ? `Porcentaje: ${Math.round(item.percentage)}%` : '' }}</p>
                             </v-col>
                           </v-row>
                         </v-card-text>
